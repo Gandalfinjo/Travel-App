@@ -90,4 +90,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
     implementation(libs.gson)
+
+    // WorkManager
+    implementation(libs.work.runtime.ktx)
 }
