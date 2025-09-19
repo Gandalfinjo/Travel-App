@@ -16,12 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.travelapp.ui.TravelApp
 import com.example.travelapp.ui.theme.TravelAppTheme
+import com.example.travelapp.worker.utils.NotificationHelper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        NotificationHelper.createNotificationChannel(this)
+
         enableEdgeToEdge()
         setContent {
             TravelAppTheme {
