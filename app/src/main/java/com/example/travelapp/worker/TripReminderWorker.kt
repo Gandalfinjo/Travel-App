@@ -40,7 +40,7 @@ class TripReminderWorker(
         val title = "$daysBefore-Day Reminder: $tripName"
         val content = "Your trip starts in $daysBefore days! Pack your bags."
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
