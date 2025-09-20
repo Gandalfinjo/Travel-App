@@ -2,17 +2,11 @@ package com.example.travelapp.worker
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.travelapp.MainActivity
 import com.example.travelapp.R
-import com.example.travelapp.worker.utils.NotificationHelper
 
 class TripReminderWorker(
     context: Context,
