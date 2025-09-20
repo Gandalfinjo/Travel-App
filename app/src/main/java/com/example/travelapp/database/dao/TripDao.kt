@@ -18,6 +18,9 @@ interface TripDao {
     @Update
     suspend fun update(trip: Trip)
 
+    @Query("UPDATE trips SET status = :tripStatus WHERE id = :tripId")
+    suspend fun updateTripStatus(tripId: Int, tripStatus: TripStatus)
+
     @Delete
     suspend fun delete(trip: Trip)
 

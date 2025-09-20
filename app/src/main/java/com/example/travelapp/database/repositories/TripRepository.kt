@@ -19,6 +19,9 @@ class TripRepository @Inject constructor(
     suspend fun updateTrip(trip: Trip) =
         tripDao.update(trip)
 
+    suspend fun updateTripStatus(tripId: Int, tripStatus: TripStatus) =
+        tripDao.updateTripStatus(tripId, tripStatus)
+
     suspend fun deleteTrip(trip: Trip) =
         tripDao.delete(trip)
 
