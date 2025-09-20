@@ -42,4 +42,6 @@
     <string name="add_a_photo_from_gallery">Add a photo from Gallery</string>
     <string name="take_a_photo">Take a Photo</string>
     <string name="error">Error: %1$s</string>
+    <string name="cancel_trip">Cancel Trip</string>
+    <string name="are_you_sure_you_want_to_cancel_the_trip">Are you sure you want to cancel the trip?</string>
 </resources>

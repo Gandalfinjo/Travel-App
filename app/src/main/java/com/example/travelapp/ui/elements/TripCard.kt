@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.Trip
+import com.example.travelapp.database.models.enums.TripStatus
 
 @Composable
 fun TripCard(
@@ -22,13 +23,20 @@ fun TripCard(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
+    val backgroundColor = when (trip.status) {
+        TripStatus.PLANNED -> MaterialTheme.colorScheme.surface
+        TripStatus.CANCELLED -> MaterialTheme.colorScheme.error
+        TripStatus.ONGOING -> MaterialTheme.colorScheme.tertiary
+        TripStatus.FINISHED -> MaterialTheme.colorScheme.secondary
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = backgroundColor,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
         onClick = onClick

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -86,6 +87,7 @@ fun TripDetailsScreen(
 
     var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
 
+    var showCancelDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -167,6 +169,7 @@ fun TripDetailsScreen(
             }
         } else {
             val canAddPhotos = trip!!.status == TripStatus.ONGOING || trip!!.status == TripStatus.FINISHED
+            val canCancelTrip = trip!!.status == TripStatus.PLANNED || trip!!.status == TripStatus.ONGOING
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -244,7 +247,7 @@ fun TripDetailsScreen(
                     }
 
                     //if (trip!!.status == TripStatus.ONGOING) {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
                             onClick = { onWeatherClick(trip!!.location) },
@@ -255,6 +258,22 @@ fun TripDetailsScreen(
                             Text(text = stringResource(R.string.view_current_weather))
                         }
                     //}
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { showCancelDialog = true },
+                        enabled = canCancelTrip,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        )
+                    ) {
+                        Text(text = stringResource(R.string.cancel_trip))
+                    }
                 }
 
                 if (photos.isNotEmpty()) {
@@ -271,7 +290,7 @@ fun TripDetailsScreen(
                         pageSize = PageSize.Fill,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp)
+                            .height(250.dp)
                     ) { page ->
                         val photo = photos[page]
                         AsyncImage(
@@ -319,6 +338,31 @@ fun TripDetailsScreen(
                     .background(Color.Black)
             )
         }
+    }
+
+    if (showCancelDialog) {
+        AlertDialog(
+            onDismissRequest = { showCancelDialog = false },
+            title = { Text(text = stringResource(R.string.cancel_trip)) },
+            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_cancel_the_trip)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showCancelDialog = false
+                        tripViewModel.cancelTrip(context, tripId)
+                    }
+                ) {
+                    Text(text = stringResource(R.string.yes))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showCancelDialog = false }
+                ) {
+                    Text(text = stringResource(R.string.no))
+                }
+            }
+        )
     }
 
     if (showLogoutDialog) {
