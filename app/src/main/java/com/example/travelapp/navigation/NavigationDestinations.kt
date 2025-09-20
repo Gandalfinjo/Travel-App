@@ -1,7 +1,9 @@
 package com.example.travelapp.navigation
 
+import android.content.Intent
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 
 interface NavigationDestination {
     val route: String
@@ -31,6 +33,10 @@ object TripDetailsDestination: NavigationDestination {
     override val route = "trip_details"
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType} )
     val routeWithArgs = "$route/{tripId}"
+    val deepLink = navDeepLink {
+        uriPattern = "travelapp://trip_details/{tripId}"
+        action = Intent.ACTION_VIEW
+    }
 }
 
 object WeatherDestination: NavigationDestination {

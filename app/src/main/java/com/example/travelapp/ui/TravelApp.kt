@@ -1,6 +1,5 @@
 package com.example.travelapp.ui
 
-import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -13,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
 import com.example.travelapp.navigation.AddTripDestination
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.LoginDestination
@@ -90,26 +88,14 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onTripClick = { tripId ->
-                        navController.navigate("${TripDetailsDestination.route}/$tripId") {
-                            launchSingleTop = true
-                            popUpTo(TripListDestination.route) {
-                                inclusive = false
-                            }
-                        }
-                    }
+                    onTripClick = { tripId -> navController.navigateToTripDetailsScreen(tripId) }
                 )
             }
 
             composable(
                 route = TripDetailsDestination.routeWithArgs,
                 arguments = TripDetailsDestination.arguments,
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "travelapp://trip_details/{tripId}"
-                        action = Intent.ACTION_VIEW
-                    }
-                )
+                deepLinks = listOf(TripDetailsDestination.deepLink)
             ) { backStackEntry ->
                 val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
 
@@ -117,9 +103,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     tripId = tripId,
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onWeatherClick = { location ->
-                        navController.navigate("${WeatherDestination.route}/$location")
-                    },
+                    onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -181,6 +165,24 @@ private fun NavHostController.navigateToTripListScreen() {
     this.navigate(TripListDestination.route) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToTripDetailsScreen(tripId: Int) {
+    this.navigate("${TripDetailsDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(TripListDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToWeatherScreen(location: String) {
+    this.navigate("${WeatherDestination.route}/$location") {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) {
             inclusive = false
         }
     }
