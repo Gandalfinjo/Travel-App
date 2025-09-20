@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +69,8 @@ fun AddTripScreen(
     onLogoutClick: () -> Unit,
     onAddTrip: () -> Unit
 ) {
+    val context = LocalContext.current
+
     val authUiState by authViewModel.uiState.collectAsState()
     val uiState by tripViewModel.uiState.collectAsState()
 
@@ -274,7 +277,8 @@ fun AddTripScreen(
                         currency,
                         TravelTypeConverters().fromTimestampMillis(startDate)!!,
                         TravelTypeConverters().fromTimestampMillis(endDate)!!,
-                        authUiState.loggedInUserId!!
+                        authUiState.loggedInUserId!!,
+                        context
                     )
 
                     onAddTrip()

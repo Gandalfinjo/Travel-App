@@ -11,8 +11,10 @@ import javax.inject.Singleton
 class TripRepository @Inject constructor(
     private val tripDao: TripDao
 ) {
-    suspend fun createTrip(trip: Trip) =
-        tripDao.insert(trip)
+    suspend fun createTrip(trip: Trip): Trip {
+        val id = tripDao.insert(trip)
+        return trip.copy(id = id.toInt())
+    }
 
     suspend fun updateTrip(trip: Trip) =
         tripDao.update(trip)
