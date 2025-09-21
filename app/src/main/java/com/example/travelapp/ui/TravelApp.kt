@@ -79,7 +79,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onAddTrip = { navController.popBackStack() }
+                    onAddTrip = { navController.popBackStack() },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -88,7 +89,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onTripClick = { tripId -> navController.navigateToTripDetailsScreen(tripId) }
+                    onTripClick = { tripId -> navController.navigateToTripDetailsScreen(tripId) },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 

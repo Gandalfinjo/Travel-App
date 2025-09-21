@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
@@ -67,7 +68,8 @@ fun AddTripScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
     onLogoutClick: () -> Unit,
-    onAddTrip: () -> Unit
+    onAddTrip: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -105,6 +107,14 @@ fun AddTripScreen(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 ),
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
@@ -383,7 +393,8 @@ fun AddTripPreview() {
     TravelAppTheme {
         AddTripScreen(
             onLogoutClick = {},
-            onAddTrip = {}
+            onAddTrip = {},
+            onBackClick = {}
         )
     }
 }
