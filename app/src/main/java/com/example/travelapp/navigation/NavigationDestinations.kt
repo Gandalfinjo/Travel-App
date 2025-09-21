@@ -29,7 +29,7 @@ object TripListDestination : NavigationDestination {
     override val route = "trip_list"
 }
 
-object TripDetailsDestination: NavigationDestination {
+object TripDetailsDestination : NavigationDestination {
     override val route = "trip_details"
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType} )
     val routeWithArgs = "$route/{tripId}"
@@ -39,8 +39,12 @@ object TripDetailsDestination: NavigationDestination {
     }
 }
 
-object WeatherDestination: NavigationDestination {
+object WeatherDestination : NavigationDestination {
     override val route = "weather"
     val arguments = listOf(navArgument("location") { type = NavType.StringType } )
     val routeWithArgs = "$route/{location}"
+}
+
+object MapDestination : NavigationDestination {
+    override val route = "map"
 }

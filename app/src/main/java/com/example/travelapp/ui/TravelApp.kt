@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.travelapp.navigation.AddTripDestination
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.LoginDestination
+import com.example.travelapp.navigation.MapDestination
 import com.example.travelapp.navigation.RegisterDestination
 import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
@@ -22,6 +23,7 @@ import com.example.travelapp.navigation.WeatherDestination
 import com.example.travelapp.ui.screens.AddTripScreen
 import com.example.travelapp.ui.screens.DashboardScreen
 import com.example.travelapp.ui.screens.LoginScreen
+import com.example.travelapp.ui.screens.MapScreen
 import com.example.travelapp.ui.screens.RegisterScreen
 import com.example.travelapp.ui.screens.TripDetailsScreen
 import com.example.travelapp.ui.screens.TripListScreen
@@ -70,7 +72,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onFabClick = { navController.navigateToAddTripScreen() },
-                    onTripsClick = { navController.navigateToTripListScreen() }
+                    onTripsClick = { navController.navigateToTripListScreen() },
+                    onMapClick = { navController.navigateToMapScreen() }
                 )
             }
 
@@ -122,6 +125,10 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onBackClick = { navController.popBackStack() },
                     modifier = modifier
                 )
+            }
+
+            composable(route = MapDestination.route) {
+                MapScreen(modifier = modifier)
             }
         }
     }
@@ -185,6 +192,15 @@ private fun NavHostController.navigateToWeatherScreen(location: String) {
     this.navigate("${WeatherDestination.route}/$location") {
         launchSingleTop = true
         popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToMapScreen() {
+    this.navigate(MapDestination.route) {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
             inclusive = false
         }
     }

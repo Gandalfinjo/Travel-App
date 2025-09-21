@@ -44,7 +44,8 @@ fun DashboardScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
     onLogoutClick: () -> Unit,
     onFabClick: () -> Unit,
-    onTripsClick: () -> Unit
+    onTripsClick: () -> Unit,
+    onMapClick: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -94,6 +95,12 @@ fun DashboardScreen(
             Button(onClick = onTripsClick) {
                 Text(text = stringResource(R.string.go_to_my_trips))
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(onClick = onMapClick) {
+                Text(text = "Go to Maps")
+            }
         }
     }
 
@@ -131,7 +138,8 @@ fun DashboardPreview() {
         DashboardScreen(
             onLogoutClick = {},
             onFabClick = {},
-            onTripsClick = {}
+            onTripsClick = {},
+            onMapClick = {}
         )
     }
 }
