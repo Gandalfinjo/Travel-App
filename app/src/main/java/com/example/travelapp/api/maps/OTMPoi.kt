@@ -14,7 +14,7 @@ data class OTMPoi(
 
 fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
     val url =
-        "https://api.opentripmap.com/0.1/en/places/radius?radius=1000&lon=$lon&lat=$lat&rate=2&format=json&apikey=5ae2e3f221c38a28845f05b676041a1841e510d13dcdbd3fd0a12c9c"
+        "https://api.opentripmap.com/0.1/en/places/radius?radius=2000&lon=$lon&lat=$lat&rate=2&format=json&apikey=5ae2e3f221c38a28845f05b676041a1841e510d13dcdbd3fd0a12c9c"
 
     Thread {
         try {
@@ -45,3 +45,15 @@ fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
         }
     }.start()
 }
+
+fun formatKinds(kinds: String, limit: Int = 2): String {
+    return kinds.split(",")
+        .map { kind ->
+            kind.trim()
+                .split("_")
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        }
+        .take(limit)
+        .joinToString(", ")
+}
+

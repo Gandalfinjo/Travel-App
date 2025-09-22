@@ -128,7 +128,12 @@ fun TravelApp(modifier: Modifier = Modifier) {
             }
 
             composable(route = MapDestination.route) {
-                MapScreen(modifier = modifier)
+                MapScreen(
+                    authViewModel = authViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    modifier = modifier,
+                    onLogoutClick = { navController.navigateToLoginScreen() }
+                )
             }
         }
     }

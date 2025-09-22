@@ -44,4 +44,5 @@
     <string name="error">Error: %1$s</string>
     <string name="cancel_trip">Cancel Trip</string>
     <string name="are_you_sure_you_want_to_cancel_the_trip">Are you sure you want to cancel the trip?</string>
+    <string name="allow_location">Allow location</string>
 </resources>
