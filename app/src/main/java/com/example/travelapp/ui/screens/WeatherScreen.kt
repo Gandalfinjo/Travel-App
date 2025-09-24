@@ -152,9 +152,9 @@ fun WeatherScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(text = stringResource(R.string.feels_like_c, weather.main.feelsLike))
-                            Text(text = stringResource(R.string.humidity, weather.main.humidity))
-                            Text(text = stringResource(R.string.wind_m_s, weather.wind.speed))
+                            Text(text = "Feels like: ${weather.main.feelsLike}°C")
+                            Text(text = "Humidity: ${weather.main.humidity}%")
+                            Text(text = "Wind: ${weather.wind.speed} m/s")
                         }
                     }
                 }
