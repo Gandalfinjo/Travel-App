@@ -263,7 +263,7 @@ fun AddTripScreen(
             Button(
                 onClick = {
                     if (name == "" || location == "" || budget == "" || currency == "" || startDate == null || endDate == null) {
-                        tripViewModel.setErrorMessage("Missing fields")
+                        tripViewModel.setErrorMessage(context.getString(R.string.missing_fields))
                         showAlert = true
                         return@Button
                     }
@@ -271,7 +271,7 @@ fun AddTripScreen(
                     startDate?.let { start ->
                         endDate?.let { end ->
                             if (start > end) {
-                                tripViewModel.setErrorMessage("You cannot put the Start Date after the End Date")
+                                tripViewModel.setErrorMessage(context.getString(R.string.you_cannot_put_the_start_date_after_the_end_date))
                                 showAlert = true
                                 return@Button
                             }
@@ -303,7 +303,7 @@ fun AddTripScreen(
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = "Are you sure you want to logout?") },
+            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
                 TextButton(
                     onClick = {

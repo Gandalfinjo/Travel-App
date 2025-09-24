@@ -101,7 +101,7 @@ fun TripListScreen(
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = "Are you sure you want to logout?") },
+            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
                 TextButton(
                     onClick = {

@@ -48,4 +48,10 @@
     <string name="map">Map</string>
     <string name="go_to_map">Go to Map</string>
     <string name="you_are_here">You are here</string>
+    <string name="weather">Weather</string>
+    <string name="feels_like_c">Feels like: %1$s°C</string>
+    <string name="humidity">Humidity: %1$d%</string>
+    <string name="wind_m_s">Wind: %1$s m/s</string>
+    <string name="missing_fields">Missing fields</string>
+    <string name="you_cannot_put_the_start_date_after_the_end_date">You cannot put the Start Date after the End Date</string>
 </resources>

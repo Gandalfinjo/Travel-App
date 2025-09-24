@@ -55,7 +55,7 @@ fun WeatherScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Weather") },
+                title = { Text(text = stringResource(R.string.weather)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -152,9 +152,9 @@ fun WeatherScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(text = "Feels like: ${weather.main.feelsLike}°C")
-                            Text(text = "Humidity: ${weather.main.humidity}%")
-                            Text(text = "Wind: ${weather.wind.speed} m/s")
+                            Text(text = stringResource(R.string.feels_like_c, weather.main.feelsLike))
+                            Text(text = stringResource(R.string.humidity, weather.main.humidity))
+                            Text(text = stringResource(R.string.wind_m_s, weather.wind.speed))
                         }
                     }
                 }
