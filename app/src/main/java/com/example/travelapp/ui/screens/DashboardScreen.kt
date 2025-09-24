@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -92,14 +93,20 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = onTripsClick) {
+            Button(
+                onClick = onTripsClick,
+                modifier = modifier.fillMaxWidth(0.4f)
+            ) {
                 Text(text = stringResource(R.string.go_to_my_trips))
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = onMapClick) {
-                Text(text = "Go to Maps")
+            Button(
+                onClick = onMapClick,
+                modifier = modifier.fillMaxWidth(0.4f)
+            ) {
+                Text(text = stringResource(R.string.go_to_map))
             }
         }
     }
@@ -108,7 +115,7 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = "Are you sure you want to logout?") },
+            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
                 TextButton(
                     onClick = {

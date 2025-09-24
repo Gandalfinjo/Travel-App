@@ -103,7 +103,7 @@ fun MapScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.my_trips)) },
+                title = { Text(text = stringResource(R.string.map)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -129,7 +129,7 @@ fun MapScreen(
         containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
                 .padding(12.dp)
                 .fillMaxSize()
@@ -157,7 +157,7 @@ fun MapScreen(
                             val scaledLocationBitmap = locationBitmap.scale(96, 96, false)
 
                             userMarker.position = loc
-                            userMarker.title = "You are here"
+                            userMarker.title = context.getString(R.string.you_are_here)
                             userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                             userMarker.icon = scaledLocationBitmap.toDrawable(context.resources)
                             mapView.overlays.add(userMarker)
