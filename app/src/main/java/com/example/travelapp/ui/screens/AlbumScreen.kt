@@ -128,7 +128,7 @@ fun AlbumScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Photo Album") },
+                title = { Text(text = stringResource(R.string.photo_album)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -167,6 +167,7 @@ fun AlbumScreen(
             val canAddPhotos = trip!!.status == TripStatus.ONGOING || trip!!.status == TripStatus.FINISHED
 
             Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
@@ -212,7 +213,7 @@ fun AlbumScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "No photos yet")
+                        Text(text = stringResource(R.string.no_photos_yet))
                     }
                 }
                 else {

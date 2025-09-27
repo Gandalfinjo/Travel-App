@@ -55,4 +55,6 @@
     <string name="missing_fields">Missing fields</string>
     <string name="you_cannot_put_the_start_date_after_the_end_date">You cannot put the Start Date after the End Date</string>
     <string name="add_from_gallery">Add from Gallery</string>
+    <string name="no_photos_yet">No photos yet</string>
+    <string name="photo_album">Photo Album</string>
 </resources>
