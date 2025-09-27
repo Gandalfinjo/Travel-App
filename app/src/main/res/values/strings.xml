@@ -54,4 +54,5 @@
     <string name="wind_m_s">Wind: %1$s m/s</string>
     <string name="missing_fields">Missing fields</string>
     <string name="you_cannot_put_the_start_date_after_the_end_date">You cannot put the Start Date after the End Date</string>
+    <string name="add_from_gallery">Add from Gallery</string>
 </resources>

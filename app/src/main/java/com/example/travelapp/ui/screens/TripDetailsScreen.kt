@@ -1,27 +1,12 @@
 package com.example.travelapp.ui.screens
 
-import android.content.Intent
-import android.graphics.Bitmap
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -46,24 +31,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.example.travelapp.R
-import com.example.travelapp.database.models.Photo
 import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.PhotoViewModel
 import com.example.travelapp.ui.stateholders.TripViewModel
-import java.io.File
-import java.io.FileOutputStream
-import androidx.core.net.toUri
 import com.example.travelapp.database.models.enums.TripStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,62 +49,18 @@ fun TripDetailsScreen(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onWeatherClick: (String) -> Unit,
+    onMapClick: () -> Unit,
+    onAlbumClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
-    tripViewModel: TripViewModel = hiltViewModel(),
-    photoViewModel: PhotoViewModel = hiltViewModel()
+    tripViewModel: TripViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
-    val photos by photoViewModel.getTripPhotos(tripId).collectAsState(initial = emptyList())
-
-    val pagerState = rememberPagerState(pageCount = { photos.size })
-
-    var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
 
     var showCancelDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
-
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val filePath = it.toString()
-            val photo = Photo(
-                filePath = filePath,
-                tripId = tripId,
-                dateTaken = System.currentTimeMillis()
-            )
-
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-
-            photoViewModel.addPhoto(photo)
-        }
-    }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        bitmap?.let {
-            val file = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
-
-            FileOutputStream(file).use { out ->
-                it.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            }
-
-            val photo = Photo(
-                filePath = file.absolutePath,
-                tripId = tripId,
-                dateTaken = System.currentTimeMillis()
-            )
-
-            photoViewModel.addPhoto(photo)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -167,8 +99,8 @@ fun TripDetailsScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else {
-            val canAddPhotos = trip!!.status == TripStatus.ONGOING || trip!!.status == TripStatus.FINISHED
+        }
+        else {
             val canCancelTrip = trip!!.status == TripStatus.PLANNED || trip!!.status == TripStatus.ONGOING
 
             Column(
@@ -214,50 +146,38 @@ fun TripDetailsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    //if (trip!!.status == TripStatus.ONGOING) {
                     Button(
-                        onClick = { galleryLauncher.launch("image/*") },
-                        enabled = canAddPhotos,
+                        onClick = { onWeatherClick(trip!!.location) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp)
                     ) {
-                        Text(text = stringResource(R.string.add_a_photo_from_gallery))
+                        Text(text = stringResource(R.string.view_current_weather))
+                    }
+                    //}
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = onMapClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp)
+                    ) {
+                        Text(text = stringResource(R.string.go_to_map))
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = { cameraLauncher.launch(null) },
-                        enabled = canAddPhotos,
+                        onClick = { onAlbumClick(tripId) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp)
                     ) {
-                        Text(text = stringResource(R.string.take_a_photo))
+                        Text(text = "Go to Photo Album")
                     }
-
-                    if (!canAddPhotos) {
-                        Text(
-                            text = stringResource(R.string.photos_can_be_added_only_for_ongoing_or_finished_trips),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray,
-                            modifier = Modifier
-                                .padding(8.dp),
-                        )
-                    }
-
-                    //if (trip!!.status == TripStatus.ONGOING) {
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Button(
-                            onClick = { onWeatherClick(trip!!.location) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 32.dp)
-                        ) {
-                            Text(text = stringResource(R.string.view_current_weather))
-                        }
-                    //}
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -275,68 +195,7 @@ fun TripDetailsScreen(
                         Text(text = stringResource(R.string.cancel_trip))
                     }
                 }
-
-                if (photos.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.trip_photos),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    HorizontalPager(
-                        state = pagerState,
-                        pageSize = PageSize.Fill,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    ) { page ->
-                        val photo = photos[page]
-                        AsyncImage(
-                            model = photo.filePath.toUri(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable { selectedPhoto = photo }
-                        )
-                    }
-
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                        photos.forEachIndexed { index, _ ->
-                            Box(
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .size(8.dp)
-                                    .background(
-                                        color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else Color.Gray,
-                                        shape = CircleShape
-                                    )
-                            )
-                        }
-                    }
-                }
             }
-        }
-    }
-
-    if (selectedPhoto != null) {
-        Dialog(onDismissRequest = { selectedPhoto = null }) {
-            AsyncImage(
-                model = selectedPhoto!!.filePath.toUri(),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
-            )
         }
     }
 

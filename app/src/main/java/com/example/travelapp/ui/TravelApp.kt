@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.travelapp.navigation.AddTripDestination
+import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
@@ -21,6 +22,7 @@ import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
 import com.example.travelapp.navigation.WeatherDestination
 import com.example.travelapp.ui.screens.AddTripScreen
+import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
 import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
@@ -109,6 +111,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
+                    onMapClick = { navController.navigateToMapScreen() },
+                    onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -132,6 +136,20 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     modifier = modifier,
+                    onLogoutClick = { navController.navigateToLoginScreen() }
+                )
+            }
+
+            composable(
+                route = AlbumDestination.routeWithArgs,
+                arguments = AlbumDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                AlbumScreen(
+                    tripId = tripId,
+                    authViewModel = authViewModel,
+                    onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() }
                 )
             }
@@ -206,6 +224,15 @@ private fun NavHostController.navigateToMapScreen() {
     this.navigate(MapDestination.route) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAlbumScreen(tripId: Int) {
+    this.navigate("${AlbumDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) {
             inclusive = false
         }
     }

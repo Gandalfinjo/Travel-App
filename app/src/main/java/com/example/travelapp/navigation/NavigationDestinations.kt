@@ -48,3 +48,9 @@ object WeatherDestination : NavigationDestination {
 object MapDestination : NavigationDestination {
     override val route = "map"
 }
+
+object AlbumDestination : NavigationDestination {
+    override val route = "album"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
+    val routeWithArgs = "$route/{tripId}"
+}
