@@ -75,7 +75,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onFabClick = { navController.navigateToAddTripScreen() },
                     onTripsClick = { navController.navigateToTripListScreen() },
-                    onMapClick = { navController.navigateToMapScreen() }
+                    onMapClick = { navController.navigateToMapScreenFromDashboard() }
                 )
             }
 
@@ -111,7 +111,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
-                    onMapClick = { navController.navigateToMapScreen() },
+                    onMapClick = { navController.navigateToMapScreenFromTrip() },
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
@@ -220,10 +220,19 @@ private fun NavHostController.navigateToWeatherScreen(location: String) {
     }
 }
 
-private fun NavHostController.navigateToMapScreen() {
+private fun NavHostController.navigateToMapScreenFromDashboard() {
     this.navigate(MapDestination.route) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToMapScreenFromTrip() {
+    this.navigate(MapDestination.route) {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) {
             inclusive = false
         }
     }
