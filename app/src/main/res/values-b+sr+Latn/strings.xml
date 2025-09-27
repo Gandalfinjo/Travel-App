@@ -54,4 +54,7 @@
     <string name="wind_m_s">Vetar: %1$s m/s</string>
     <string name="missing_fields">Nedostaju polja</string>
     <string name="you_cannot_put_the_start_date_after_the_end_date">Datum početka ne može biti posle datuma kraja</string>
+    <string name="add_from_gallery">Dodaj iz galerije</string>
+    <string name="no_photos_yet">Nema fotografija</string>
+    <string name="photo_album">Album sa slikama</string>
 </resources>
