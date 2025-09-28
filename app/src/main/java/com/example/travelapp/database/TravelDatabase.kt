@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.dao.ItineraryDao
 import com.example.travelapp.database.dao.NotificationDao
+import com.example.travelapp.database.dao.PackingDao
 import com.example.travelapp.database.dao.PhotoDao
 import com.example.travelapp.database.dao.PlaceDao
 import com.example.travelapp.database.dao.TripDao
@@ -43,6 +44,7 @@ abstract class TravelDatabase : RoomDatabase() {
     abstract fun photoDao(): PhotoDao
     abstract fun notificationDao(): NotificationDao
     abstract fun itineraryDao(): ItineraryDao
+    abstract fun packingDao(): PackingDao
 
     companion object {
         private var INSTANCE: TravelDatabase? = null
