@@ -57,4 +57,11 @@
     <string name="add_from_gallery">Add from Gallery</string>
     <string name="no_photos_yet">No photos yet</string>
     <string name="photo_album">Photo Album</string>
+    <string name="go_to_photo_album">Go to Photo Album</string>
+    <string name="go_to_itinerary">Go to Itinerary</string>
+    <string name="daily_itinerary">Daily Itinerary</string>
+    <string name="new_itinerary">New Itinerary</string>
+    <string name="title">Title</string>
+    <string name="date">Date</string>
+    <string name="add_activity">Add Activity</string>
 </resources>

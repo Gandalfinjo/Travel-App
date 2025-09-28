@@ -56,5 +56,12 @@
     <string name="you_cannot_put_the_start_date_after_the_end_date">Datum početka ne može biti posle datuma kraja</string>
     <string name="add_from_gallery">Dodaj iz galerije</string>
     <string name="no_photos_yet">Nema fotografija</string>
-    <string name="photo_album">Album sa slikama</string>
+    <string name="photo_album">Album sa fotografijama</string>
+    <string name="go_to_photo_album">Idi na Album</string>
+    <string name="go_to_itinerary">Idi na Itinerar</string>
+    <string name="daily_itinerary">Dnevni Itinerar</string>
+    <string name="new_itinerary">Novi Itinerar</string>
+    <string name="title">Naziv</string>
+    <string name="date">Datum</string>
+    <string name="add_activity">Dodaj aktivnost</string>
 </resources>

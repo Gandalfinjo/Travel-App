@@ -52,6 +52,7 @@ fun TripDetailsScreen(
     onWeatherClick: (String) -> Unit,
     onMapClick: () -> Unit,
     onAlbumClick: (Int) -> Unit,
+    onItineraryClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel()
@@ -178,7 +179,18 @@ fun TripDetailsScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp)
                     ) {
-                        Text(text = "Go to Photo Album")
+                        Text(text = stringResource(R.string.go_to_photo_album))
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { onItineraryClick(tripId) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp)
+                    ) {
+                        Text(text = stringResource(R.string.go_to_itinerary))
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))

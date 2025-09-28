@@ -12,18 +12,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddTripDestination
 import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
+import com.example.travelapp.navigation.ItineraryDestination
 import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
 import com.example.travelapp.navigation.RegisterDestination
 import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
 import com.example.travelapp.navigation.WeatherDestination
+import com.example.travelapp.ui.screens.AddItineraryScreen
 import com.example.travelapp.ui.screens.AddTripScreen
 import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
+import com.example.travelapp.ui.screens.ItineraryScreen
 import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
 import com.example.travelapp.ui.screens.RegisterScreen
@@ -113,6 +117,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
                     onMapClick = { navController.navigateToMapScreenFromTrip() },
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
+                    onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -148,9 +153,42 @@ fun TravelApp(modifier: Modifier = Modifier) {
 
                 AlbumScreen(
                     tripId = tripId,
+                    modifier = Modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() }
+                )
+            }
+
+            composable(
+                route = ItineraryDestination.routeWithArgs,
+                arguments = ItineraryDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                ItineraryScreen(
+                    tripId = tripId,
+                    modifier = modifier,
+                    authViewModel = authViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) },
+                    onLogoutClick = { navController.navigateToLoginScreen() }
+                )
+            }
+
+            composable(
+                route = AddItineraryDestination.routeWithArgs,
+                arguments = AddItineraryDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                AddItineraryScreen(
+                    tripId = tripId,
+                    modifier = modifier,
+                    authViewModel = authViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onLogoutClick = { navController.navigateToLoginScreen() },
+                    onAddItem = { navController.popBackStack() }
                 )
             }
         }
@@ -242,6 +280,24 @@ private fun NavHostController.navigateToAlbumScreen(tripId: Int) {
     this.navigate("${AlbumDestination.route}/$tripId") {
         launchSingleTop = true
         popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToItineraryScreen(tripId: Int) {
+    this.navigate("${ItineraryDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAddItineraryScreen(tripId: Int) {
+    this.navigate("${AddItineraryDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(ItineraryDestination.routeWithArgs) {
             inclusive = false
         }
     }

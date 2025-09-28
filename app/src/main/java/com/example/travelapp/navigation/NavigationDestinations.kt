@@ -54,3 +54,15 @@ object AlbumDestination : NavigationDestination {
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
     val routeWithArgs = "$route/{tripId}"
 }
+
+object ItineraryDestination : NavigationDestination {
+    override val route = "itinerary_items"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
+    val routeWithArgs = "$route/{tripId}"
+}
+
+object AddItineraryDestination : NavigationDestination {
+    override val route = "add_itinerary"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
+    val routeWithArgs = "$route/{tripId}"
+}

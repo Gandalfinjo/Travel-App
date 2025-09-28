@@ -69,6 +69,7 @@ import java.io.FileOutputStream
 @Composable
 fun AlbumScreen(
     tripId: Int,
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel(),
@@ -155,7 +156,7 @@ fun AlbumScreen(
     ) { innerPadding ->
         if (trip == null) {
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
@@ -168,7 +169,7 @@ fun AlbumScreen(
 
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(16.dp)
