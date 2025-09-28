@@ -41,4 +41,9 @@ object DatabaseModule {
     @Singleton
     fun provideNotificationDao(database: TravelDatabase) =
         database.notificationDao()
+
+    @Provides
+    @Singleton
+    fun provideItineraryDao(database: TravelDatabase) =
+        database.itineraryDao()
 }
