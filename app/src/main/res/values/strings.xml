@@ -64,4 +64,10 @@
     <string name="title">Title</string>
     <string name="date">Date</string>
     <string name="add_activity">Add Activity</string>
+    <string name="packing_list">Packing List</string>
+    <string name="add_packing_item">Add Packing Item</string>
+    <string name="go_to_packing">Go to Packing</string>
+    <string name="add_itinerary_item">Add Itinerary Item</string>
+    <string name="quantity">Quantity</string>
+    <string name="name">Name</string>
 </resources>

@@ -64,4 +64,10 @@
     <string name="title">Naziv</string>
     <string name="date">Datum</string>
     <string name="add_activity">Dodaj aktivnost</string>
+    <string name="packing_list">Lista za pakovanje</string>
+    <string name="add_packing_item">Dodaj stvar za pakovanje</string>
+    <string name="go_to_packing">Idi na pakovanje</string>
+    <string name="add_itinerary_item">Dodaj itinerar</string>
+    <string name="quantity">Kolicina</string>
+    <string name="name">Naziv</string>
 </resources>

@@ -66,3 +66,15 @@ object AddItineraryDestination : NavigationDestination {
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
     val routeWithArgs = "$route/{tripId}"
 }
+
+object PackingDestination : NavigationDestination {
+    override val route = "packing_items"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
+    val routeWithArgs = "$route/{tripId}"
+}
+
+object AddPackingItemDestination : NavigationDestination {
+    override val route = "add_packing_item"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
+    val routeWithArgs = "$route/{tripId}"
+}

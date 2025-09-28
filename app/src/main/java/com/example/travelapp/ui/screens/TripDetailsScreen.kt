@@ -53,6 +53,7 @@ fun TripDetailsScreen(
     onMapClick: () -> Unit,
     onAlbumClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit,
+    onPackingClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel()
@@ -191,6 +192,17 @@ fun TripDetailsScreen(
                             .padding(horizontal = 32.dp)
                     ) {
                         Text(text = stringResource(R.string.go_to_itinerary))
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { onPackingClick(tripId) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp)
+                    ) {
+                        Text(text = stringResource(R.string.go_to_packing))
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))

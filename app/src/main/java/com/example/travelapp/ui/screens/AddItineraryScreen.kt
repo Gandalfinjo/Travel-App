@@ -83,7 +83,7 @@ fun AddItineraryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.add_trip)) },
+                title = { Text(text = stringResource(R.string.add_itinerary_item)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -174,7 +174,8 @@ fun AddItineraryScreen(
                         .pointerInput(dateMillis) {
                             awaitEachGesture {
                                 awaitFirstDown(pass = PointerEventPass.Initial)
-                                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                                val upEvent =
+                                    waitForUpOrCancellation(pass = PointerEventPass.Initial)
                                 if (upEvent != null) {
                                     showDatePicker = true
                                 }
