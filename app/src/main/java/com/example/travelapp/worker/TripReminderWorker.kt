@@ -52,8 +52,9 @@ class TripReminderWorker(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val dayString = if (daysBefore == 1) "day" else "days"
         val title = "$daysBefore-Day Reminder: $tripName"
-        val content = "Your trip starts in $daysBefore days! Pack your bags."
+        val content = "Your trip starts in $daysBefore $dayString! Pack your bags."
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(title)

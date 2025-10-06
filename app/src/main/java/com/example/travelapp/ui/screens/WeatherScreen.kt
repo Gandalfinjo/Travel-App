@@ -94,14 +94,14 @@ fun WeatherScreen(
                     val iconUrl = "https://openweathermap.org/img/wn/${iconCode}@4x.png"
 
                     val cardColor = when {
-                        iconCode.startsWith("01") -> Color(0xFFFFF9C4) // sunčano (clear sky)
+                        iconCode.startsWith("01") -> Color(0xFFFFF9C4) // clear sky
                         iconCode.startsWith("02") || iconCode.startsWith("03") || iconCode.startsWith(
                             "04"
-                        ) -> Color(0xFFB0BEC5) // oblačno
-                        iconCode.startsWith("09") || iconCode.startsWith("10") -> Color(0xFF81D4FA) // kiša
-                        iconCode.startsWith("11") -> Color(0xFFFFAB91) // oluja
-                        iconCode.startsWith("13") -> Color(0xFFE1F5FE) // sneg
-                        iconCode.startsWith("50") -> Color(0xFFBCAAA4) // magla
+                        ) -> Color(0xFFB0BEC5) // cloudy
+                        iconCode.startsWith("09") || iconCode.startsWith("10") -> Color(0xFF81D4FA) // rain
+                        iconCode.startsWith("11") -> Color(0xFFFFAB91) // storm
+                        iconCode.startsWith("13") -> Color(0xFFE1F5FE) // snow
+                        iconCode.startsWith("50") -> Color(0xFFBCAAA4) // fog
                         else -> MaterialTheme.colorScheme.surface
                     }
 

@@ -180,7 +180,8 @@ fun MapScreen(
                     },
                     modifier = Modifier.fillMaxSize()
                 )
-            } else {
+            }
+            else {
                 Column(
                     modifier = Modifier
                         .padding(innerPadding)

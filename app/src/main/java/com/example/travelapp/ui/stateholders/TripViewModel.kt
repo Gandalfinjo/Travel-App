@@ -97,49 +97,61 @@ class TripViewModel @Inject constructor(
     private fun scheduleTripNotifications(context: Context, trip: Trip) {
         val workManager = WorkManager.getInstance(context)
 
-        // Current time
         val now = LocalDateTime.now(ZoneId.systemDefault())
 
-        // Calculate times for notifications
         val startDateTime = trip.startDate.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()
 
         // 3 days before
         val threeDaysBefore = startDateTime.minusDays(3)
-        if (threeDaysBefore.isAfter(now)) {
+        if (threeDaysBefore.isBefore(now)) {
+            triggerNotification(workManager, trip, 3)
+        }
+        else if (threeDaysBefore.isAfter(now)) {
             val delayThreeDays = Duration.between(now, threeDaysBefore).toMillis()
-            val dataThreeDays = Data.Builder()
-                .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
-                .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
-                .putInt(TripReminderWorker.KEY_DAYS_BEFORE, 3)
-                .build()
-
-            val workThreeDays = OneTimeWorkRequestBuilder<TripReminderWorker>()
-                .setInitialDelay(delayThreeDays, TimeUnit.MILLISECONDS)
-                .setInputData(dataThreeDays)
-                .addTag("trip_${trip.id}_3days")
-                .build()
-
-            workManager.enqueueUniqueWork("trip_${trip.id}_3days", ExistingWorkPolicy.REPLACE, workThreeDays)
+            scheduleNotification(workManager, trip, 3, delayThreeDays)
         }
 
         // 1 day before
         val oneDayBefore = startDateTime.minusDays(1)
-        if (oneDayBefore.isAfter(now)) {
-            val delayOneDay = Duration.between(now, oneDayBefore).toMillis()
-            val dataOneDay = Data.Builder()
-                .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
-                .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
-                .putInt(TripReminderWorker.KEY_DAYS_BEFORE, 1)
-                .build()
-
-            val workOneDay = OneTimeWorkRequestBuilder<TripReminderWorker>()
-                .setInitialDelay(delayOneDay, TimeUnit.MILLISECONDS)
-                .setInputData(dataOneDay)
-                .addTag("trip_${trip.id}_1day")
-                .build()
-
-            workManager.enqueueUniqueWork("trip_${trip.id}_1day", ExistingWorkPolicy.REPLACE, workOneDay)
+        if (oneDayBefore.isBefore(now)) {
+            triggerNotification(workManager, trip, 1)
         }
+        else if (oneDayBefore.isAfter(now)) {
+            val delayOneDay = Duration.between(now, oneDayBefore).toMillis()
+            scheduleNotification(workManager, trip, 1, delayOneDay)
+        }
+    }
+
+    private fun scheduleNotification(workManager: WorkManager, trip: Trip, daysBefore: Int, delayMillis: Long) {
+        val data = Data.Builder()
+            .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
+            .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
+            .putInt(TripReminderWorker.KEY_DAYS_BEFORE, daysBefore)
+            .build()
+
+        val workRequest = OneTimeWorkRequestBuilder<TripReminderWorker>()
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+            .setInputData(data)
+            .addTag("trip_${trip.id}_${daysBefore}days")
+            .build()
+
+        workManager.enqueueUniqueWork("trip_${trip.id}_${daysBefore}days", ExistingWorkPolicy.REPLACE, workRequest)
+    }
+
+    private fun triggerNotification(workManager: WorkManager, trip: Trip, daysBefore: Int) {
+        val data = Data.Builder()
+            .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
+            .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
+            .putInt(TripReminderWorker.KEY_DAYS_BEFORE, daysBefore)
+            .build()
+
+        val workRequest = OneTimeWorkRequestBuilder<TripReminderWorker>()
+            .setInitialDelay(0, TimeUnit.MILLISECONDS) // Trigger immediately
+            .setInputData(data)
+            .addTag("trip_${trip.id}_${daysBefore}days")
+            .build()
+
+        workManager.enqueueUniqueWork("trip_${trip.id}_${daysBefore}days", ExistingWorkPolicy.REPLACE, workRequest)
     }
 
     private fun scheduleTripStatusUpdates(context: Context, trip: Trip) {
