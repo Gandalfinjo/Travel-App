@@ -2,6 +2,7 @@ package com.example.travelapp.ui.stateholders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.database.repositories.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ data class StatisticsUiState(
     val totalTrips: Int = 0,
     val tripsByStatus: Map<TripStatus, Int> = emptyMap(),
     val averageDuration: Double = 0.0,
-    val topDestination: String? = null
+    val topDestination: String? = null,
+    val topSpendingTrips: List<Trip> = emptyList()
 )
 
 @HiltViewModel
@@ -45,12 +47,17 @@ class StatisticsViewModel @Inject constructor(
                 .maxByOrNull { it.value }
                 ?.key
 
+            val topSpendingTrips = trips
+                .sortedByDescending { it.budget }
+                .take(5)
+
             _uiState.update {
                 it.copy(
                     totalTrips = trips.size,
                     tripsByStatus = byStatus,
                     averageDuration = averageDuration,
-                    topDestination = topDestination
+                    topDestination = topDestination,
+                    topSpendingTrips = topSpendingTrips
                 )
             }
         }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.travelapp.ui.elements.BarChart
 import com.example.travelapp.ui.elements.PieChart
 import com.example.travelapp.ui.stateholders.AuthViewModel
 import com.example.travelapp.ui.stateholders.StatisticsViewModel
@@ -92,7 +95,9 @@ fun StatisticsScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth(0.85f)
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     text = "Trips by Status",
@@ -110,6 +115,14 @@ fun StatisticsScreen(
                     text = "Most Visited Destination: ${uiState.topDestination ?: "N/A"}",
                     style = MaterialTheme.typography.titleMedium
                 )
+
+                if (uiState.topSpendingTrips.isNotEmpty()) {
+                    Text(
+                        text = "Top Spending Trips",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    BarChart(trips = uiState.topSpendingTrips)
+                }
             }
         }
     }
