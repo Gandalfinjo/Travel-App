@@ -22,6 +22,7 @@ import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
 import com.example.travelapp.navigation.PackingDestination
 import com.example.travelapp.navigation.RegisterDestination
+import com.example.travelapp.navigation.StatisticsDestination
 import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
 import com.example.travelapp.navigation.WeatherDestination
@@ -35,6 +36,7 @@ import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
 import com.example.travelapp.ui.screens.PackingScreen
 import com.example.travelapp.ui.screens.RegisterScreen
+import com.example.travelapp.ui.screens.StatisticsScreen
 import com.example.travelapp.ui.screens.TripDetailsScreen
 import com.example.travelapp.ui.screens.TripListScreen
 import com.example.travelapp.ui.screens.WeatherScreen
@@ -83,7 +85,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onFabClick = { navController.navigateToAddTripScreen() },
                     onTripsClick = { navController.navigateToTripListScreen() },
-                    onMapClick = { navController.navigateToMapScreenFromDashboard() }
+                    onMapClick = { navController.navigateToMapScreenFromDashboard() },
+                    onStatisticsClick = { navController.navigateToStatisticsScreen() }
                 )
             }
 
@@ -228,6 +231,15 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onAddItem = { navController.popBackStack() }
                 )
             }
+
+            composable(route = StatisticsDestination.route) {
+                StatisticsScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onLogoutClick = { navController.navigateToLoginScreen() },
+                    modifier = modifier,
+                    authViewModel = authViewModel
+                )
+            }
         }
     }
 }
@@ -353,6 +365,15 @@ private fun NavHostController.navigateToAddPackingItemScreen(tripId: Int) {
     this.navigate("${AddPackingItemDestination.route}/$tripId") {
         launchSingleTop = true
         popUpTo(PackingDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToStatisticsScreen() {
+    this.navigate(StatisticsDestination.route) {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
             inclusive = false
         }
     }

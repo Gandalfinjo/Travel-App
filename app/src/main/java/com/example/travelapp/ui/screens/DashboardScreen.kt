@@ -46,7 +46,8 @@ fun DashboardScreen(
     onLogoutClick: () -> Unit,
     onFabClick: () -> Unit,
     onTripsClick: () -> Unit,
-    onMapClick: () -> Unit
+    onMapClick: () -> Unit,
+    onStatisticsClick: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -108,6 +109,15 @@ fun DashboardScreen(
             ) {
                 Text(text = stringResource(R.string.go_to_map))
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = onStatisticsClick,
+                modifier = modifier.fillMaxWidth(0.4f)
+            ) {
+                Text(text = stringResource(R.string.go_to_statistics))
+            }
         }
     }
 
@@ -146,7 +156,8 @@ fun DashboardPreview() {
             onLogoutClick = {},
             onFabClick = {},
             onTripsClick = {},
-            onMapClick = {}
+            onMapClick = {},
+            onStatisticsClick = {}
         )
     }
 }

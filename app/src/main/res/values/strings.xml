@@ -70,4 +70,5 @@
     <string name="add_itinerary_item">Add Itinerary Item</string>
     <string name="quantity">Quantity</string>
     <string name="name">Name</string>
+    <string name="go_to_statistics">Go to Statistics</string>
 </resources>

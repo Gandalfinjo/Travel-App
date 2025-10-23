@@ -78,3 +78,7 @@ object AddPackingItemDestination : NavigationDestination {
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
     val routeWithArgs = "$route/{tripId}"
 }
+
+object StatisticsDestination : NavigationDestination {
+    override val route = "statistics"
+}
