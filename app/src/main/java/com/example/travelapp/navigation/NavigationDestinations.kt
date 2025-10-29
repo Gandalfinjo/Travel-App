@@ -82,3 +82,7 @@ object AddPackingItemDestination : NavigationDestination {
 object StatisticsDestination : NavigationDestination {
     override val route = "statistics"
 }
+
+object AiSuggestionsDestination : NavigationDestination {
+    override val route = "ai_suggestions"
+}

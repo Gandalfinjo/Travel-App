@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddPackingItemDestination
 import com.example.travelapp.navigation.AddTripDestination
+import com.example.travelapp.navigation.AiSuggestionsDestination
 import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.ItineraryDestination
@@ -29,6 +30,7 @@ import com.example.travelapp.navigation.WeatherDestination
 import com.example.travelapp.ui.screens.AddItineraryScreen
 import com.example.travelapp.ui.screens.AddPackingItemScreen
 import com.example.travelapp.ui.screens.AddTripScreen
+import com.example.travelapp.ui.screens.AiSuggestionsScreen
 import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
 import com.example.travelapp.ui.screens.ItineraryScreen
@@ -86,7 +88,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onFabClick = { navController.navigateToAddTripScreen() },
                     onTripsClick = { navController.navigateToTripListScreen() },
                     onMapClick = { navController.navigateToMapScreenFromDashboard() },
-                    onStatisticsClick = { navController.navigateToStatisticsScreen() }
+                    onStatisticsClick = { navController.navigateToStatisticsScreen() },
+                    onAiSuggestionsClick = { navController.navigateToAiSuggestionsScreen() }
                 )
             }
 
@@ -240,6 +243,15 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     authViewModel = authViewModel
                 )
             }
+
+            composable(route = AiSuggestionsDestination.route) {
+                AiSuggestionsScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onLogoutClick = { navController.navigateToLoginScreen() },
+                    modifier = modifier,
+                    authViewModel = authViewModel
+                )
+            }
         }
     }
 }
@@ -372,6 +384,15 @@ private fun NavHostController.navigateToAddPackingItemScreen(tripId: Int) {
 
 private fun NavHostController.navigateToStatisticsScreen() {
     this.navigate(StatisticsDestination.route) {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAiSuggestionsScreen() {
+    this.navigate(AiSuggestionsDestination.route) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false

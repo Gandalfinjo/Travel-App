@@ -71,4 +71,8 @@
     <string name="quantity">Quantity</string>
     <string name="name">Name</string>
     <string name="go_to_statistics">Go to Statistics</string>
+    <string name="ai_travel_suggestions">AI Travel Suggestions</string>
+    <string name="ai_is_thinking">AI is thinking... 🤖</string>
+    <string name="retry">Retry</string>
+    <string name="get_ai_suggestions">Get AI Suggestions 🤖</string>
 </resources>

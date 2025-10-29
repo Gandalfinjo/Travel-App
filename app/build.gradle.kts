@@ -101,4 +101,6 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.location)
 
+    // Gemini AI
+    implementation(libs.generativeai)
 }

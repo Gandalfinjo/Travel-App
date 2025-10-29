@@ -47,7 +47,8 @@ fun DashboardScreen(
     onFabClick: () -> Unit,
     onTripsClick: () -> Unit,
     onMapClick: () -> Unit,
-    onStatisticsClick: () -> Unit
+    onStatisticsClick: () -> Unit,
+    onAiSuggestionsClick: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -118,6 +119,15 @@ fun DashboardScreen(
             ) {
                 Text(text = stringResource(R.string.go_to_statistics))
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = onAiSuggestionsClick,
+                modifier = modifier.fillMaxWidth(0.4f)
+            ) {
+                Text(text = stringResource(R.string.get_ai_suggestions))
+            }
         }
     }
 
@@ -157,7 +167,8 @@ fun DashboardPreview() {
             onFabClick = {},
             onTripsClick = {},
             onMapClick = {},
-            onStatisticsClick = {}
+            onStatisticsClick = {},
+            onAiSuggestionsClick = {}
         )
     }
 }
