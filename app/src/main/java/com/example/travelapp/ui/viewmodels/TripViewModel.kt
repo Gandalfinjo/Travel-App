@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.example.travelapp.R
+import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TransportType
 import com.example.travelapp.database.models.enums.TripStatus
@@ -16,12 +18,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 data class TripUiState(
     val trips: List<Trip> = emptyList(),
     val errorMessage: String? = null,
+    val tripAddedSuccessfully: Boolean = false,
 )
 
 @HiltViewModel
@@ -32,13 +34,45 @@ class TripViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TripUiState())
     val uiState: StateFlow<TripUiState> = _uiState.asStateFlow()
 
-    fun addTrip(name: String, description: String?, location: String, transport: TransportType, budget: Double, currency: String, startDate: LocalDate, endDate: LocalDate, userId: Int) = viewModelScope.launch {
+    fun addTrip(
+        name: String,
+        description: String?,
+        location: String,
+        transport: TransportType,
+        budget: String,
+        currency: String,
+        startDateMillis: Long?,
+        endDateMillis: Long?,
+        userId: Int,
+        context: Context
+    ) = viewModelScope.launch {
+        // Validation
+        if (name.isBlank() || location.isBlank() ||
+            budget.isBlank() || currency.isBlank() ||
+            startDateMillis == null || endDateMillis == null) {
+            _uiState.update {
+                it.copy(errorMessage = context.getString(R.string.missing_fields))
+            }
+            return@launch
+        }
+
+        if (startDateMillis > endDateMillis) {
+            _uiState.update {
+                it.copy(errorMessage = context.getString(R.string.you_cannot_put_the_start_date_after_the_end_date))
+            }
+            return@launch
+        }
+
+        // Convert to LocalDate
+        val startDate = TravelTypeConverters().fromTimestampMillis(startDateMillis)!!
+        val endDate = TravelTypeConverters().fromTimestampMillis(endDateMillis)!!
+
         val trip = Trip(
             name = name,
             description = description,
             location = location,
             transport = transport,
-            budget = budget,
+            budget = budget.toDoubleOrNull() ?: 0.0,
             currency = currency,
             startDate = startDate,
             endDate = endDate,
@@ -51,7 +85,19 @@ class TripViewModel @Inject constructor(
         tripScheduler.scheduleTripStatusUpdates(addedTrip)
 
         _uiState.update {
-            it.copy(errorMessage = null)
+            it.copy(
+                errorMessage = null,
+                tripAddedSuccessfully = true
+            )
+        }
+    }
+
+    fun resetAddTripState() {
+        _uiState.update {
+            it.copy(
+                errorMessage = null,
+                tripAddedSuccessfully = false
+            )
         }
     }
 
@@ -65,12 +111,6 @@ class TripViewModel @Inject constructor(
 
     fun getTrip(tripId: Int): Flow<Trip?> {
         return tripRepository.getTrip(tripId)
-    }
-
-    fun setErrorMessage(errorMessage: String) {
-        _uiState.update {
-            it.copy(errorMessage = errorMessage)
-        }
     }
 
     fun clearError() {

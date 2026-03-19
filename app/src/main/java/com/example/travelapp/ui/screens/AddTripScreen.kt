@@ -36,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
-import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.models.enums.TransportType
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
@@ -98,6 +98,19 @@ fun AddTripScreen(
 
     val startDatePickerState = rememberDatePickerState()
     val endDatePickerState = rememberDatePickerState()
+
+    LaunchedEffect(uiState.errorMessage) {
+        if (uiState.errorMessage != null) {
+            showAlert = true
+        }
+    }
+
+    LaunchedEffect(uiState.tripAddedSuccessfully) {
+        if (uiState.tripAddedSuccessfully) {
+            tripViewModel.resetAddTripState()
+            onAddTrip()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -262,35 +275,18 @@ fun AddTripScreen(
 
             Button(
                 onClick = {
-                    if (name == "" || location == "" || budget == "" || currency == "" || startDate == null || endDate == null) {
-                        tripViewModel.setErrorMessage(context.getString(R.string.missing_fields))
-                        showAlert = true
-                        return@Button
-                    }
-
-                    startDate?.let { start ->
-                        endDate?.let { end ->
-                            if (start > end) {
-                                tripViewModel.setErrorMessage(context.getString(R.string.you_cannot_put_the_start_date_after_the_end_date))
-                                showAlert = true
-                                return@Button
-                            }
-                        }
-                    }
-
                     tripViewModel.addTrip(
                         name,
                         description,
                         location,
                         transport,
-                        budget.toDoubleOrNull() ?: 0.0,
+                        budget,
                         currency,
-                        TravelTypeConverters().fromTimestampMillis(startDate)!!,
-                        TravelTypeConverters().fromTimestampMillis(endDate)!!,
-                        authUiState.loggedInUserId!!
+                        startDateMillis = startDate,
+                        endDateMillis = endDate,
+                        authUiState.loggedInUserId!!,
+                        context
                     )
-
-                    onAddTrip()
                 }
             ) {
                 Text(text = stringResource(R.string.add))
