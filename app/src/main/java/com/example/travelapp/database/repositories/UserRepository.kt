@@ -34,6 +34,11 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
     suspend fun getUserByEmail(email: String) =
         userDao.getUserByEmail(email)
 
+    /**
+     * Hashes password using SHA-256.
+     * NOTE: This is a simplified implementation for demonstration purposes.
+     * In production, use proper password hashing with salt (e.g., BCrypt, Argon2).
+     */
     private fun hashPassword(password: String): String {
         val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
