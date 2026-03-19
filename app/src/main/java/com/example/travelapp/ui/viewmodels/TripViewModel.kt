@@ -3,18 +3,12 @@ package com.example.travelapp.ui.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TransportType
 import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.database.repositories.TripRepository
-import com.example.travelapp.worker.EndTripWorker
-import com.example.travelapp.worker.StartTripWorker
-import com.example.travelapp.worker.TripReminderWorker
+import com.example.travelapp.schedulers.TripScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import java.time.Duration
 
 data class TripUiState(
     val trips: List<Trip> = emptyList(),
@@ -36,12 +26,13 @@ data class TripUiState(
 
 @HiltViewModel
 class TripViewModel @Inject constructor(
-    private val tripRepository: TripRepository
+    private val tripRepository: TripRepository,
+    private val tripScheduler: TripScheduler
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TripUiState())
     val uiState: StateFlow<TripUiState> = _uiState.asStateFlow()
 
-    fun addTrip(name: String, description: String?, location: String, transport: TransportType, budget: Double, currency: String, startDate: LocalDate, endDate: LocalDate, userId: Int, context: Context) = viewModelScope.launch {
+    fun addTrip(name: String, description: String?, location: String, transport: TransportType, budget: Double, currency: String, startDate: LocalDate, endDate: LocalDate, userId: Int) = viewModelScope.launch {
         val trip = Trip(
             name = name,
             description = description,
@@ -56,8 +47,8 @@ class TripViewModel @Inject constructor(
 
         val addedTrip = tripRepository.createTrip(trip)
 
-        scheduleTripNotifications(context, addedTrip)
-        scheduleTripStatusUpdates(context, addedTrip)
+        tripScheduler.scheduleTripNotifications(addedTrip)
+        tripScheduler.scheduleTripStatusUpdates(addedTrip)
 
         _uiState.update {
             it.copy(errorMessage = null)
@@ -92,90 +83,6 @@ class TripViewModel @Inject constructor(
         WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_1day")
         WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_startTrip")
         WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_endTrip")
-    }
-
-    private fun scheduleTripNotifications(context: Context, trip: Trip) {
-        val workManager = WorkManager.getInstance(context)
-
-        val now = LocalDateTime.now(ZoneId.systemDefault())
-
-        val startDateTime = trip.startDate.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()
-
-        // 3 days before
-        val threeDaysBefore = startDateTime.minusDays(3)
-        if (threeDaysBefore.isBefore(now)) {
-            triggerNotification(workManager, trip, 3)
-        }
-        else if (threeDaysBefore.isAfter(now)) {
-            val delayThreeDays = Duration.between(now, threeDaysBefore).toMillis()
-            scheduleNotification(workManager, trip, 3, delayThreeDays)
-        }
-
-        // 1 day before
-        val oneDayBefore = startDateTime.minusDays(1)
-        if (oneDayBefore.isBefore(now)) {
-            triggerNotification(workManager, trip, 1)
-        }
-        else if (oneDayBefore.isAfter(now)) {
-            val delayOneDay = Duration.between(now, oneDayBefore).toMillis()
-            scheduleNotification(workManager, trip, 1, delayOneDay)
-        }
-    }
-
-    private fun scheduleNotification(workManager: WorkManager, trip: Trip, daysBefore: Int, delayMillis: Long) {
-        val data = Data.Builder()
-            .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
-            .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
-            .putInt(TripReminderWorker.KEY_DAYS_BEFORE, daysBefore)
-            .build()
-
-        val workRequest = OneTimeWorkRequestBuilder<TripReminderWorker>()
-            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
-            .setInputData(data)
-            .addTag("trip_${trip.id}_${daysBefore}days")
-            .build()
-
-        workManager.enqueueUniqueWork("trip_${trip.id}_${daysBefore}days", ExistingWorkPolicy.REPLACE, workRequest)
-    }
-
-    private fun triggerNotification(workManager: WorkManager, trip: Trip, daysBefore: Int) {
-        val data = Data.Builder()
-            .putInt(TripReminderWorker.KEY_TRIP_ID, trip.id)
-            .putString(TripReminderWorker.KEY_TRIP_NAME, trip.name)
-            .putInt(TripReminderWorker.KEY_DAYS_BEFORE, daysBefore)
-            .build()
-
-        val workRequest = OneTimeWorkRequestBuilder<TripReminderWorker>()
-            .setInitialDelay(0, TimeUnit.MILLISECONDS) // Trigger immediately
-            .setInputData(data)
-            .addTag("trip_${trip.id}_${daysBefore}days")
-            .build()
-
-        workManager.enqueueUniqueWork("trip_${trip.id}_${daysBefore}days", ExistingWorkPolicy.REPLACE, workRequest)
-    }
-
-    private fun scheduleTripStatusUpdates(context: Context, trip: Trip) {
-        val workManager = WorkManager.getInstance(context)
-
-        // Start worker
-        val startDelay = Duration.between(LocalDateTime.now(), trip.startDate.atStartOfDay()).toMillis()
-        if (startDelay > 0) {
-            val startWork = OneTimeWorkRequestBuilder<StartTripWorker>()
-                .setInitialDelay(startDelay, TimeUnit.MILLISECONDS)
-                .setInputData(workDataOf("tripId" to trip.id))
-                .build()
-            workManager.enqueueUniqueWork("trip_${trip.id}_startTrip", ExistingWorkPolicy.REPLACE, startWork)
-        }
-
-        // End worker
-        val endDelay = Duration.between(LocalDateTime.now(), trip.endDate.atStartOfDay()).toMillis()
-        if (endDelay > 0) {
-            val endWork = OneTimeWorkRequestBuilder<EndTripWorker>()
-                .setInitialDelay(endDelay, TimeUnit.MILLISECONDS)
-                .setInputData(workDataOf("tripId" to trip.id))
-                .build()
-            workManager.enqueueUniqueWork("trip_${trip.id}_endTrip", ExistingWorkPolicy.REPLACE,endWork)
-        }
     }
 
 }

@@ -287,8 +287,7 @@ fun AddTripScreen(
                         currency,
                         TravelTypeConverters().fromTimestampMillis(startDate)!!,
                         TravelTypeConverters().fromTimestampMillis(endDate)!!,
-                        authUiState.loggedInUserId!!,
-                        context
+                        authUiState.loggedInUserId!!
                     )
 
                     onAddTrip()
