@@ -55,8 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.models.enums.TransportType
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.TripViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.TripViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale

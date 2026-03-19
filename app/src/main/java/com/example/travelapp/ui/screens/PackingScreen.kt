@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.enums.TripStatus
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.PackingViewModel
-import com.example.travelapp.ui.stateholders.TripViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.PackingViewModel
+import com.example.travelapp.ui.viewmodels.TripViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.travelapp.R
-import com.example.travelapp.ui.stateholders.WeatherViewModel
+import com.example.travelapp.ui.viewmodels.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

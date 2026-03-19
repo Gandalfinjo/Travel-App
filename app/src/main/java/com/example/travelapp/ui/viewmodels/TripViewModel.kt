@@ -1,4 +1,4 @@
-package com.example.travelapp.ui.stateholders
+package com.example.travelapp.ui.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

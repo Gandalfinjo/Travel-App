@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.PackingItem
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.PackingViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.PackingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

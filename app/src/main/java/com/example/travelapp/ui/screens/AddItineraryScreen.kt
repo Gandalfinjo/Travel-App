@@ -48,9 +48,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.models.ItineraryItem
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.ItineraryViewModel
-import com.example.travelapp.ui.stateholders.TripViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.ItineraryViewModel
+import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId

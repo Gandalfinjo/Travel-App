@@ -39,8 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.TripViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.TripViewModel
 import com.example.travelapp.database.models.enums.TripStatus
 
 @OptIn(ExperimentalMaterial3Api::class)

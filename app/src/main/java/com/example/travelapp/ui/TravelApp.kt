@@ -42,7 +42,7 @@ import com.example.travelapp.ui.screens.StatisticsScreen
 import com.example.travelapp.ui.screens.TripDetailsScreen
 import com.example.travelapp.ui.screens.TripListScreen
 import com.example.travelapp.ui.screens.WeatherScreen
-import com.example.travelapp.ui.stateholders.AuthViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun TravelApp(modifier: Modifier = Modifier) {

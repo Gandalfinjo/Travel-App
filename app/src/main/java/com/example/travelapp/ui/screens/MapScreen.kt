@@ -58,7 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.api.maps.OTMPoi
 import com.example.travelapp.api.maps.fetchNearbyPOI
 import com.example.travelapp.api.maps.formatKinds
-import com.example.travelapp.ui.stateholders.AuthViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
 
 @SuppressLint("LocalContextResourcesRead", "MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)

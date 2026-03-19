@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.ui.elements.BarChart
 import com.example.travelapp.ui.elements.PieChart
-import com.example.travelapp.ui.stateholders.AuthViewModel
-import com.example.travelapp.ui.stateholders.StatisticsViewModel
+import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.StatisticsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
