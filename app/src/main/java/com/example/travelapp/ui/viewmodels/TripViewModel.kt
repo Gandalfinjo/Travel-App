@@ -26,6 +26,13 @@ data class TripUiState(
     val tripAddedSuccessfully: Boolean = false,
 )
 
+/**
+ * ViewModel responsible for managing trip-related UI state and business logic.
+ *
+ * Handles trip creation, validation, loading and cancellation
+ * Coordinates with [TripRepository] for data persistence and [TripScheduler]
+ * for background task scheduling.
+ */
 @HiltViewModel
 class TripViewModel @Inject constructor(
     private val tripRepository: TripRepository,
@@ -34,6 +41,27 @@ class TripViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TripUiState())
     val uiState: StateFlow<TripUiState> = _uiState.asStateFlow()
 
+    /**
+     * Validates user input and creates a new trip if all validations pass.
+     *
+     * Performs the following validations:
+     * - All required fields are filled
+     * - Start date is before end date
+     * - Budged is a valid number
+     *
+     * On success, schedules notifications and status updates for the trip.
+     *
+     * @param name Trip name
+     * @param description Optional trip description
+     * @param location Trip destination
+     * @param transport Type of transportation
+     * @param budget Budget as String (will be converted to Double)
+     * @param currency Currency code (e.g., "USD", "EUR")
+     * @param startDateMillis Start date in milliseconds since epoch
+     * @param endDateMillis End date in milliseconds since epoch
+     * @param userId ID of the user creating the trip
+     * @param context Android context for accessing string resources
+     */
     fun addTrip(
         name: String,
         description: String?,
@@ -92,6 +120,10 @@ class TripViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Resets the add trip state flags.
+     * Should be called after successfully navigating away from [com.example.travelapp.ui.screens.AddTripScreen].
+     */
     fun resetAddTripState() {
         _uiState.update {
             it.copy(
@@ -101,6 +133,12 @@ class TripViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Loads all trips for the specified (logged in) user.
+     * Updates [uiState] with the list of trips.
+     *
+     * @param userId ID of the user whose trips to load
+     */
     fun loadTrips(userId: Int) = viewModelScope.launch {
         tripRepository.getUserTrips(userId).collect { trips ->
             _uiState.update {
@@ -109,14 +147,29 @@ class TripViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Retrieves a single trip by ID as a Flow.
+     *
+     * @param tripId ID of the trip to retrieve
+     * @return Flow emitting the trip or null if not found
+     */
     fun getTrip(tripId: Int): Flow<Trip?> {
         return tripRepository.getTrip(tripId)
     }
 
+    /**
+     * Clears any error message from the UI state.
+     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 
+    /**
+     * Cancels a trip and removes all scheduled notifications and status updates.
+     *
+     * @param context Android context for accessing WorkManager
+     * @param tripId ID of the trip to cancel
+     */
     fun cancelTrip(context: Context, tripId: Int) = viewModelScope.launch {
         tripRepository.updateTripStatus(tripId, TripStatus.CANCELLED)
         WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_3days")
