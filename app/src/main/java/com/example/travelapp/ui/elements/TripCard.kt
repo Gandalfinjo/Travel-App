@@ -17,6 +17,16 @@ import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TripStatus
 
+/**
+ * Composable that displays summary information for a single trip.
+ *
+ * Shows trip name, location, and date range.
+ * Background color varies depending on [TripStatus].
+ *
+ * @param trip Trip data to display
+ * @param modifier Modifier for styling and layout
+ * @param onClick Callback triggered when the card is clicked
+ */
 @Composable
 fun TripCard(
     trip: Trip,

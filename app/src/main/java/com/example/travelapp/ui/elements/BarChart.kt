@@ -18,6 +18,15 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.Trip
 
+/**
+ * Composable that displays a bar chart of trip budgets.
+ *
+ * Each bar represents a single [Trip], scaled relative to the maximum budget.
+ * Includes truncated labels and a legend with full trip details.
+ *
+ * @param trips List of trips to visualize
+ * @param modifier Modifier for styling and layout
+ */
 @Composable
 fun BarChart(
     trips: List<Trip>,

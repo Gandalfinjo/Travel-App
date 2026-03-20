@@ -20,6 +20,14 @@ import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.enums.TripStatus
 import kotlin.math.min
 
+/**
+ * Composable that displays a pie chart of trips grouped by [TripStatus].
+ *
+ * Each slice represents the proportion of trips for a given status.
+ * Also displays a legend with counts per status.
+ *
+ * @param data Map of [TripStatus] to number of trips
+ */
 @Composable
 fun PieChart(data: Map<TripStatus, Int>) {
     if (data.isEmpty()) {
