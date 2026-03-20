@@ -55,7 +55,7 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
      * Retrieves a user for the provided username.
      *
      * @param username Username for which to retrieve a user
-     * @returns User object if the username is found, null otherwise
+     * @return User object if the username is found, null otherwise
      */
     suspend fun getUserByUsername(username: String) =
         userDao.getUserByUsername(username)
@@ -64,7 +64,7 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
      * Retrieves a user for the provided username.
      *
      * @param email Email for which to retrieve a user
-     * @returns User object if the email is found, null otherwise
+     * @return User object if the email is found, null otherwise
      */
     suspend fun getUserByEmail(email: String) =
         userDao.getUserByEmail(email)

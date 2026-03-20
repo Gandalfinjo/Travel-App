@@ -5,6 +5,13 @@ import android.os.Looper
 import org.json.JSONArray
 import java.net.URL
 
+/**
+ * Represents a Point of Interest (POI) from OpenTripMap API.
+ * @property name Name of the point of interest
+ * @property lat Latitude coordinate
+ * @property lon Longitude coordinate
+ * @property kinds Comma-separated categories/types of the POI
+ */
 data class OTMPoi(
     val name: String,
     val lat: Double,
@@ -12,6 +19,16 @@ data class OTMPoi(
     val kinds: String
 )
 
+/**
+ * Fetches nearby points of interest from OpenTripMap API.
+ *
+ * Makes a network request on a background thread and returns results on the main thread.
+ * Search radius is fixed at 2000 meters with maximum rating of 2.
+ *
+ * @param lat Latitude of the center point
+ * @param lon Longitude of the center point
+ * @param onResult Callback invoked on the main thread with the list of POIs (empty list on error)
+ */
 fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
     val url =
         "https://api.opentripmap.com/0.1/en/places/radius?radius=2000&lon=$lon&lat=$lat&rate=2&format=json&apikey=5ae2e3f221c38a28845f05b676041a1841e510d13dcdbd3fd0a12c9c"
@@ -46,6 +63,16 @@ fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
     }.start()
 }
 
+/**
+ * Formats POI category strings into human-readable format.
+ *
+ * Converts underscore-separated categories to title case and limits the number displayed.
+ * Example: "historic_places, interesting_places" -> "Historic Places, Interesting Places"
+ *
+ * @param kinds Comma-separated string of POI categories
+ * @param limit Maximum number of categories to return (default: 2)
+ * @return Formatted, comma-separated string of categories
+ */
 fun formatKinds(kinds: String, limit: Int = 2): String {
     return kinds.split(",")
         .map { kind ->
