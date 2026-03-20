@@ -9,6 +9,12 @@ import com.example.travelapp.database.repositories.TripRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
+/**
+ * Background worker that automatically updates trip status to FINISHED.
+ *
+ * Scheduled to run at the trip's end date. Changes trip status from
+ * ONGOING to FINISHED when the trip concludes.
+ */
 @HiltWorker
 class EndTripWorker @AssistedInject constructor(
     @Assisted private val context: Context,

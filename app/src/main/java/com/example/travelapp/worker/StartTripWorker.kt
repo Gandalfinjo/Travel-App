@@ -9,6 +9,12 @@ import com.example.travelapp.database.repositories.TripRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
+/**
+ * Background worker that automatically updates trip status to ONGOING.
+ *
+ * Scheduled to run at the trip's start date. Changes trip status from
+ * PLANNED to ONGOING when the trip begins.
+ */
 @HiltWorker
 class StartTripWorker @AssistedInject constructor(
     @Assisted private val context: Context,

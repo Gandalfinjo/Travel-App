@@ -11,6 +11,12 @@ import androidx.work.WorkerParameters
 import com.example.travelapp.R
 import androidx.core.net.toUri
 
+/**
+ * Background worker that sends trip reminder notifications.
+ *
+ * Scheduled to run at configured intervals before trip start (e.g., 3 days, 1 day).
+ * Creates a notification with a deep link to the trip details screen.
+ */
 class TripReminderWorker(
     context: Context,
     params: WorkerParameters
