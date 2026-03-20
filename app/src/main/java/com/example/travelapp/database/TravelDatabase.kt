@@ -23,6 +23,16 @@ import com.example.travelapp.database.models.Place
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.User
 
+/**
+ * Room database for the Travel App.
+ *
+ * Manages all persistent data including users, trips, itineraries, packing lists,
+ * photos, places, and notifications.
+ *
+ * Current schema version: 2
+ * - Version 1: Initial schema (users, trips, places, photos, notifications)
+ * - Version 2: Added itinerary_items and packing_items tables
+ */
 @TypeConverters(TravelTypeConverters::class)
 @Database(
     entities = [
@@ -49,6 +59,13 @@ abstract class TravelDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: TravelDatabase? = null
 
+        /**
+         * Returns singleton instance of the database.
+         * Creates a new instance if one doesn't exist.
+         *
+         * @param context Application context
+         * @return TravelDatabase instance
+         */
         fun getDatabase(context: Context): TravelDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -63,6 +80,10 @@ abstract class TravelDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration from database version 1 to 2.
+         * Adds itinerary_items and packing_items tables.
+         */
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
