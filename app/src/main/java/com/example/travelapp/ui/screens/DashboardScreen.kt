@@ -38,6 +38,21 @@ import com.example.travelapp.R
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
 
+/**
+ * Displays the main dashboard screen of the app with quick access to various user features.
+ *
+ * Contains a TopAppBar with logout action, a FloatingActionButton to add a new trip,
+ * and buttons to navigate to trips, map, statistics, and AI suggestions.
+ *
+ * @param modifier Modifier for customizing the layout of the screen
+ * @param authViewModel ViewModel responsible for user authentication
+ * @param onLogoutClick Lambda called when the user confirms logout
+ * @param onFabClick Lambda called when the user clicks the FloatingActionButton to create a new trip
+ * @param onTripsClick Lambda called when the user navigates to their trips
+ * @param onMapClick Lambda called when the user navigates to the map
+ * @param onStatisticsClick Lambda called when the user navigates to the statistics screen
+ * @param onAiSuggestionsClick Lambda called when the user navigates to AI suggestions
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(

@@ -47,6 +47,23 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PackingViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
+/**
+ * Displays the packing list for a specific trip allowing users to mark items as packed.
+ *
+ * Loads packing items from the view model and displays them in a scrollable list.
+ * Users can add new items using the floating action button. Only trips with PLANNED status
+ * allow marking items as packed. The screen includes a TopAppBar with navigation and logout,
+ * and handles showing a logout confirmation dialog.
+ *
+ * @param tripId ID of the trip whose packing list is displayed
+ * @param modifier Modifier for customizing the layout of the screen
+ * @param onBackClick Lambda called when the user navigates back
+ * @param onLogoutClick Lambda called when the user confirms logout
+ * @param onAddItemClick Lambda called when the user wants to add a new packing item
+ * @param authViewModel ViewModel responsible for user authentication
+ * @param tripViewModel ViewModel responsible for retrieving trip details
+ * @param packingViewModel ViewModel responsible for managing packing list items
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PackingScreen(

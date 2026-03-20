@@ -38,6 +38,19 @@ import com.example.travelapp.ui.elements.PieChart
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.StatisticsViewModel
 
+/**
+ * Displays statistical insights about the user's trips including charts and key metrics.
+ *
+ * Fetches statistics for the logged-in user and displays them using PieChart and BarChart components.
+ * Shows total trips by status, average duration of trips, most visited destination, and top spending trips.
+ * Includes a TopAppBar with navigation and logout, and handles showing a logout confirmation dialog.
+ *
+ * @param onBackClick Lambda called when the user navigates back
+ * @param onLogoutClick Lambda called when the user confirms logout
+ * @param modifier Modifier for customizing the layout of the screen
+ * @param authViewModel ViewModel responsible for user authentication
+ * @param statisticsViewModel ViewModel responsible for loading and managing trip statistics
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(

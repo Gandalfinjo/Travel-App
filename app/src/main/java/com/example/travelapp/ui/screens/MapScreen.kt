@@ -60,6 +60,19 @@ import com.example.travelapp.api.maps.fetchNearbyPOI
 import com.example.travelapp.api.maps.formatKinds
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 
+/**
+ * Displays an interactive map showing the user's current location and nearby points of interest.
+ *
+ * Requests location permission and, if granted, centers the map on the user's current location
+ * and fetches nearby POIs to display as markers. Includes a TopAppBar with navigation and logout,
+ * and handles showing a logout confirmation dialog. If location permission is denied, shows a button
+ * to request it.
+ *
+ * @param modifier Modifier for customizing the layout of the screen
+ * @param authViewModel ViewModel responsible for user authentication
+ * @param onBackClick Lambda called when the user navigates back
+ * @param onLogoutClick Lambda called when the user confirms logout
+ */
 @SuppressLint("LocalContextResourcesRead", "MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable

@@ -43,6 +43,20 @@ import com.example.travelapp.R
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
 
+/**
+ * Screen for user registration.
+ *
+ * Allows user to enter personal information and create a new account.
+ * Performs basic client-side validation (email format, password length, matching passwords)
+ * before triggering registration via [AuthViewModel].
+ *
+ * Displays loading and error states, and automatically navigates after successful registration.
+ *
+ * @param modifier Modifier for styling and layout
+ * @param onLoginClick Callback triggered when user navigates back to login screen
+ * @param onRegister Callback triggered after successful registration (and auto login)
+ * @param authViewModel ViewModel handling authentication and registration logic
+ */
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,

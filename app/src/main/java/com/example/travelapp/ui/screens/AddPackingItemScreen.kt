@@ -36,6 +36,24 @@ import com.example.travelapp.database.models.PackingItem
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PackingViewModel
 
+/**
+ * Screen for adding a new packing item to a specific trip.
+ *
+ * Provides inputs for the name and quantity of the packing item.
+ * - Validates that the name field is not empty before adding the item.
+ * - Default quantity is 1 if the user input is invalid or empty.
+ * - Displays alert dialogs for missing fields and logout confirmation.
+ *
+ * On successful addition, triggers [onAddItem] callback.
+ *
+ * @param tripId ID of the trip to which the packing item will be added
+ * @param modifier Modifier for styling and layout
+ * @param onBackClick Callback triggered when the user presses the back button
+ * @param onLogoutClick Callback triggered when the user confirms logout
+ * @param onAddItem Callback triggered after successfully adding the packing item
+ * @param authViewModel ViewModel managing authentication and logout
+ * @param packingViewModel ViewModel handling packing items
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPackingItemScreen(
