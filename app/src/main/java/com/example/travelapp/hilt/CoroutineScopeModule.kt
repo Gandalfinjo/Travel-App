@@ -9,6 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing coroutine scope dependencies.
+ *
+ * Provides application-level CoroutineScope with SupervisorJob
+ * for background operations that should survive individual failures.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object CoroutineScopeModule {

@@ -7,6 +7,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing AI/ML dependencies.
+ *
+ * Configures and provides Google Gemini AI model for generating
+ * personalized trip recommendations.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AiModule {

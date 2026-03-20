@@ -12,6 +12,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing weather API dependencies.
+ *
+ * Configures Retrofit with HTTP logging for OpenWeatherMap API integration.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object WeatherModule {
