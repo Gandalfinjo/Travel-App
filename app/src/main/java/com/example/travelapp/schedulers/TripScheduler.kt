@@ -18,10 +18,28 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Manages background scheduling for trip-related notifications and status updates.
+ *
+ * Uses WorkManager to schedule:
+ * - Reminder notifications (3 days and 1 day before trip start)
+ * - Automatic trip status transitions (PLANNED -> ONGOING -> FINISHED)
+ */
 @Singleton
 class TripScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
+    /**
+     * Schedules reminder notifications for a trip.
+     *
+     * Creates two notifications:
+     * - 3 days before trip start
+     * - 1 day before trip start
+     *
+     * If the notification time has already passed, triggers it immediately.
+     *
+     * @param trip The trip for which to schedule notifications
+     */
     fun scheduleTripNotifications(trip: Trip) {
         val workManager = WorkManager.getInstance(context)
 
@@ -82,6 +100,15 @@ class TripScheduler @Inject constructor(
         workManager.enqueueUniqueWork("trip_${trip.id}_${daysBefore}days", ExistingWorkPolicy.REPLACE, workRequest)
     }
 
+    /**
+     * Schedules automatic status updates for a trip.
+     *
+     * Creates workers that will:
+     * - Change status to ONGOING on trip start date
+     * - Change status to FINISHED on trip start date
+     *
+     * @param trip The trip for which to schedule status updates
+     */
     fun scheduleTripStatusUpdates(trip: Trip) {
         val workManager = WorkManager.getInstance(context)
 
