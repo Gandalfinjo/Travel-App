@@ -17,6 +17,14 @@ data class WeatherState(
     val error: String? = null
 )
 
+/**
+ * ViewModel responsible for fetching and managing current weather data.
+ *
+ * Retrieves weather information for a given city and exposes it to the UI.
+ * Handles loading and error states during API calls.
+ *
+ * Coordinates with [WeatherRepository] for remote weather data fetching.
+ */
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository
@@ -24,6 +32,19 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherState(isLoading = true))
     val uiState: StateFlow<WeatherState> = _uiState
 
+    /**
+     * Loads current weather data for the specified city.
+     *
+     * Performs the following:
+     * - Sets loading state to true
+     * - Fetches weather data from API
+     * - Updates UI state with result or error
+     *
+     * On success, updates [WeatherState.weather].
+     * On failure, sets [WeatherState.error] with exception message.
+     *
+     * @param city Name of the city for which weather should be retrieved
+     */
     fun loadCurrentWeather(city: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(isLoading = true)

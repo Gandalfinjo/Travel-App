@@ -22,6 +22,18 @@ data class StatisticsUiState(
     val topSpendingTrips: List<Trip> = emptyList()
 )
 
+/**
+ * ViewModel responsible for calculating and exposing travel statistics.
+ *
+ * Aggregates data from user's trips to provide insights such as:
+ * - Total number of trips
+ * - Distribution of trips by status
+ * - Average trip duration
+ * - Most frequently visited destination
+ * - Top spending trips
+ *
+ * Coordinates with [TripRepository] to retrieve trip data.
+ */
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     private val tripRepository: TripRepository
@@ -29,6 +41,20 @@ class StatisticsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState: StateFlow<StatisticsUiState> = _uiState.asStateFlow()
 
+    /**
+     * Loads and calculates statistics for the specified user.
+     *
+     * Performs the following calculations:
+     * - Counts total number of trips
+     * - Groups trips by [TripStatus]
+     * - Calculates average duration in days
+     * - Determines most visited destination
+     * - Selects top 5 trips by highest budget
+     *
+     * If the user has no trips, resets the state to default values.
+     *
+     * @param userId ID of the user whose statistics should be calculated
+     */
     fun loadStatistics(userId: Int) = viewModelScope.launch {
         tripRepository.getUserTrips(userId).collect { trips ->
             if (trips.isEmpty()) {

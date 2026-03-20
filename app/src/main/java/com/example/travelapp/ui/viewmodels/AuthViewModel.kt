@@ -18,6 +18,12 @@ data class AuthUiState(
     val loggedInUserId: Int? = null
 )
 
+/**
+ * ViewModel for user authentication (login and registration).
+ *
+ * Manages authentication state and coordinates with UserRepository
+ * for user operations. Automatically logs in user after successful registration.
+ */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository
@@ -25,6 +31,18 @@ class AuthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
+    /**
+     * Registers a new user and automatically logs them in.
+     *
+     * Validates that username and email are unique before creating the account.
+     * On success, user is logged in automatically.
+     *
+     * @param firstname User's first name
+     * @param lastname User's last name
+     * @param email User's email address
+     * @param username Desired username (must be unique)
+     * @param password Plain text password (will be hashed)
+     */
     fun register(firstname: String, lastname: String, email: String, username: String, password: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(
@@ -90,6 +108,12 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Authenticates a user with username and password.
+     *
+     * @param username Username to authenticate
+     * @param password Plain text password (will be hashed for comparison)
+     */
     fun login(username: String, password: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(
@@ -119,6 +143,9 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Logs out the current user by clearing authentication state.
+     */
     fun logout() {
         _uiState.update {
             it.copy(
@@ -128,12 +155,20 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sets a custom error message in the UI state.
+     *
+     * @param errorMessage Error message to display
+     */
     fun setErrorMessage(errorMessage: String) {
         _uiState.update {
             it.copy(errorMessage = errorMessage)
         }
     }
 
+    /**
+     * Clears any error message from the UI state.
+     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }

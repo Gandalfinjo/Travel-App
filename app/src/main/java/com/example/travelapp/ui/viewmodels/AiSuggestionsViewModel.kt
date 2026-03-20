@@ -13,6 +13,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Represents a single AI-generated travel destination suggestion.
+ *
+ * @property destination Name of the suggested destination
+ * @property description Brief description of the destination (2-3 sentences)
+ * @property reason Explanation of why this matches the user's travel history
+ */
 data class AiSuggestion(
     val destination: String,
     val description: String,
@@ -25,6 +32,12 @@ data class AiSuggestionsUiState(
     val errorMessage: String? = null
 )
 
+/**
+ * ViewModel for AI-powered travel destination suggestions.
+ *
+ * Uses Google Gemini AI to analyze user's past trips and generate
+ * personalized recommendations for future destinations.
+ */
 @HiltViewModel
 class AiSuggestionsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
@@ -33,6 +46,14 @@ class AiSuggestionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AiSuggestionsUiState())
     val uiState: StateFlow<AiSuggestionsUiState> = _uiState.asStateFlow()
 
+    /**
+     * Generates AI-powered destination suggestions based on user's trip history.
+     *
+     * Analyzes past trips (locations, dates, budgets) and uses Gemini AI to
+     * suggest 3 new destinations that match the user's travel patterns.
+     *
+     * @param userId ID of the user for whom to generate suggestions
+     */
     fun generateSuggestions(userId: Int) = viewModelScope.launch {
         _uiState.update {
             it.copy(
@@ -97,6 +118,18 @@ class AiSuggestionsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Parses AI response text into structured AiSuggestion objects.
+     *
+     * Expects response format:
+     * DESTINATION: [AiSuggestion.destination]
+     * DESCRIPTION: [AiSuggestion.description]
+     * REASON: [AiSuggestion.reason]
+     * ---
+     *
+     * @param text Raw AI response text
+     * @return List of parsed suggestions (may be empty if parsing fails)
+     */
     private fun parseAiResponse(text: String): List<AiSuggestion> {
         val suggestions = mutableListOf<AiSuggestion>()
 
