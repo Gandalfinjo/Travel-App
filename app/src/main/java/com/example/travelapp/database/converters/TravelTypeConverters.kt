@@ -8,6 +8,13 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
+/**
+ * Room TypeConverters for custom data types ued in the database.
+ *
+ * Provides conversion between Kotlin types and database-compatible types:
+ * - LocalDate <-> Long (timestamp in milliseconds)
+ * - Enums <-> String (enum name)
+ */
 class TravelTypeConverters {
     @TypeConverter
     fun fromTimestampMillis(timestampMillis: Long?): LocalDate? {
