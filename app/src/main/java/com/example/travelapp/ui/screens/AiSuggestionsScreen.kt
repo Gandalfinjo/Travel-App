@@ -47,24 +47,9 @@ import com.example.travelapp.ui.viewmodels.AiSuggestionsViewModel
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 
 /**
- * Screen that displays AI-generated personalized travel suggestions based on the user's travel history.
- *
- * Features:
- * - Shows a loading indicator while suggestions are being generated.
- * - Displays an error message with a retry button if generation fails.
- * - Lists personalized suggestions in cards, showing:
- *   - Destination name
- *   - Description
- *   - Reason why this destination is suggested for the user
- *
- * Supports logout confirmation dialog.
- *
- * @param onBackClick Callback triggered when the user presses the back button
- * @param onLogoutClick Callback triggered when the user confirms logout
- * @param modifier Modifier for styling and layout
- * @param authViewModel ViewModel managing authentication and logout
- * @param aiViewModel ViewModel responsible for generating AI travel suggestions
+ * Displays AI-generated travel destination suggestions.
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiSuggestionsScreen(

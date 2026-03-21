@@ -39,17 +39,7 @@ import com.example.travelapp.R
 import com.example.travelapp.ui.viewmodels.WeatherViewModel
 
 /**
- * Displays the current weather information for a given location.
- *
- * Shows a loading indicator while data is being fetched, an error message if the
- * fetch fails, and a detailed weather card when data is available.
- * The weather card includes temperature, feels-like, humidity, wind speed, and
- * a weather icon. The card background color changes depending on the weather condition.
- *
- * @param location The location (city name) for which to display weather information
- * @param onBackClick Lambda invoked when the back button is pressed
- * @param modifier Modifier for customizing the layout of the screen
- * @param weatherViewModel ViewModel responsible for fetching and holding weather data
+ * Displays current weather information for a location.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

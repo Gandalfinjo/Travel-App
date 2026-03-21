@@ -44,24 +44,8 @@ import com.example.travelapp.ui.viewmodels.TripViewModel
 import com.example.travelapp.database.models.enums.TripStatus
 
 /**
- * Displays detailed information about a specific trip including its name, location, dates, and description.
- *
- * Provides navigation to weather information, map view, photo album, itinerary, and packing list for the trip.
- * Allows canceling the trip if it is in a cancellable state (PLANNED or ONGOING).
- * Includes a TopAppBar with navigation and logout, and handles showing logout and cancel confirmation dialogs.
- *
- * @param tripId ID of the trip to display
- * @param onBackClick Lambda called when the user navigates back
- * @param onLogoutClick Lambda called when the user confirms logout
- * @param onWeatherClick Lambda called to view current weather for the trip location
- * @param onMapClick Lambda called to navigate to the map view
- * @param onAlbumClick Lambda called to navigate to the trip's photo album
- * @param onItineraryClick Lambda called to navigate to the trip's itinerary
- * @param onPackingClick Lambda called to navigate to the trip's packing list
- * @param modifier Modifier for customizing the layout of the screen
- * @param authViewModel ViewModel responsible for user authentication
- * @param tripViewModel ViewModel responsible for managing trip data
- */
+* Displays detailed information about a specific trip.
+*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TripDetailsScreen(

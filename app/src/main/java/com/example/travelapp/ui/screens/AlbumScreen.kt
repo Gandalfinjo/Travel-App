@@ -66,23 +66,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Screen that displays a photo album for a specific trip, allowing the user to view, add, and enlarge photos.
- *
- * Features:
- * - Displays all photos for the given trip in a horizontal pager with indicators.
- * - Allows adding photos from the gallery or taking a new photo with the camera, only if the trip status is ONGOING or FINISHED.
- * - Tapping a photo opens it in a full-screen dialog.
- * - Shows a loading indicator while trip details are being fetched.
- * - Shows a message if there are no photos yet.
- * - Includes a logout confirmation dialog.
- *
- * @param tripId The ID of the trip for which the album is displayed
- * @param modifier Modifier for layout and styling
- * @param onBackClick Callback triggered when the user presses the back button
- * @param onLogoutClick Callback triggered when the user confirms logout
- * @param authViewModel ViewModel managing authentication and logout functionality
- * @param tripViewModel ViewModel providing trip details
- * @param photoViewModel ViewModel managing photo storage and retrieval for trips
+ * Photo album screen for viewing and adding trip photos.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

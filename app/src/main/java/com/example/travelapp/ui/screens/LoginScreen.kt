@@ -39,15 +39,7 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
 
 /**
- * Screen for user login.
- *
- * Allows user to enter username and password and authenticate via [AuthViewModel].
- * Displays loading state and error messages, and navigates on successful login.
- *
- * @param modifier Modifier for styling and layout
- * @param onRegisterClick Callback triggered when user navigates to registration screen
- * @param onLogin Callback triggered after successful login
- * @param authViewModel ViewModel handling authentication logic and state
+ * Screen for user login with username and password.
  */
 @Composable
 fun LoginScreen(

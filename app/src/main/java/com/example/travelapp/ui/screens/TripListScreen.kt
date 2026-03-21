@@ -34,18 +34,7 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
 /**
- * Displays a list of all trips for the logged-in user in a scrollable list.
- *
- * Each trip is represented as a TripCard that can be clicked to view trip details
- * Provides a TopAppBar with back navigation and logout functionality
- * Handles showing a logout confirmation dialog.
- *
- * @param modifier Modifier for customizing the layout of the screen
- * @param authViewModel ViewModel responsible for user authentication
- * @param tripViewModel ViewModel responsible for managing trip data
- * @param onLogoutClick Lambda called when the user confirms logout
- * @param onTripClick Lambda called when a trip is selected, receives the trip ID
- * @param onBackClick Lambda called when the user navigates back
+ * Displays a scrollable list of all user trips.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

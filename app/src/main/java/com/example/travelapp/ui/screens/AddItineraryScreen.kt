@@ -57,24 +57,7 @@ import java.time.ZoneId
 import java.util.Locale
 
 /**
- * Screen for adding a new itinerary item to a specific trip.
- *
- * Provides inputs for the title, description, and date of the itinerary item.
- * - The date picker restricts selection to the trip's start and end dates.
- * - Validates required fields (title and date) before adding the item.
- * - Shows loading state while trip data is being fetched.
- * - Displays alerts for missing fields and logout confirmation.
- *
- * On successful addition, triggers [onAddItem] callback.
- *
- * @param tripId ID of the trip to which the itinerary item will be added
- * @param modifier Modifier for styling and layout
- * @param onBackClick Callback triggered when the user presses the back button
- * @param onLogoutClick Callback triggered when the user confirms logout
- * @param onAddItem Callback triggered after successfully adding the itinerary item
- * @param authViewModel ViewModel managing authentication and logout
- * @param tripViewModel ViewModel providing trip data
- * @param itineraryViewModel ViewModel handling itinerary items
+ * Screen for adding a new itinerary item to a trip.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

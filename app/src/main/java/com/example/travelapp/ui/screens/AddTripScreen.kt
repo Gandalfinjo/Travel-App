@@ -62,26 +62,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * Screen for adding a new trip.
- *
- * Allows the user to enter trip details including:
- * - Name
- * - Description
- * - Location
- * - Transport type (selected from a dropdown)
- * - Budget
- * - Currency
- * - Start and end dates (via date pickers)
- *
- * Validates required fields and displays alert dialogs for errors and logout confirmation.
- * On successful addition, triggers [onAddTrip] callback.
- *
- * @param modifier Modifier for styling and layout
- * @param authViewModel ViewModel managing authentication and logout
- * @param tripViewModel ViewModel managing trips
- * @param onLogoutClick Callback triggered when the user confirms logout
- * @param onAddTrip Callback triggered after successfully adding the trip
- * @param onBackClick Callback triggered when the user presses the back button
+ * Screen for adding a new trip with validation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

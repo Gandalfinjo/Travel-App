@@ -51,19 +51,7 @@ import com.example.travelapp.ui.viewmodels.ItineraryViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
 /**
- * Displays the daily itinerary for a specific trip and allows users to mark items as done.
- *
- * Shows a TopAppBar with navigation and logout actions, a FloatingActionButton to add new itinerary items,
- * and a list of itinerary items grouped by date. Only ongoing trips allow checking items as done.
- *
- * @param tripId The ID of the trip for which the itinerary is displayed
- * @param modifier Modifier for customizing the layout of the screen
- * @param onBackClick Lambda called when the user navigates back
- * @param onLogoutClick Lambda called when the user confirms logout
- * @param onAddItemClick Lambda called when the user wants to add a new itinerary item, receives the tripId
- * @param authViewModel ViewModel responsible for user authentication
- * @param tripViewModel ViewModel responsible for trip data
- * @param itineraryViewModel ViewModel responsible for itinerary data
+ * Displays the daily itinerary for a trip.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
