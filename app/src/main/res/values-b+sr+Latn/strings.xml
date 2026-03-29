@@ -68,6 +68,22 @@
     <string name="add_packing_item">Dodaj stvar za pakovanje</string>
     <string name="go_to_packing">Idi na pakovanje</string>
     <string name="add_itinerary_item">Dodaj itinerar</string>
-    <string name="quantity">Kolicina</string>
+    <string name="quantity">Količina</string>
     <string name="name">Naziv</string>
+    <string name="go_to_statistics">Idi na statistiku</string>
+    <string name="ai_travel_suggestions">AI preporuka putovanja</string>
+    <string name="ai_is_thinking">AI razmisšlja... 🤖</string>
+    <string name="retry">Probaj ponovo</string>
+    <string name="get_ai_suggestions">Predlozi Vestačke Inteligencije 🤖</string>
+    <string name="explore">Istraži</string>
+    <string name="current_forecast">Trenutna prognoza</string>
+    <string name="nearby_places">Mesta u blizini</string>
+    <string name="itinerary">Itinerar</string>
+    <string name="daily_plan">Dnevni plan</string>
+    <string name="album">Album</string>
+    <string name="manage_what_to_bring">Organizuj šta poneti</string>
+    <string name="statistics">Statistika</string>
+    <string name="ai">AI</string>
+    <string name="trips">Putovanja</string>
+    <string name="home">Početna</string>
 </resources>
