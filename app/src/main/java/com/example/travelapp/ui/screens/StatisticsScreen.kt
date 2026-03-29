@@ -1,17 +1,27 @@
 package com.example.travelapp.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,11 +40,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.travelapp.R
 import com.example.travelapp.ui.elements.BarChart
 import com.example.travelapp.ui.elements.PieChart
+import com.example.travelapp.ui.elements.StatMetricCard
+import com.example.travelapp.ui.elements.StatSectionCard
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.StatisticsViewModel
 
@@ -64,7 +80,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistics") },
+                title = { Text(text = stringResource(R.string.statistics)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -81,7 +97,7 @@ fun StatisticsScreen(
                     IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Logout"
+                            contentDescription = stringResource(R.string.logout)
                         )
                     }
                 }
@@ -89,42 +105,93 @@ fun StatisticsScreen(
         },
         containerColor = Color.Transparent
     ) { innerPadding ->
-        Box(
+        LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = "Trips by Status",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                PieChart(uiState.tripsByStatus)
-
-                Text(
-                    text = "Average Duration: %.1f days".format(uiState.averageDuration),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Text(
-                    text = "Most Visited Destination: ${uiState.topDestination ?: "N/A"}",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                if (uiState.topSpendingTrips.isNotEmpty()) {
-                    Text(
-                        text = "Top Spending Trips",
-                        style = MaterialTheme.typography.titleMedium
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    StatMetricCard(
+                        label = stringResource(R.string.total_trips),
+                        value = uiState.tripsByStatus.values.sum().toString(),
+                        modifier = Modifier.weight(1f)
                     )
-                    BarChart(trips = uiState.topSpendingTrips)
+
+                    StatMetricCard(
+                        label = stringResource(R.string.avg_duration),
+                        value = "%.1f".format(uiState.averageDuration),
+                        unit = stringResource(R.string.days),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            uiState.topDestination?.let { destination ->
+                item {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(
+                            width = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xFFE1F5EE)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = Color(0xFF0F6E56),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.top_destination),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    destination,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (uiState.tripsByStatus.isNotEmpty()) {
+                item {
+                    StatSectionCard(title = "Trips by status") {
+                        PieChart(uiState.tripsByStatus)
+                    }
+                }
+            }
+
+            if (uiState.topSpendingTrips.isNotEmpty()) {
+                item {
+                    StatSectionCard(title = "Top spending trips") {
+                        BarChart(uiState.topSpendingTrips)
+                    }
                 }
             }
         }
@@ -133,8 +200,8 @@ fun StatisticsScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text("Logout") },
-            text = { Text("Are you sure you want to logout?") },
+            title = { Text(text = stringResource(R.string.logout)) },
+            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -143,12 +210,12 @@ fun StatisticsScreen(
                         onLogoutClick()
                     }
                 ) {
-                    Text("Yes")
+                    Text(text = stringResource(R.string.yes))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("No")
+                    Text(stringResource(R.string.no))
                 }
             }
         )

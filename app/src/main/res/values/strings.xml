@@ -86,4 +86,8 @@
     <string name="ai">AI</string>
     <string name="trips">Trips</string>
     <string name="home">Home</string>
+    <string name="top_destination">Top destination</string>
+    <string name="total_trips">Total trips</string>
+    <string name="avg_duration">Avg duration</string>
+    <string name="days">days</string>
 </resources>

@@ -98,39 +98,39 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
-                onClick = onTripsClick,
-                modifier = modifier.fillMaxWidth(0.4f)
-            ) {
-                Text(text = stringResource(R.string.go_to_my_trips))
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = onMapClick,
-                modifier = modifier.fillMaxWidth(0.4f)
-            ) {
-                Text(text = stringResource(R.string.go_to_map))
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = onStatisticsClick,
-                modifier = modifier.fillMaxWidth(0.4f)
-            ) {
-                Text(text = stringResource(R.string.go_to_statistics))
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = onAiSuggestionsClick,
-                modifier = modifier.fillMaxWidth(0.4f)
-            ) {
-                Text(text = stringResource(R.string.get_ai_suggestions))
-            }
+//            Button(
+//                onClick = onTripsClick,
+//                modifier = modifier.fillMaxWidth(0.4f)
+//            ) {
+//                Text(text = stringResource(R.string.go_to_my_trips))
+//            }
+//
+//            Spacer(modifier = Modifier.height(20.dp))
+//
+//            Button(
+//                onClick = onMapClick,
+//                modifier = modifier.fillMaxWidth(0.4f)
+//            ) {
+//                Text(text = stringResource(R.string.go_to_map))
+//            }
+//
+//            Spacer(modifier = Modifier.height(20.dp))
+//
+//            Button(
+//                onClick = onStatisticsClick,
+//                modifier = modifier.fillMaxWidth(0.4f)
+//            ) {
+//                Text(text = stringResource(R.string.go_to_statistics))
+//            }
+//
+//            Spacer(modifier = Modifier.height(20.dp))
+//
+//            Button(
+//                onClick = onAiSuggestionsClick,
+//                modifier = modifier.fillMaxWidth(0.4f)
+//            ) {
+//                Text(text = stringResource(R.string.get_ai_suggestions))
+//            }
         }
     }
 

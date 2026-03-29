@@ -1,20 +1,30 @@
 package com.example.travelapp.ui.elements
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.enums.TripStatus
@@ -31,60 +41,82 @@ import kotlin.math.min
 @Composable
 fun PieChart(data: Map<TripStatus, Int>) {
     if (data.isEmpty()) {
-        Text("No data available", textAlign = TextAlign.Center)
+        Text("No data", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
 
     val total = data.values.sum().toFloat()
-    val colors = listOf(
-        Color(0xFFEF5350), // CANCELLED
-        Color(0xFFFFA726), // PLANNED
-        Color(0xFF42A5F5), // FINISHED
-        Color(0xFF66BB6A) // ONGOING
+    val statusColors = mapOf(
+        TripStatus.FINISHED  to Color(0xFF3B6D11),
+        TripStatus.PLANNED   to Color(0xFF185FA5),
+        TripStatus.ONGOING   to Color(0xFF854F0B),
+        TripStatus.CANCELLED to Color(0xFFA32D2D)
     )
     val entries = data.entries.toList()
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Canvas(
             modifier = Modifier
-                .height(200.dp)
+                .size(110.dp)
                 .aspectRatio(1f)
         ) {
-            var startAngle = 0f
-            val size = min(size.width, size.height)
-            val radius = size / 2f
+            var startAngle = -90f
+            val radius = size.minDimension / 2f
+            val strokeWidth = radius * 0.4f
+            val adjustedRadius = radius - strokeWidth / 2f
 
-            entries.forEachIndexed { index, entry ->
-                val sweepAngle = (entry.value / total) * 360f
+            entries.forEach { (status, count) ->
+                val sweepAngle = (count / total) * 360f
                 drawArc(
-                    color = colors[index % colors.size],
+                    color = statusColors[status] ?: Color.Gray,
                     startAngle = startAngle,
-                    sweepAngle = sweepAngle,
-                    useCenter = true,
-                    size = Size(radius * 2, radius * 2)
+                    sweepAngle = sweepAngle - 2f,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Butt),
+                    size = Size(adjustedRadius * 2, adjustedRadius * 2),
+                    topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
                 )
                 startAngle += sweepAngle
             }
         }
-    }
 
-    Spacer(Modifier.height(8.dp))
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        entries.forEachIndexed { index, entry ->
-            Text(
-                text = "${entry.key.name}: ${entry.value}",
-                color = colors[index % colors.size]
-            )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            entries.forEach { (status, count) ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(statusColors[status] ?: Color.Gray)
+                        )
+                        Text(
+                            status.name.lowercase().replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Text(
+                        count.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
     }
 }

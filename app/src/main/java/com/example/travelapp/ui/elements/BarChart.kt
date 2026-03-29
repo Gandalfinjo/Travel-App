@@ -1,20 +1,29 @@
 package com.example.travelapp.ui.elements
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.travelapp.database.models.Trip
 
@@ -33,68 +42,50 @@ fun BarChart(
     modifier: Modifier = Modifier
 ) {
     if (trips.isEmpty()) {
-        Text("No data available")
+        Text("No data", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
 
-    val textMeasurer = rememberTextMeasurer()
-    val barColor = MaterialTheme.colorScheme.primary
+    val maxBudget = trips.maxOfOrNull { it.budget } ?: 1.0
 
-    Column(modifier = modifier.fillMaxWidth().padding(8.dp)) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-        ) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-            val barWidth = canvasWidth / (trips.size * 1.5f)
-            val spacing = barWidth * 0.5f
-            val maxBudget = trips.maxOfOrNull { it.budget } ?: 1.0
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        trips.forEach { trip ->
+            val fraction = (trip.budget / maxBudget).toFloat()
 
-            trips.forEachIndexed { index, trip ->
-                val barHeight = (trip.budget / maxBudget * (canvasHeight * 0.7f)).toFloat()
-                val x = index * (barWidth + spacing) + spacing
-                val y = canvasHeight - barHeight - 40f
-
-                // Draw bar
-                drawRoundRect(
-                    color = barColor,
-                    topLeft = Offset(x, y),
-                    size = Size(barWidth, barHeight),
-                    cornerRadius = CornerRadius(8f, 8f)
-                )
-
-                // Draw trip name (truncated)
-                val tripName = if (trip.name.length > 10)
-                    trip.name.take(8) + ".."
-                else
-                    trip.name
-
-                val textLayout = textMeasurer.measure(tripName)
-                val textWidth = textLayout.size.width
-                val textHeight = textLayout.size.height
-
-                drawText(
-                    textMeasurer = textMeasurer,
-                    text = tripName,
-                    topLeft = Offset(
-                        x + (barWidth - textWidth) / 2,
-                        canvasHeight - textHeight + 2f
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        trip.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
+                    Text(
+                        "${trip.budget.toInt()} ${trip.currency}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = Color(0xFF185FA5),
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        // Legend
-        trips.forEach { trip ->
-            Text(
-                text = "${trip.name}: ${trip.budget} ${trip.currency}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
         }
     }
 }
