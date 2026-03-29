@@ -1,17 +1,29 @@
 package com.example.travelapp.ui
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.CardTravel
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.travelapp.R
 import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddPackingItemDestination
 import com.example.travelapp.navigation.AddTripDestination
@@ -54,8 +66,87 @@ fun TravelApp(modifier: Modifier = Modifier) {
 
     val authViewModel: AuthViewModel = viewModel()
 
+    val routesWithoutBottomNav = listOf(
+        LoginDestination.route,
+        RegisterDestination.route
+    )
+
+    val tripRoutes = listOf(
+        TripListDestination.route,
+        TripDetailsDestination.route,
+        WeatherDestination.route,
+        AlbumDestination.route,
+        ItineraryDestination.route,
+        AddItineraryDestination.route,
+        PackingDestination.route,
+        AddPackingItemDestination.route
+    )
+
+    val showBottomNav = currentRoute !in routesWithoutBottomNav
+
     Scaffold(
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        bottomBar = {
+            if (showBottomNav) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = currentRoute == DashboardDestination.route,
+                        onClick = { navController.navigateToDashboardScreen() },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = stringResource(R.string.home)
+                            )
+                        },
+                        label = { Text(stringResource(R.string.home)) }
+                    )
+                    NavigationBarItem(
+                        selected = tripRoutes.any { currentRoute.startsWith(it) },
+                        onClick = { navController.navigateToTripListScreen() },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.CardTravel,
+                                contentDescription = stringResource(R.string.trips)
+                            )
+                        },
+                        label = { Text(text = stringResource(R.string.trips)) }
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == MapDestination.route,
+                        onClick = { navController.navigateToMapScreenFromDashboard() },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Map,
+                                contentDescription = stringResource(R.string.map)
+                            )
+                        },
+                        label = { Text(text = stringResource(R.string.map)) }
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == StatisticsDestination.route,
+                        onClick = { navController.navigateToStatisticsScreen() },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.BarChart,
+                                contentDescription = stringResource(R.string.statistics)
+                            )
+                        },
+                        label = { Text(text = stringResource(R.string.statistics)) }
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == AiSuggestionsDestination.route,
+                        onClick = { navController.navigateToAiSuggestionsScreen() },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = stringResource(R.string.ai)
+                            )
+                        },
+                        label = { Text(text = stringResource(R.string.ai)) }
+                    )
+                }
+            }
+        }
     ) {
         NavHost(
             navController = navController,
@@ -297,7 +388,9 @@ private fun NavHostController.navigateToTripListScreen() {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
+            saveState = true
         }
+        restoreState = true
     }
 }
 
@@ -324,7 +417,9 @@ private fun NavHostController.navigateToMapScreenFromDashboard() {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
+            saveState = true
         }
+        restoreState = true
     }
 }
 
@@ -387,7 +482,9 @@ private fun NavHostController.navigateToStatisticsScreen() {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
+            saveState = true
         }
+        restoreState = true
     }
 }
 
@@ -396,6 +493,8 @@ private fun NavHostController.navigateToAiSuggestionsScreen() {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
+            saveState = true
         }
+        restoreState = true
     }
 }

@@ -75,4 +75,15 @@
     <string name="ai_is_thinking">AI is thinking... 🤖</string>
     <string name="retry">Retry</string>
     <string name="get_ai_suggestions">Get AI Suggestions 🤖</string>
+    <string name="explore">Explore</string>
+    <string name="current_forecast">Current forecast</string>
+    <string name="nearby_places">Nearby places</string>
+    <string name="itinerary">Itinerary</string>
+    <string name="daily_plan">Daily plan</string>
+    <string name="album">Album</string>
+    <string name="manage_what_to_bring">Manage what to bring</string>
+    <string name="statistics">Statistics</string>
+    <string name="ai">AI</string>
+    <string name="trips">Trips</string>
+    <string name="home">Home</string>
 </resources>

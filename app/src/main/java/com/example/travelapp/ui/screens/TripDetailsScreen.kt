@@ -2,24 +2,31 @@ package com.example.travelapp.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.NearMe
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -42,6 +49,9 @@ import com.example.travelapp.R
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import com.example.travelapp.database.models.enums.TripStatus
+import com.example.travelapp.ui.elements.TripActionCard
+import com.example.travelapp.ui.elements.TripActionRowCard
+import com.example.travelapp.ui.elements.TripInfoCard
 
 /**
 * Displays detailed information about a specific trip.
@@ -105,123 +115,121 @@ fun TripDetailsScreen(
             ) {
                 CircularProgressIndicator()
             }
+            return@Scaffold
         }
-        else {
-            val canCancelTrip = trip!!.status == TripStatus.PLANNED || trip!!.status == TripStatus.ONGOING
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
-            ) {
+        val canCancelTrip = trip!!.status == TripStatus.PLANNED || trip!!.status == TripStatus.ONGOING
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            item {
+                TripInfoCard(trip = trip!!)
+            }
+
+            item {
                 Text(
-                    text = trip!!.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    text = stringResource(R.string.explore),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = trip!!.location,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "${trip!!.startDate} → ${trip!!.endDate}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                trip!!.description?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TripActionCard(
+                        title = stringResource(R.string.weather),
+                        subtitle = stringResource(R.string.current_forecast),
+                        icon = Icons.Default.Cloud,
+                        iconBgColor = Color(0xFFE6F1FB),
+                        iconTintColor = Color(0xFF185FA5),
+                        onClick = { onWeatherClick(trip!!.location) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    TripActionCard(
+                        title = stringResource(R.string.map),
+                        subtitle = stringResource(R.string.nearby_places),
+                        icon = Icons.Default.NearMe,
+                        iconBgColor = Color(0xFFE1F5EE),
+                        iconTintColor = Color(0xFF0F6E56),
+                        onClick = onMapClick,
+                        modifier = Modifier.weight(1f)
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    //if (trip!!.status == TripStatus.ONGOING) {
-                    Button(
-                        onClick = { onWeatherClick(trip!!.location) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp)
-                    ) {
-                        Text(text = stringResource(R.string.view_current_weather))
-                    }
-                    //}
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = onMapClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp)
-                    ) {
-                        Text(text = stringResource(R.string.go_to_map))
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
+                    TripActionCard(
+                        title = stringResource(R.string.album),
+                        subtitle = stringResource(R.string.trip_photos),
+                        icon = Icons.Default.PhotoLibrary,
+                        iconBgColor = Color(0xFFFBEAF0),
+                        iconTintColor = Color(0xFF993556),
                         onClick = { onAlbumClick(tripId) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp)
-                    ) {
-                        Text(text = stringResource(R.string.go_to_photo_album))
-                    }
+                        modifier = Modifier.weight(1f)
+                    )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
+                    TripActionCard(
+                        title = stringResource(R.string.itinerary),
+                        subtitle = stringResource(R.string.daily_plan),
+                        icon = Icons.Default.Description,
+                        iconBgColor = Color(0xFFFAEEDA),
+                        iconTintColor = Color(0xFF854F0B),
                         onClick = { onItineraryClick(tripId) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp)
-                    ) {
-                        Text(text = stringResource(R.string.go_to_itinerary))
-                    }
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+            item {
+                TripActionRowCard(
+                    title = stringResource(R.string.packing_list),
+                    subtitle = stringResource(R.string.manage_what_to_bring),
+                    icon = Icons.Default.CheckCircle,
+                    iconBgColor = Color(0xFFEEEDFE),
+                    iconTintColor = Color(0xFF534AB7),
+                    onClick = { onPackingClick(tripId) }
+                )
+            }
 
-                    Button(
-                        onClick = { onPackingClick(tripId) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp)
-                    ) {
-                        Text(text = stringResource(R.string.go_to_packing))
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
+            if (canCancelTrip) {
+                item {
+                    Surface(
                         onClick = { showCancelDialog = true },
-                        enabled = canCancelTrip,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError
-                        )
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = stringResource(R.string.cancel_trip))
+                        Row(
+                            modifier = Modifier.padding(14.dp, 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Cancel,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.cancel_trip),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
@@ -234,21 +242,13 @@ fun TripDetailsScreen(
             title = { Text(text = stringResource(R.string.cancel_trip)) },
             text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_cancel_the_trip)) },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showCancelDialog = false
-                        tripViewModel.cancelTrip(context, tripId)
-                    }
-                ) {
-                    Text(text = stringResource(R.string.yes))
-                }
+                TextButton(onClick = {
+                    showCancelDialog = false
+                    tripViewModel.cancelTrip(context, tripId)
+                }) { Text(text = stringResource(R.string.yes)) }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showCancelDialog = false }
-                ) {
-                    Text(text = stringResource(R.string.no))
-                }
+                TextButton(onClick = { showCancelDialog = false }) { Text(text = stringResource(R.string.no)) }
             }
         )
     }
