@@ -2,6 +2,7 @@ package com.example.travelapp.api.maps
 
 import android.os.Handler
 import android.os.Looper
+import com.example.travelapp.BuildConfig
 import org.json.JSONArray
 import java.net.URL
 
@@ -30,8 +31,9 @@ data class OTMPoi(
  * @param onResult Callback invoked on the main thread with the list of POIs (empty list on error)
  */
 fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
+    val apiKey = BuildConfig.OPEN_TRIP_MAP_API_KEY
     val url =
-        "https://api.opentripmap.com/0.1/en/places/radius?radius=2000&lon=$lon&lat=$lat&rate=2&format=json&apikey=5ae2e3f221c38a28845f05b676041a1841e510d13dcdbd3fd0a12c9c"
+        "https://api.opentripmap.com/0.1/en/places/radius?radius=2000&lon=$lon&lat=$lat&rate=2&format=json&apikey=$apiKey"
 
     Thread {
         try {
