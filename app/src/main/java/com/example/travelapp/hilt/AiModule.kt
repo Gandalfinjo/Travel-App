@@ -1,5 +1,6 @@
 package com.example.travelapp.hilt
 
+import com.example.travelapp.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import dagger.Module
 import dagger.Provides
@@ -22,7 +23,7 @@ object AiModule {
     fun provideGenerativeModel(): GenerativeModel {
         return GenerativeModel(
             modelName = "gemini-2.5-flash",
-            apiKey = "AIzaSyBsGpf5-VxHl4j87Zll4mbUxmFaqWptb9w"
+            apiKey = BuildConfig.GEMINI_KEY
         )
     }
 }

@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.symbol.processing)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.secrets)
+}
+
+secrets {
+    propertiesFileName = "local.properties"
 }
 
 android {
@@ -38,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
