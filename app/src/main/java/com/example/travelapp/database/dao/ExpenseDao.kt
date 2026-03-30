@@ -30,4 +30,16 @@ interface ExpenseDao {
     @Query("SELECT category, SUM(amount) as total FROM expenses where trip_id = :tripId GROUP BY category")
     fun getTotalByCategory(tripId: Int): Flow<List<CategoryTotal>>
 
+    @Query("""
+    SELECT e.category, SUM(e.amount) as total 
+    FROM expenses e 
+    INNER JOIN trips t ON e.trip_id = t.id 
+    WHERE t.user_id = :userId 
+    GROUP BY e.category
+    ORDER BY e.amount DESC
+    """)
+    fun getTotalByCategoryForUser(userId: Int): Flow<List<CategoryTotal>>
+
+    @Query("SELECT SUM(amount) FROM expenses WHERE trip_id = :tripId")
+    suspend fun getTotalSpentForTrip(tripId: Int): Double?
 }

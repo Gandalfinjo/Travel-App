@@ -121,7 +121,7 @@ fun ExpenseScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            "Total spent",
+                            text = stringResource(R.string.total_spent),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

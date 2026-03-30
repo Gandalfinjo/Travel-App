@@ -86,7 +86,9 @@ fun TravelApp(modifier: Modifier = Modifier) {
         ItineraryDestination.route,
         AddItineraryDestination.route,
         PackingDestination.route,
-        AddPackingItemDestination.route
+        AddPackingItemDestination.route,
+        ExpenseDestination.route,
+        AddExpenseDestination.route
     )
 
     val showBottomNav = currentRoute !in routesWithoutBottomNav
@@ -334,6 +336,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 StatisticsScreen(
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
+                    onExpensesClick = { tripId -> navController.navigateToExpenseScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )

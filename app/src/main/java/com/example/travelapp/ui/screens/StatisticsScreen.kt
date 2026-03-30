@@ -9,12 +9,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -25,6 +24,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,6 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.database.models.enums.displayName
+import com.example.travelapp.database.models.enums.icon
 import com.example.travelapp.ui.elements.BarChart
 import com.example.travelapp.ui.elements.PieChart
 import com.example.travelapp.ui.elements.StatMetricCard
@@ -62,6 +64,7 @@ import com.example.travelapp.ui.viewmodels.StatisticsViewModel
 fun StatisticsScreen(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onExpensesClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     statisticsViewModel: StatisticsViewModel = hiltViewModel()
@@ -181,7 +184,7 @@ fun StatisticsScreen(
 
             if (uiState.tripsByStatus.isNotEmpty()) {
                 item {
-                    StatSectionCard(title = "Trips by status") {
+                    StatSectionCard(title = stringResource(R.string.trips_by_status)) {
                         PieChart(uiState.tripsByStatus)
                     }
                 }
@@ -189,8 +192,65 @@ fun StatisticsScreen(
 
             if (uiState.topSpendingTrips.isNotEmpty()) {
                 item {
-                    StatSectionCard(title = "Top spending trips") {
-                        BarChart(uiState.topSpendingTrips)
+                    StatSectionCard(title = stringResource(R.string.top_spending_trips)) {
+                        BarChart(
+                            trips = uiState.topSpendingTrips,
+                            onTripClick = onExpensesClick
+                        )
+                    }
+                }
+            }
+
+            if (uiState.totalByCategory.isNotEmpty()) {
+                item {
+                    StatSectionCard(title = stringResource(R.string.spending_by_category)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            val maxTotal = uiState.totalByCategory.maxOfOrNull { it.total } ?: 1.0
+                            uiState.totalByCategory.forEach { categoryTotal ->
+                                val fraction = (categoryTotal.total / maxTotal).toFloat()
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = categoryTotal.category.icon(),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(14.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = stringResource(categoryTotal.category.displayName()),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                        Text(
+                                            text = "%.2f".format(categoryTotal.total),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+                                    LinearProgressIndicator(
+                                        progress = { fraction },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(4.dp)),
+                                        color = Color(0xFF534AB7),
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -215,7 +275,7 @@ fun StatisticsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
-                    Text(stringResource(R.string.no))
+                    Text(text = stringResource(R.string.no))
                 }
             }
         )

@@ -134,4 +134,6 @@
     <string name="only_dates_within_the_trip_are_selectable">Samo datumi putovanja (%1$s → %2$s) su mogući za izbor.</string>
     <string name="e_g_sunscreen">npr. Krema za sunčanje</string>
     <string name="item_info">Podaci o stvari</string>
+    <string name="top_spending_trips">Putovanja sa najvećom potrošnjom</string>
+    <string name="trips_by_status">Putovanja po statusu</string>
 </resources>

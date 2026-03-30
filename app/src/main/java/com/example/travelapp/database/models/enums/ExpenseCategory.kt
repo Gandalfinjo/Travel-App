@@ -25,7 +25,7 @@ enum class ExpenseCategory {
 fun ExpenseCategory.displayName(): Int = when (this) {
     ExpenseCategory.FOOD -> R.string.food
     ExpenseCategory.ACCOMMODATION -> R.string.accommodation
-    ExpenseCategory.TRANSPORT -> R.string.accommodation
+    ExpenseCategory.TRANSPORT -> R.string.transport
     ExpenseCategory.TICKETS -> R.string.tickets
     ExpenseCategory.SOUVENIRS -> R.string.souvenirs
     ExpenseCategory.OTHER -> R.string.other

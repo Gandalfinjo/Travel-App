@@ -134,4 +134,9 @@
     <string name="only_dates_within_the_trip_are_selectable">Only dates within the trip (%1$s → %2$s) are selectable.</string>
     <string name="e_g_sunscreen">e.g. Sunscreen</string>
     <string name="item_info">Item info</string>
+    <string name="top_spending_trips">Top spending trips</string>
+    <string name="trips_by_status">Trips by status</string>
+    <string name="no_data">No data</string>
+    <string name="spending_by_category">Spending by category</string>
+    <string name="total_spent">Total spent</string>
 </resources>

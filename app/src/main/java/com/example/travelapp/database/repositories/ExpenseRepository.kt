@@ -70,4 +70,22 @@ class ExpenseRepository @Inject constructor(
      */
     fun getTotalByCategory(tripId: Int): Flow<List<CategoryTotal>> =
         expenseDao.getTotalByCategory(tripId)
+
+    /**
+     * Gets the total amount spent grouped by category, for the specified user.
+     *
+     * @param userId ID of the user for which to retrieve the amount spent.
+     * @return Flow emitting list of [CategoryTotal]
+     */
+    fun getTotalByCategoryForUser(userId: Int): Flow<List<CategoryTotal>> =
+        expenseDao.getTotalByCategoryForUser(userId)
+
+    /**
+     * Gets the total amount spent for a specific trip.
+     *
+     * @param tripId ID of the trip for which to retrieve the amount spent
+     * @return Total amount spent or 0.0
+     */
+    suspend fun getTotalSpentForTrip(tripId: Int): Double =
+        expenseDao.getTotalSpentForTrip(tripId) ?: 0.0
 }

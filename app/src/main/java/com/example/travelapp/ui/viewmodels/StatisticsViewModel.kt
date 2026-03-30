@@ -2,8 +2,10 @@ package com.example.travelapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.travelapp.database.models.CategoryTotal
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TripStatus
+import com.example.travelapp.database.repositories.ExpenseRepository
 import com.example.travelapp.database.repositories.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,12 +16,21 @@ import kotlinx.coroutines.launch
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
+/**
+ * Data class that combines the [Trip] with the total expanses of that trip
+ */
+data class TripWithExpenses(
+    val trip: Trip,
+    val totalSpent: Double
+)
+
 data class StatisticsUiState(
     val totalTrips: Int = 0,
     val tripsByStatus: Map<TripStatus, Int> = emptyMap(),
     val averageDuration: Double = 0.0,
     val topDestination: String? = null,
-    val topSpendingTrips: List<Trip> = emptyList()
+    val topSpendingTrips: List<TripWithExpenses> = emptyList(),
+    val totalByCategory: List<CategoryTotal> = emptyList(),
 )
 
 /**
@@ -32,11 +43,12 @@ data class StatisticsUiState(
  * - Most frequently visited destination
  * - Top spending trips
  *
- * Coordinates with [TripRepository] to retrieve trip data.
+ * Coordinates with [TripRepository] and [ExpenseRepository] to retrieve trip data.
  */
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
-    private val tripRepository: TripRepository
+    private val tripRepository: TripRepository,
+    private val expenseRepository: ExpenseRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState: StateFlow<StatisticsUiState> = _uiState.asStateFlow()
@@ -56,35 +68,50 @@ class StatisticsViewModel @Inject constructor(
      * @param userId ID of the user whose statistics should be calculated
      */
     fun loadStatistics(userId: Int) = viewModelScope.launch {
-        tripRepository.getUserTrips(userId).collect { trips ->
-            if (trips.isEmpty()) {
-                _uiState.value = StatisticsUiState()
-                return@collect
+        launch {
+            tripRepository.getUserTrips(userId).collect { trips ->
+                if (trips.isEmpty()) {
+                    _uiState.value = StatisticsUiState()
+                    return@collect
+                }
+
+                val byStatus = trips.groupingBy { it.status }.eachCount()
+                val averageDuration = trips
+                    .map { ChronoUnit.DAYS.between(it.startDate, it.endDate).toDouble() }
+                    .average()
+
+                val topDestination = trips
+                    .groupingBy { it.location }
+                    .eachCount()
+                    .maxByOrNull { it.value }
+                    ?.key
+
+                val topSpendingTrips = trips
+                    .map { trip ->
+                        TripWithExpenses(
+                            trip = trip,
+                            totalSpent = expenseRepository.getTotalSpentForTrip(trip.id)
+                        )
+                    }
+                    .filter { it.totalSpent > 0 }
+                    .sortedByDescending { it.totalSpent }
+                    .take(5)
+
+                _uiState.update {
+                    it.copy(
+                        totalTrips = trips.size,
+                        tripsByStatus = byStatus,
+                        averageDuration = averageDuration,
+                        topDestination = topDestination,
+                        topSpendingTrips = topSpendingTrips
+                    )
+                }
             }
+        }
 
-            val byStatus = trips.groupingBy { it.status }.eachCount()
-            val averageDuration = trips
-                .map { ChronoUnit.DAYS.between(it.startDate, it.endDate).toDouble() }
-                .average()
-
-            val topDestination = trips
-                .groupingBy { it.location }
-                .eachCount()
-                .maxByOrNull { it.value }
-                ?.key
-
-            val topSpendingTrips = trips
-                .sortedByDescending { it.budget }
-                .take(5)
-
-            _uiState.update {
-                it.copy(
-                    totalTrips = trips.size,
-                    tripsByStatus = byStatus,
-                    averageDuration = averageDuration,
-                    topDestination = topDestination,
-                    topSpendingTrips = topSpendingTrips
-                )
+        launch {
+            expenseRepository.getTotalByCategoryForUser(userId).collect { totals ->
+                _uiState.update { it.copy(totalByCategory = totals) }
             }
         }
     }
