@@ -182,12 +182,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 DashboardScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
-                    onLogoutClick = { navController.navigateToLoginScreen() },
-                    onFabClick = { navController.navigateToAddTripScreen() },
-                    onTripsClick = { navController.navigateToTripListScreen() },
-                    onMapClick = { navController.navigateToMapScreenFromDashboard() },
-                    onStatisticsClick = { navController.navigateToStatisticsScreen() },
-                    onAiSuggestionsClick = { navController.navigateToAiSuggestionsScreen() }
+                    onLogoutClick = { navController.navigateToLoginScreen() }
                 )
             }
 
@@ -207,7 +202,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreen(tripId) },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    onFabClick = { navController.navigateToAddTripScreen() }
                 )
             }
 

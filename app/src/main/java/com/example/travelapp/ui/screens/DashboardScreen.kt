@@ -4,16 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,11 +43,6 @@ fun DashboardScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     onLogoutClick: () -> Unit,
-    onFabClick: () -> Unit,
-    onTripsClick: () -> Unit,
-    onMapClick: () -> Unit,
-    onStatisticsClick: () -> Unit,
-    onAiSuggestionsClick: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -73,18 +64,6 @@ fun DashboardScreen(
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onFabClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.new_trip)
-                )
-            }
-        },
         containerColor = Color.Transparent
     ) {
         Column(
@@ -97,40 +76,6 @@ fun DashboardScreen(
             Text(text = stringResource(R.string.welcome_to_dashboard))
 
             Spacer(modifier = Modifier.height(20.dp))
-
-//            Button(
-//                onClick = onTripsClick,
-//                modifier = modifier.fillMaxWidth(0.4f)
-//            ) {
-//                Text(text = stringResource(R.string.go_to_my_trips))
-//            }
-//
-//            Spacer(modifier = Modifier.height(20.dp))
-//
-//            Button(
-//                onClick = onMapClick,
-//                modifier = modifier.fillMaxWidth(0.4f)
-//            ) {
-//                Text(text = stringResource(R.string.go_to_map))
-//            }
-//
-//            Spacer(modifier = Modifier.height(20.dp))
-//
-//            Button(
-//                onClick = onStatisticsClick,
-//                modifier = modifier.fillMaxWidth(0.4f)
-//            ) {
-//                Text(text = stringResource(R.string.go_to_statistics))
-//            }
-//
-//            Spacer(modifier = Modifier.height(20.dp))
-//
-//            Button(
-//                onClick = onAiSuggestionsClick,
-//                modifier = modifier.fillMaxWidth(0.4f)
-//            ) {
-//                Text(text = stringResource(R.string.get_ai_suggestions))
-//            }
         }
     }
 
@@ -166,12 +111,7 @@ fun DashboardScreen(
 fun DashboardPreview() {
     TravelAppTheme {
         DashboardScreen(
-            onLogoutClick = {},
-            onFabClick = {},
-            onTripsClick = {},
-            onMapClick = {},
-            onStatisticsClick = {},
-            onAiSuggestionsClick = {}
+            onLogoutClick = {}
         )
     }
 }
