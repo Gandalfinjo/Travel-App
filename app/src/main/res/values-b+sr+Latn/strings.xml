@@ -114,4 +114,14 @@
     <string name="enter_your_password">Unesite Vašu lozinku</string>
     <string name="enter_your_username">Unesite Vaše korisničko ime</string>
     <string name="sign_in_to_continue">Ulogujte se da biste nastavili</string>
+    <string name="repeat_your_password">Ponovite lozinku</string>
+    <string name="at_least_6_characters">Najmanje 6 karaktera</string>
+    <string name="choose_a_username">Izaberite korisničko ime</string>
+    <string name="account_info">Podaci o nalogu</string>
+    <string name="you_example_com">ime@primer.com</string>
+    <string name="personal_info">Lični podaci</string>
+    <string name="create_your_account">Napravite nalog</string>
+    <string name="invalid_email_format">Pogrešan email format</string>
+    <string name="password_must_be_at_least_6_characters">Lozinka mora da ima najmanje 6 karaktera</string>
+    <string name="passwords_do_not_match">Lozinke se ne pokalapaju</string>
 </resources>

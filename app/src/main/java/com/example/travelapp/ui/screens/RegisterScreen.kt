@@ -1,13 +1,22 @@
 package com.example.travelapp.ui.screens
 
 import android.util.Patterns
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,6 +24,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,10 +42,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +69,8 @@ fun RegisterScreen(
     onRegister: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val uiState by authViewModel.uiState.collectAsState()
 
     var firstname by remember { mutableStateOf("") }
@@ -85,186 +98,283 @@ fun RegisterScreen(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 24.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(Modifier.height(48.dp))
+        
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    BorderStroke(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    ), RoundedCornerShape(18.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Spacer(Modifier.height(20.dp))
+
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 42.sp,
+                fontWeight = FontWeight.Medium,
+                fontSize = 32.sp,
                 brush = Brush.linearGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.primary,
                         MaterialTheme.colorScheme.tertiary
                     )
-                ),
-                shadow = Shadow(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                    offset = Offset(0f, 4f),
-                    blurRadius = 8f
                 )
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
+            )
         )
+
+        Spacer(Modifier.height(6.dp))
 
         Text(
-            text = stringResource(R.string.register),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp,
-                letterSpacing = 3.sp,
-                shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.15f),
-                    offset = Offset(0f, 2f),
-                    blurRadius = 4f
+            text = stringResource(R.string.create_your_account),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(32.dp))
+        
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.personal_info),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            ),
-            color = MaterialTheme.colorScheme.tertiary,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
-        OutlinedTextField(
-            value = firstname,
-            onValueChange = { firstname = it },
-            label = { Text(text = stringResource(R.string.first_name)) }
-        )
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            text = stringResource(R.string.first_name),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        OutlinedTextField(
+                            value = firstname,
+                            onValueChange = { firstname = it },
+                            placeholder = { Text(text = stringResource(R.string.first_name)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            text = stringResource(R.string.last_name),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        OutlinedTextField(
+                            value = lastname,
+                            onValueChange = { lastname = it },
+                            placeholder = { Text(text = stringResource(R.string.last_name)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
 
-        Spacer(modifier = Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            value = lastname,
-            onValueChange = { lastname = it },
-            label = { Text(text = stringResource(R.string.last_name)) }
-        )
-
-        Spacer(modifier = Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailError = if (it.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(it).matches()) {
-                    "Invalid email format"
-                } else null
-            },
-            label = { Text(text = stringResource(R.string.email)) },
-            isError = emailError != null,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
-
-        emailError?.let { Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
-
-        Spacer(modifier = Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text(text = stringResource(R.string.username)) }
-        )
-
-        Spacer(modifier = Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError = if (it.isNotEmpty() && it.length < 6) {
-                    "Password must be at least 6 characters"
-                } else null
-                confirmPasswordError = if (confirmPassword.isNotEmpty() && confirmPassword != it) {
-                    "Passwords do not match"
-                } else null
-            },
-            label = { Text(text = stringResource(R.string.password)) },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible }
-                ) {
-                    Icon(
-                        imageVector = image,
-                        contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(R.string.email),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = {
+                            email = it
+                            emailError = if (it.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(it).matches())
+                                context.getString(R.string.invalid_email_format) else null
+                        },
+                        placeholder = { Text(text = stringResource(R.string.you_example_com)) },
+                        singleLine = true,
+                        isError = emailError != null,
+                        supportingText = emailError?.let { { Text(text = it) } },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-            },
-            isError = passwordError != null
-        )
+            }
+        }
 
-        passwordError?.let { Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+        Spacer(Modifier.height(12.dp))
+        
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.account_info),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-        Spacer(modifier = Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = {
-                confirmPassword = it
-                confirmPasswordError = if (it != password) {
-                    "Passwords do not match"
-                } else null
-            },
-            label = { Text(text = stringResource(R.string.confirm_password)) },
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-
-                IconButton(
-                    onClick = { confirmPasswordVisible = !confirmPasswordVisible }
-                ) {
-                    Icon(
-                        imageVector = image,
-                        contentDescription = if (confirmPasswordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(R.string.username),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        placeholder = { Text(text = stringResource(R.string.choose_a_username)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-            },
-            isError = confirmPasswordError != null
-        )
 
-        confirmPasswordError?.let { Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(R.string.password),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            passwordError = if (it.isNotEmpty() && it.length < 6)
+                                context.getString(R.string.password_must_be_at_least_6_characters) else null
+                            confirmPasswordError = if (confirmPassword.isNotEmpty() && confirmPassword != it)
+                                context.getString(R.string.passwords_do_not_match) else null
+                        },
+                        placeholder = { Text(text = stringResource(R.string.at_least_6_characters)) },
+                        singleLine = true,
+                        isError = passwordError != null,
+                        supportingText = passwordError?.let { { Text(text = it) } },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-        Spacer(modifier = Modifier.padding(4.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(R.string.confirm_password),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = {
+                            confirmPassword = it
+                            confirmPasswordError = if (it != password)
+                                context.getString(R.string.passwords_do_not_match) else null
+                        },
+                        placeholder = { Text(text = stringResource(R.string.repeat_your_password)) },
+                        singleLine = true,
+                        isError = confirmPasswordError != null,
+                        supportingText = confirmPasswordError?.let { { Text(text = it) } },
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                Icon(
+                                    imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if (firstname == "" || lastname == "" || email == "" || username == "" || password == "" || confirmPassword == "") {
-                    authViewModel.setErrorMessage("Missing fields")
-                }
-                else if (password != confirmPassword) {
-                    confirmPasswordError = "Passwords do not match"
-                    authViewModel.setErrorMessage("Passwords do not match")
-                }
-                else {
-                    authViewModel.register(firstname, lastname, email, username, password)
+                when {
+                    firstname.isBlank() || lastname.isBlank() || email.isBlank() ||
+                            username.isBlank() || password.isBlank() || confirmPassword.isBlank() ->
+                        authViewModel.setErrorMessage(context.getString(R.string.missing_fields))
+                    password != confirmPassword -> {
+                        confirmPasswordError = context.getString(R.string.passwords_do_not_match)
+                        authViewModel.setErrorMessage(context.getString(R.string.passwords_do_not_match))
+                    }
+                    else -> authViewModel.register(firstname, lastname, email, username, password)
                 }
             },
-            enabled = !uiState.isLoading
+            enabled = !uiState.isLoading,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
             }
             else {
-                Text(text = stringResource(R.string.register))
+                Text(
+                    text = stringResource(R.string.register),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
             }
         }
 
-        Spacer(modifier = Modifier.padding(4.dp))
+        Spacer(Modifier.height(16.dp))
 
         TextButton(onClick = onLoginClick) {
-            Text(text = stringResource(R.string.already_have_an_account_login))
+            Text(
+                text = stringResource(R.string.already_have_an_account_login),
+                style = MaterialTheme.typography.bodySmall
+            )
         }
+
+        Spacer(Modifier.height(48.dp))
     }
 
     LaunchedEffect(uiState.loggedInUser, uiState.errorMessage) {
         when {
-            uiState.loggedInUser != null -> {
-                onRegister()
-            }
+            uiState.loggedInUser != null -> onRegister()
             uiState.errorMessage != null -> {
                 alertMessage = uiState.errorMessage!!
                 showAlert = true
@@ -279,16 +389,12 @@ fun RegisterScreen(
                 authViewModel.clearError()
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showAlert = false
-                        authViewModel.clearError()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.ok))
-                }
+                TextButton(onClick = {
+                    showAlert = false
+                    authViewModel.clearError()
+                }) { Text(text = stringResource(R.string.ok)) }
             },
-            title = { Text(text = stringResource(R.string.registration))},
+            title = { Text(text = stringResource(R.string.registration)) },
             text = { Text(alertMessage) }
         )
     }

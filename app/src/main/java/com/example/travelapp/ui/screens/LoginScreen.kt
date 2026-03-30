@@ -140,6 +140,7 @@ fun LoginScreen(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
@@ -155,6 +156,7 @@ fun LoginScreen(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -189,7 +191,8 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
-            } else {
+            }
+            else {
                 Text(
                     text = stringResource(R.string.login),
                     modifier = Modifier.padding(vertical = 4.dp)
