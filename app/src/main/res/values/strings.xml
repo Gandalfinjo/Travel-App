@@ -124,4 +124,9 @@
     <string name="invalid_email_format">Invalid email format</string>
     <string name="password_must_be_at_least_6_characters">Password must be at least 6 characters</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="select_transport">Select transport</string>
+    <string name="dates">Dates</string>
+    <string name="e_g_tokyo_japan">e.g. Tokyo, Japan</string>
+    <string name="e_g_japan_2025">e.g. Japan 2026</string>
+    <string name="basic_info">Basic info</string>
 </resources>
