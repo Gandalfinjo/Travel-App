@@ -111,4 +111,7 @@
     <string name="tickets">Tickets</string>
     <string name="souvenirs">Souvenirs</string>
     <string name="other">Other</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="enter_your_username">Enter your username</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
 </resources>
