@@ -129,4 +129,7 @@
     <string name="e_g_tokyo_japan">npr. Tokio, Japan</string>
     <string name="e_g_japan_2025">npr. Japan 2026</string>
     <string name="basic_info">Osnovni podaci</string>
+    <string name="activity_info">Podaci o aktivnosti</string>
+    <string name="e_g_visit_senso_ji_temple">npr. Poseta Senso-ji Hramu</string>
+    <string name="only_dates_within_the_trip_are_selectable">Samo datumi putovanja (%1$s → %2$s) su mogući za izbor.</string>
 </resources>

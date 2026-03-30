@@ -129,4 +129,7 @@
     <string name="e_g_tokyo_japan">e.g. Tokyo, Japan</string>
     <string name="e_g_japan_2025">e.g. Japan 2026</string>
     <string name="basic_info">Basic info</string>
+    <string name="activity_info">Activity info</string>
+    <string name="e_g_visit_senso_ji_temple">e.g. Visit Senso-ji Temple</string>
+    <string name="only_dates_within_the_trip_are_selectable">Only dates within the trip (%1$s → %2$s) are selectable.</string>
 </resources>

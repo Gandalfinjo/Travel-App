@@ -115,7 +115,8 @@ fun ExpenseScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     border = BorderStroke(
                         width = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
