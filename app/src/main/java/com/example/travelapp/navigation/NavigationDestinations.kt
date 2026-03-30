@@ -141,3 +141,21 @@ object StatisticsDestination : NavigationDestination {
 object AiSuggestionsDestination : NavigationDestination {
     override val route = "ai_suggestions"
 }
+
+/**
+ * Expense screen destination.
+ */
+object ExpenseDestination : NavigationDestination {
+    override val route = "expenses"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType })
+    val routeWithArgs = "$route/{tripId}"
+}
+
+/**
+ * Add Expense screen destination.
+ */
+object AddExpenseDestination : NavigationDestination {
+    override val route = "add_expense"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType })
+    val routeWithArgs = "$route/{tripId}"
+}

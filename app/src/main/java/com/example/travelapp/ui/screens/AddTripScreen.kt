@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -62,7 +63,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * Screen for adding a new trip with validation.
+ * Screen for adding a new trip with validation
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,20 +145,22 @@ fun AddTripScreen(
         containerColor = Color.Transparent
     ) { innerPadding ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center,
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(text = stringResource(R.string.trip_name)) }
+                label = { Text(text = stringResource(R.string.trip_name)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.padding(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = description,
@@ -165,7 +168,7 @@ fun AddTripScreen(
                 label = { Text(text = stringResource(R.string.description)) },
                 singleLine = false,
                 minLines = 2,
-                modifier = Modifier.fillMaxWidth(0.6575f)
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.padding(4.dp))
@@ -173,7 +176,8 @@ fun AddTripScreen(
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
-                label = { Text(text = stringResource(R.string.location)) }
+                label = { Text(text = stringResource(R.string.location)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.padding(4.dp))
@@ -188,7 +192,9 @@ fun AddTripScreen(
                     onValueChange = {},
                     label = { Text(text = stringResource(R.string.transport)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTransport) },
-                    modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true)
+                    modifier = Modifier
+                        .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true)
+                        .fillMaxWidth()
                 )
 
                 ExposedDropdownMenu(
@@ -215,7 +221,8 @@ fun AddTripScreen(
                 label = { Text(text = stringResource(R.string.budget)) },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number
-                )
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.padding(4.dp))
@@ -223,7 +230,8 @@ fun AddTripScreen(
             OutlinedTextField(
                 value = currency,
                 onValueChange = { currency = it },
-                label = { Text(text = stringResource(R.string.currency)) }
+                label = { Text(text = stringResource(R.string.currency)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.padding(4.dp))
@@ -239,14 +247,16 @@ fun AddTripScreen(
                         contentDescription = null
                     )
                 },
-                modifier = Modifier.pointerInput(startDate) {
-                    awaitEachGesture {
-                        awaitFirstDown(pass = PointerEventPass.Initial)
-                        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                        if (upEvent != null) {
-                            showStartDatePicker = true
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(startDate) {
+                        awaitEachGesture {
+                            awaitFirstDown(pass = PointerEventPass.Initial)
+                            val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            if (upEvent != null) {
+                                showStartDatePicker = true
+                            }
                         }
-                    }
                 }
             )
 
@@ -263,14 +273,16 @@ fun AddTripScreen(
                         contentDescription = null
                     )
                 },
-                modifier = Modifier.pointerInput(endDate) {
-                    awaitEachGesture {
-                        awaitFirstDown(pass = PointerEventPass.Initial)
-                        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                        if (upEvent != null) {
-                            showEndDatePicker = true
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(endDate) {
+                        awaitEachGesture {
+                            awaitFirstDown(pass = PointerEventPass.Initial)
+                            val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            if (upEvent != null) {
+                                showEndDatePicker = true
+                            }
                         }
-                    }
                 }
             )
 
@@ -290,7 +302,8 @@ fun AddTripScreen(
                         authUiState.loggedInUserId!!,
                         context
                     )
-                }
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(text = stringResource(R.string.add))
             }

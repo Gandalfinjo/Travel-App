@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
@@ -54,7 +55,7 @@ import com.example.travelapp.ui.elements.TripActionRowCard
 import com.example.travelapp.ui.elements.TripInfoCard
 
 /**
-* Displays detailed information about a specific trip.
+* Displays detailed information about a specific trip
 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +68,7 @@ fun TripDetailsScreen(
     onAlbumClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit,
     onPackingClick: (Int) -> Unit,
+    onExpensesClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel()
@@ -201,6 +203,17 @@ fun TripDetailsScreen(
                     iconBgColor = Color(0xFFEEEDFE),
                     iconTintColor = Color(0xFF534AB7),
                     onClick = { onPackingClick(tripId) }
+                )
+            }
+
+            item {
+                TripActionRowCard(
+                    title = stringResource(R.string.expenses),
+                    subtitle = stringResource(R.string.track_your_spending),
+                    icon = Icons.Default.AccountBalanceWallet,
+                    iconBgColor = Color(0xFFEEEDFE),
+                    iconTintColor = Color(0xFF534AB7),
+                    onClick = { onExpensesClick(tripId) }
                 )
             }
 

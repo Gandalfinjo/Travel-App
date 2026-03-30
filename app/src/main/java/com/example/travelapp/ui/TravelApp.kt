@@ -13,10 +13,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,12 +26,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.travelapp.R
+import com.example.travelapp.navigation.AddExpenseDestination
 import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddPackingItemDestination
 import com.example.travelapp.navigation.AddTripDestination
 import com.example.travelapp.navigation.AiSuggestionsDestination
 import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
+import com.example.travelapp.navigation.ExpenseDestination
 import com.example.travelapp.navigation.ItineraryDestination
 import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
@@ -39,12 +43,14 @@ import com.example.travelapp.navigation.StatisticsDestination
 import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
 import com.example.travelapp.navigation.WeatherDestination
+import com.example.travelapp.ui.screens.AddExpenseScreen
 import com.example.travelapp.ui.screens.AddItineraryScreen
 import com.example.travelapp.ui.screens.AddPackingItemScreen
 import com.example.travelapp.ui.screens.AddTripScreen
 import com.example.travelapp.ui.screens.AiSuggestionsScreen
 import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
+import com.example.travelapp.ui.screens.ExpenseScreen
 import com.example.travelapp.ui.screens.ItineraryScreen
 import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
@@ -55,6 +61,7 @@ import com.example.travelapp.ui.screens.TripDetailsScreen
 import com.example.travelapp.ui.screens.TripListScreen
 import com.example.travelapp.ui.screens.WeatherScreen
 import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.example.travelapp.ui.viewmodels.TripViewModel
 
 @Composable
 fun TravelApp(modifier: Modifier = Modifier) {
@@ -131,7 +138,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                                 contentDescription = stringResource(R.string.statistics)
                             )
                         },
-                        label = { Text(text = stringResource(R.string.statistics)) }
+                        label = { Text(text = stringResource(R.string.stats)) }
                     )
                     NavigationBarItem(
                         selected = currentRoute == AiSuggestionsDestination.route,
@@ -220,6 +227,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreen(tripId) },
+                    onExpensesClick = { tripId -> navController.navigateToExpenseScreen(tripId)},
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -342,6 +350,39 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
+            }
+
+            composable(
+                route = ExpenseDestination.routeWithArgs,
+                arguments = ExpenseDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                ExpenseScreen(
+                    tripId = tripId,
+                    onBackClick = { navController.popBackStack() },
+                    onAddExpenseClick = { navController.navigateToAddExpenseScreen(tripId) },
+                    modifier = modifier
+                )
+            }
+
+            composable(
+                route = AddExpenseDestination.routeWithArgs,
+                arguments = AddExpenseDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                val tripViewModel: TripViewModel = hiltViewModel()
+                val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
+
+                trip?.let {
+                    AddExpenseScreen(
+                        tripId = tripId,
+                        trip = it,
+                        onBackClick = { navController.popBackStack() },
+                        modifier = modifier
+                    )
+                }
             }
         }
     }
@@ -496,5 +537,23 @@ private fun NavHostController.navigateToAiSuggestionsScreen() {
             saveState = true
         }
         restoreState = true
+    }
+}
+
+private fun NavHostController.navigateToExpenseScreen(tripId: Int) {
+    this.navigate("${ExpenseDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAddExpenseScreen(tripId: Int) {
+    this.navigate("${AddExpenseDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(ExpenseDestination.routeWithArgs) {
+            inclusive = false
+        }
     }
 }

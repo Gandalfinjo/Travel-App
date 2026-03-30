@@ -57,4 +57,9 @@ object DatabaseModule {
     @Singleton
     fun providePackingDao(database: TravelDatabase) =
         database.packingDao()
+
+    @Provides
+    @Singleton
+    fun provideExpenseDao(database: TravelDatabase) =
+        database.expenseDao()
 }
