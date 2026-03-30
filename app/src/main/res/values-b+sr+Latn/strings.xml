@@ -132,4 +132,6 @@
     <string name="activity_info">Podaci o aktivnosti</string>
     <string name="e_g_visit_senso_ji_temple">npr. Poseta Senso-ji Hramu</string>
     <string name="only_dates_within_the_trip_are_selectable">Samo datumi putovanja (%1$s → %2$s) su mogući za izbor.</string>
+    <string name="e_g_sunscreen">npr. Krema za sunčanje</string>
+    <string name="item_info">Podaci o stvari</string>
 </resources>
