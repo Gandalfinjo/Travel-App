@@ -71,6 +71,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
     val currentRoute = currentDestination?.route ?: LoginDestination.route
+    val currentSource = currentBackStackEntry?.arguments?.getString("source")
 
     val authViewModel: AuthViewModel = viewModel()
 
@@ -112,7 +113,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                         label = { Text(stringResource(R.string.home)) }
                     )
                     NavigationBarItem(
-                        selected = tripRoutes.any { currentRoute.startsWith(it) },
+                        selected = tripRoutes.any { currentRoute.startsWith(it) && currentSource != "stats" && currentSource != "ai" },
                         onClick = { navController.navigateToTripListScreen() },
                         icon = {
                             Icon(
@@ -134,7 +135,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                         label = { Text(text = stringResource(R.string.map)) }
                     )
                     NavigationBarItem(
-                        selected = currentRoute == StatisticsDestination.route,
+                        selected = currentRoute == StatisticsDestination.route ||
+                                (currentRoute.startsWith(ExpenseDestination.route) && currentSource == "stats"),
                         onClick = { navController.navigateToStatisticsScreen() },
                         icon = {
                             Icon(
@@ -145,7 +147,8 @@ fun TravelApp(modifier: Modifier = Modifier) {
                         label = { Text(text = stringResource(R.string.stats)) }
                     )
                     NavigationBarItem(
-                        selected = currentRoute == AiSuggestionsDestination.route,
+                        selected = currentRoute == AiSuggestionsDestination.route ||
+                                (currentRoute.startsWith(AddTripDestination.routeWithArgs) && currentSource == "ai"),
                         onClick = { navController.navigateToAiSuggestionsScreen() },
                         icon = {
                             Icon(
@@ -235,7 +238,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreen(tripId) },
-                    onExpensesClick = { tripId -> navController.navigateToExpenseScreen(tripId)},
+                    onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromTripDetailsScreen(tripId)},
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -346,7 +349,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 StatisticsScreen(
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onExpensesClick = { tripId -> navController.navigateToExpenseScreen(tripId) },
+                    onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromStatisticsScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -430,13 +433,15 @@ private fun NavHostController.navigateToDashboardScreen() {
 private fun NavHostController.navigateToAddTripScreen() {
     this.navigate(
         AddTripDestination.routeWithArgs
+        .replace("{source}", "trips")
         .replace("{destination}", "")
         .replace("{name}", "")
         .replace("{budget}", "")
         .replace("{currency}", "")
-        .replace("{transport}", "")) {
+        .replace("{transport}", "")
+    ) {
         launchSingleTop = true
-        popUpTo(DashboardDestination.route) {
+        popUpTo(TripListDestination.route) {
             inclusive = false
         }
     }
@@ -451,6 +456,7 @@ private fun NavHostController.navigateToAddTripScreenWithPrefill(
 ) {
     this.navigate(
     AddTripDestination.routeWithArgs
+        .replace("{source}", "ai")
         .replace("{destination}", Uri.encode(destination))
         .replace("{name}", Uri.encode(name))
         .replace("{budget}", Uri.encode(budget))
@@ -580,10 +586,19 @@ private fun NavHostController.navigateToAiSuggestionsScreen() {
     }
 }
 
-private fun NavHostController.navigateToExpenseScreen(tripId: Int) {
-    this.navigate("${ExpenseDestination.route}/$tripId") {
+private fun NavHostController.navigateToExpenseScreenFromTripDetailsScreen(tripId: Int) {
+    this.navigate("${ExpenseDestination.route}/$tripId?source=trips") {
         launchSingleTop = true
         popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToExpenseScreenFromStatisticsScreen(tripId: Int) {
+    this.navigate("${ExpenseDestination.route}/$tripId?source=stats") {
+        launchSingleTop = true
+        popUpTo(StatisticsDestination.route) {
             inclusive = false
         }
     }

@@ -38,8 +38,12 @@ object DashboardDestination : NavigationDestination {
  */
 object AddTripDestination : NavigationDestination {
     override val route = "add_trip"
-    val routeWithArgs = "$route?destination={destination}&name={name}&budget={budget}&currency={currency}&transport={transport}"
+    val routeWithArgs = "$route?source={source}&destination={destination}&name={name}&budget={budget}&currency={currency}&transport={transport}"
     val arguments = listOf(
+        navArgument("source") {
+            type = NavType.StringType
+            defaultValue = "trips"
+        },
         navArgument("destination") {
             type = NavType.StringType
             nullable = true
@@ -64,7 +68,7 @@ object AddTripDestination : NavigationDestination {
             type = NavType.StringType
             nullable = true
             defaultValue = null
-        }
+        },
     )
 }
 
@@ -175,8 +179,14 @@ object AiSuggestionsDestination : NavigationDestination {
  */
 object ExpenseDestination : NavigationDestination {
     override val route = "expenses"
-    val arguments = listOf(navArgument("tripId") { type = NavType.IntType })
-    val routeWithArgs = "$route/{tripId}"
+    val arguments = listOf(
+        navArgument("tripId") { type = NavType.IntType },
+        navArgument("source") {
+            type = NavType.StringType
+            defaultValue = "trips"
+        }
+    )
+    val routeWithArgs = "$route/{tripId}?source={source}"
 }
 
 /**
