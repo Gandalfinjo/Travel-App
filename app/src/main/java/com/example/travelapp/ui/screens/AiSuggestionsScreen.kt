@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,11 +61,13 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 fun AiSuggestionsScreen(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onAddToTrips: (destination: String, name: String) -> Unit,
+    onAddToTrips: (destination: String, name: String, budget: String, currency: String, transport: String) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     aiViewModel: AiSuggestionsViewModel = hiltViewModel()
 ) {
+    val focusManager = LocalFocusManager.current
+
     val authUiState by authViewModel.uiState.collectAsState()
     val uiState by aiViewModel.uiState.collectAsState()
 
@@ -135,7 +138,10 @@ fun AiSuggestionsScreen(
                         )
 
                         Button(
-                            onClick = { aiViewModel.generateCustomSuggestions() },
+                            onClick = {
+                                focusManager.clearFocus()
+                                aiViewModel.generateCustomSuggestions()
+                            },
                             enabled = uiState.customPrompt.isNotBlank() && !uiState.isLoading,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp)
@@ -248,7 +254,13 @@ fun AiSuggestionsScreen(
                         AiSuggestionCard(
                             suggestion = suggestion,
                             onAddToTrips = {
-                                onAddToTrips(suggestion.destination, suggestion.destination)
+                                onAddToTrips(
+                                    suggestion.destination,
+                                    suggestion.destination,
+                                    suggestion.estimatedBudget,
+                                    suggestion.currency,
+                                    suggestion.transport
+                                )
                             }
                         )
                     }

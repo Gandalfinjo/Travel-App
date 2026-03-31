@@ -80,7 +80,10 @@ fun AddTripScreen(
     onAddTrip: () -> Unit,
     onBackClick: () -> Unit,
     prefillDestination: String? = null,
-    prefillName: String? = null
+    prefillName: String? = null,
+    prefillBudget: String? = null,
+    prefillCurrency: String? = null,
+    prefillTransport: String? = null
 ) {
     val context = LocalContext.current
 
@@ -92,9 +95,15 @@ fun AddTripScreen(
     var name by remember { mutableStateOf(prefillName ?: "") }
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf(prefillDestination ?: "") }
-    var transport by remember { mutableStateOf(TransportType.OTHER) }
-    var budget by remember { mutableStateOf("") }
-    var currency by remember { mutableStateOf("") }
+    var transport by remember {
+        mutableStateOf(
+            prefillTransport?.let {
+                runCatching { TransportType.valueOf(it) }.getOrDefault(TransportType.OTHER)
+            } ?: TransportType.OTHER
+        )
+    }
+    var budget by remember { mutableStateOf(prefillBudget ?: "") }
+    var currency by remember { mutableStateOf(prefillCurrency ?: "") }
     var startDate by remember { mutableStateOf<Long?>(null) }
     var endDate by remember { mutableStateOf<Long?>(null) }
 

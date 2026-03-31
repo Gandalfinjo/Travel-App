@@ -38,7 +38,7 @@ object DashboardDestination : NavigationDestination {
  */
 object AddTripDestination : NavigationDestination {
     override val route = "add_trip"
-    val routeWithArgs = "$route?destination={destination}&name={name}"
+    val routeWithArgs = "$route?destination={destination}&name={name}&budget={budget}&currency={currency}&transport={transport}"
     val arguments = listOf(
         navArgument("destination") {
             type = NavType.StringType
@@ -46,6 +46,21 @@ object AddTripDestination : NavigationDestination {
             defaultValue = null
         },
         navArgument("name") {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
+        },
+        navArgument("budget") {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
+        },
+        navArgument("currency") {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
+        },
+        navArgument("transport") {
             type = NavType.StringType
             nullable = true
             defaultValue = null

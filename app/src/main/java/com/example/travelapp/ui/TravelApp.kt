@@ -201,7 +201,10 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onAddTrip = { navController.popBackStack() },
                     onBackClick = { navController.popBackStack() },
                     prefillName = backStackEntry.arguments?.getString("destination"),
-                    prefillDestination = backStackEntry.arguments?.getString("name")
+                    prefillDestination = backStackEntry.arguments?.getString("name"),
+                    prefillBudget = backStackEntry.arguments?.getString("budget"),
+                    prefillCurrency = backStackEntry.arguments?.getString("currency"),
+                    prefillTransport = backStackEntry.arguments?.getString("transport")
                 )
             }
 
@@ -353,7 +356,9 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 AiSuggestionsScreen(
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onAddToTrips = { destination, name -> navController.navigateToAddTripScreenWithPrefill(destination, name)},
+                    onAddToTrips = { destination, name, budget, currency, transport ->
+                        navController.navigateToAddTripScreenWithPrefill(destination, name, budget, currency, transport)
+                    },
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -426,7 +431,10 @@ private fun NavHostController.navigateToAddTripScreen() {
     this.navigate(
         AddTripDestination.routeWithArgs
         .replace("{destination}", "")
-        .replace("{name}", "")) {
+        .replace("{name}", "")
+        .replace("{budget}", "")
+        .replace("{currency}", "")
+        .replace("{transport}", "")) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
@@ -434,11 +442,20 @@ private fun NavHostController.navigateToAddTripScreen() {
     }
 }
 
-private fun NavHostController.navigateToAddTripScreenWithPrefill(destination: String, name: String) {
+private fun NavHostController.navigateToAddTripScreenWithPrefill(
+    destination: String,
+    name: String,
+    budget: String,
+    currency: String,
+    transport: String
+) {
     this.navigate(
     AddTripDestination.routeWithArgs
         .replace("{destination}", Uri.encode(destination))
         .replace("{name}", Uri.encode(name))
+        .replace("{budget}", Uri.encode(budget))
+        .replace("{currency}", Uri.encode(currency))
+        .replace("{transport}", Uri.encode(transport))
     ) {
         launchSingleTop = true
         popUpTo(AiSuggestionsDestination.route) {

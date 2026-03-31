@@ -21,13 +21,15 @@ import javax.inject.Inject
  * @property reason Explanation of why this matches the user's travel history
  * @property estimatedBudget User's estimated budget for which to provide a suggestion
  * @property currency Currency in which to set the budget (EUR currently fixed)
+ * @property transport Transport which the AI suggests to use to the destination
  */
 data class AiSuggestion(
     val destination: String,
     val description: String,
     val reason: String,
     val estimatedBudget: String = "",
-    val currency: String = "EUR"
+    val currency: String = "EUR",
+    val transport: String = "OTHER"
 )
 
 data class AiSuggestionsUiState(
@@ -105,6 +107,7 @@ class AiSuggestionsViewModel @Inject constructor(
                 2. Brief description (2-3 sentences)
                 3. Why it matches their travel history
                 4. Estimated budget in EUR
+                5. Transport to the destination
                 
                 Format your response EXACTLY like this:
                 DESTINATION: [name]
@@ -112,6 +115,7 @@ class AiSuggestionsViewModel @Inject constructor(
                 REASON: [reason]
                 BUDGET: [number only, no currency symbol]
                 CURRENCY: EUR
+                TRANSPORT: [one of: PLANE, CAR, TRAIN, BUS, OTHER]
                 ---
                 (repeat for each suggestion)
             """.trimIndent()
@@ -162,6 +166,7 @@ class AiSuggestionsViewModel @Inject constructor(
                 2. Brief description (2-3 sentences)
                 3. Why it matches the user's preferences
                 4. Estimated budget in EUR
+                5. Transport to the destination
                 
                 Format your response EXACTLY like this:
                 DESTINATION: [name]
@@ -169,6 +174,7 @@ class AiSuggestionsViewModel @Inject constructor(
                 REASON: [reason]
                 BUDGET: [number only, no currency symbol]
                 CURRENCY: EUR
+                TRANSPORT: [one of: PLANE, CAR, TRAIN, BUS, OTHER]
                 ---
                 (repeat for each suggestion)
             """.trimIndent()
@@ -203,6 +209,7 @@ class AiSuggestionsViewModel @Inject constructor(
      * REASON: [AiSuggestion.reason]
      * BUDGET: [AiSuggestion.estimatedBudget]
      * CURRENCY: [AiSuggestion.currency]
+     * TRANSPORT: [AiSuggestion.transport]
      * ---
      *
      * @param text Raw AI response text
@@ -220,6 +227,7 @@ class AiSuggestionsViewModel @Inject constructor(
             var reason = ""
             var budget = ""
             var currency = "EUR"
+            var transport = "OTHER"
 
             for (line in lines) {
                 when {
@@ -233,11 +241,13 @@ class AiSuggestionsViewModel @Inject constructor(
                         budget = line.substringAfter(":").trim()
                     line.startsWith("CURRENCY:", ignoreCase = true) ->
                         currency = line.substringAfter(":").trim()
+                    line.startsWith("TRANSPORT:", ignoreCase = true) ->
+                        transport = line.substringAfter(":").trim()
                 }
             }
 
             if (destination.isNotEmpty() && description.isNotEmpty() && reason.isNotEmpty()) {
-                suggestions.add(AiSuggestion(destination, description, reason, budget, currency))
+                suggestions.add(AiSuggestion(destination, description, reason, budget, currency, transport))
             }
         }
 
