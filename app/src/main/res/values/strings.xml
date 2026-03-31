@@ -139,4 +139,10 @@
     <string name="no_data">No data</string>
     <string name="spending_by_category">Spending by category</string>
     <string name="total_spent">Total spent</string>
+    <string name="custom_prompt">Custom prompt</string>
+    <string name="e_g_i_love_beaches_and_warm_weather_budget_around_1000_eur">e.g. I love beaches and warm weather, budget around 1000 EUR...</string>
+    <string name="generate_suggestions">Generate suggestions</string>
+    <string name="based_on_your_history">Based on your history</string>
+    <string name="generate_suggestions_based_on_your_past_trips">Generate suggestions based on your past trips.</string>
+    <string name="generate_from_history">Generate from history</string>
 </resources>

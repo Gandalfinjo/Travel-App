@@ -136,4 +136,13 @@
     <string name="item_info">Podaci o stvari</string>
     <string name="top_spending_trips">Putovanja sa najvećom potrošnjom</string>
     <string name="trips_by_status">Putovanja po statusu</string>
+    <string name="no_data">Nema podataka</string>
+    <string name="spending_by_category">Potrošnja po kategoriji</string>
+    <string name="total_spent">Ukupno potrošeno</string>
+    <string name="custom_prompt">Prilagođeni upit</string>
+    <string name="e_g_i_love_beaches_and_warm_weather_budget_around_1000_eur">npr. Volim plaže i toplo vreme, budžet oko 1000 EUR...</string>
+    <string name="generate_suggestions">Generiši predloge</string>
+    <string name="based_on_your_history">Na osnovu Vaše istorije</string>
+    <string name="generate_suggestions_based_on_your_past_trips">Generiši predloge na osnovu Vaših prethodnih putovanja.</string>
+    <string name="generate_from_history">Generiši na osnovu istorije</string>
 </resources>

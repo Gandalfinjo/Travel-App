@@ -78,7 +78,9 @@ fun AddTripScreen(
     tripViewModel: TripViewModel = hiltViewModel(),
     onLogoutClick: () -> Unit,
     onAddTrip: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    prefillDestination: String? = null,
+    prefillName: String? = null
 ) {
     val context = LocalContext.current
 
@@ -87,9 +89,9 @@ fun AddTripScreen(
 
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(prefillName ?: "") }
     var description by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf(prefillDestination ?: "") }
     var transport by remember { mutableStateOf(TransportType.OTHER) }
     var budget by remember { mutableStateOf("") }
     var currency by remember { mutableStateOf("") }

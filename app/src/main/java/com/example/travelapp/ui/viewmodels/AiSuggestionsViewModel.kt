@@ -19,17 +19,23 @@ import javax.inject.Inject
  * @property destination Name of the suggested destination
  * @property description Brief description of the destination (2-3 sentences)
  * @property reason Explanation of why this matches the user's travel history
+ * @property estimatedBudget User's estimated budget for which to provide a suggestion
+ * @property currency Currency in which to set the budget (EUR currently fixed)
  */
 data class AiSuggestion(
     val destination: String,
     val description: String,
-    val reason: String
+    val reason: String,
+    val estimatedBudget: String = "",
+    val currency: String = "EUR"
 )
 
 data class AiSuggestionsUiState(
     val isLoading: Boolean = false,
     val suggestions: List<AiSuggestion> = emptyList(),
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val customPrompt: String = "",
+    val hasGeneratedOnce: Boolean = false
 )
 
 /**
@@ -45,6 +51,15 @@ class AiSuggestionsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiSuggestionsUiState())
     val uiState: StateFlow<AiSuggestionsUiState> = _uiState.asStateFlow()
+
+    /**
+     * Sets the custom prompt in the UI State
+     *
+     * @param prompt Custom prompt to set
+     */
+    fun onCustomPromptChange(prompt: String) {
+        _uiState.update { it.copy(customPrompt = prompt) }
+    }
 
     /**
      * Generates AI-powered destination suggestions based on user's trip history.
@@ -89,11 +104,14 @@ class AiSuggestionsViewModel @Inject constructor(
                 1. Destination name
                 2. Brief description (2-3 sentences)
                 3. Why it matches their travel history
+                4. Estimated budget in EUR
                 
                 Format your response EXACTLY like this:
                 DESTINATION: [name]
                 DESCRIPTION: [description]
                 REASON: [reason]
+                BUDGET: [number only, no currency symbol]
+                CURRENCY: EUR
                 ---
                 (repeat for each suggestion)
             """.trimIndent()
@@ -104,7 +122,65 @@ class AiSuggestionsViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    suggestions = suggestions
+                    suggestions = suggestions,
+                    hasGeneratedOnce = true
+                )
+            }
+        }
+        catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to generate suggestions: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Generates AI-powered custom destination suggestions based on user's custom prompt.
+     */
+    fun generateCustomSuggestions() = viewModelScope.launch {
+        val prompt = _uiState.value.customPrompt
+        if (prompt.isBlank()) return@launch
+
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
+
+        try {
+            val aiPrompt = """
+                The user is looking for travel destination suggestions with these preferences:
+                "$prompt"
+                
+                Suggest 3 travel destinations that best match these preferences.
+                For each destination, provide:
+                1. Destination name
+                2. Brief description (2-3 sentences)
+                3. Why it matches the user's preferences
+                4. Estimated budget in EUR
+                
+                Format your response EXACTLY like this:
+                DESTINATION: [name]
+                DESCRIPTION: [description]
+                REASON: [reason]
+                BUDGET: [number only, no currency symbol]
+                CURRENCY: EUR
+                ---
+                (repeat for each suggestion)
+            """.trimIndent()
+
+            val response = generativeModel.generateContent(aiPrompt)
+            val suggestions = parseAiResponse(response.text ?: "")
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    suggestions = suggestions,
+                    hasGeneratedOnce = true
                 )
             }
         }
@@ -125,6 +201,8 @@ class AiSuggestionsViewModel @Inject constructor(
      * DESTINATION: [AiSuggestion.destination]
      * DESCRIPTION: [AiSuggestion.description]
      * REASON: [AiSuggestion.reason]
+     * BUDGET: [AiSuggestion.estimatedBudget]
+     * CURRENCY: [AiSuggestion.currency]
      * ---
      *
      * @param text Raw AI response text
@@ -140,23 +218,26 @@ class AiSuggestionsViewModel @Inject constructor(
             var destination = ""
             var description = ""
             var reason = ""
+            var budget = ""
+            var currency = "EUR"
 
             for (line in lines) {
                 when {
-                    line.startsWith("DESTINATION:", ignoreCase = true) -> {
+                    line.startsWith("DESTINATION:", ignoreCase = true) ->
                         destination = line.substringAfter(":").trim()
-                    }
-                    line.startsWith("DESCRIPTION:", ignoreCase = true) -> {
+                    line.startsWith("DESCRIPTION:", ignoreCase = true) ->
                         description = line.substringAfter(":").trim()
-                    }
-                    line.startsWith("REASON:", ignoreCase = true) -> {
+                    line.startsWith("REASON:", ignoreCase = true) ->
                         reason = line.substringAfter(":").trim()
-                    }
+                    line.startsWith("BUDGET:", ignoreCase = true) ->
+                        budget = line.substringAfter(":").trim()
+                    line.startsWith("CURRENCY:", ignoreCase = true) ->
+                        currency = line.substringAfter(":").trim()
                 }
             }
 
             if (destination.isNotEmpty() && description.isNotEmpty() && reason.isNotEmpty()) {
-                suggestions.add(AiSuggestion(destination, description, reason))
+                suggestions.add(AiSuggestion(destination, description, reason, budget, currency))
             }
         }
 

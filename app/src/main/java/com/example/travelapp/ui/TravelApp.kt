@@ -1,5 +1,6 @@
 package com.example.travelapp.ui
 
+import android.net.Uri
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -81,6 +82,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
     val tripRoutes = listOf(
         TripListDestination.route,
         TripDetailsDestination.route,
+        AddTripDestination.routeWithArgs,
         WeatherDestination.route,
         AlbumDestination.route,
         ItineraryDestination.route,
@@ -188,13 +190,18 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 )
             }
 
-            composable(route = AddTripDestination.route) {
+            composable(
+                route = AddTripDestination.routeWithArgs,
+                arguments = AddTripDestination.arguments
+            ) { backStackEntry ->
                 AddTripScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
                     onAddTrip = { navController.popBackStack() },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    prefillName = backStackEntry.arguments?.getString("destination"),
+                    prefillDestination = backStackEntry.arguments?.getString("name")
                 )
             }
 
@@ -346,6 +353,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 AiSuggestionsScreen(
                     onBackClick = { navController.popBackStack() },
                     onLogoutClick = { navController.navigateToLoginScreen() },
+                    onAddToTrips = { destination, name -> navController.navigateToAddTripScreenWithPrefill(destination, name)},
                     modifier = modifier,
                     authViewModel = authViewModel
                 )
@@ -415,9 +423,25 @@ private fun NavHostController.navigateToDashboardScreen() {
 }
 
 private fun NavHostController.navigateToAddTripScreen() {
-    this.navigate(AddTripDestination.route) {
+    this.navigate(
+        AddTripDestination.routeWithArgs
+        .replace("{destination}", "")
+        .replace("{name}", "")) {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAddTripScreenWithPrefill(destination: String, name: String) {
+    this.navigate(
+    AddTripDestination.routeWithArgs
+        .replace("{destination}", Uri.encode(destination))
+        .replace("{name}", Uri.encode(name))
+    ) {
+        launchSingleTop = true
+        popUpTo(AiSuggestionsDestination.route) {
             inclusive = false
         }
     }
