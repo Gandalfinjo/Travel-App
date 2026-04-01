@@ -145,4 +145,17 @@
     <string name="based_on_your_history">Na osnovu Vaše istorije</string>
     <string name="generate_suggestions_based_on_your_past_trips">Generiši predloge na osnovu Vaših prethodnih putovanja.</string>
     <string name="generate_from_history">Generiši na osnovu istorije</string>
+    <string name="plan_your_next_adventure">Planiraj svoju novu avanturu!</string>
+    <string name="no_active_or_upcoming_trips">Nema aktivnih ni predstojećih putovanja</string>
+    <string name="destinations">Destinacije</string>
+    <string name="ongoing">Putovanje u toku</string>
+    <string name="spent">Potrošeno</string>
+    <string name="active_trip">Aktivno putovanje</string>
+    <string name="today_s_itinerary">Današnji itinerar</string>
+    <string name="see_full_itinerary">Pogledaj ceo itinerar</string>
+    <string name="packing">Pakovanje - %1$s</string>
+    <string name="coming_up">Predstojeće putovanje</string>
+    <string name="overview">Pregled</string>
+    <string name="all_packed">Sve spakovano!</string>
+    <string name="items_packed">%1$d / %2$d stvari spakovano</string>
 </resources>

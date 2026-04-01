@@ -85,10 +85,16 @@ object TripListDestination : NavigationDestination {
  */
 object TripDetailsDestination : NavigationDestination {
     override val route = "trip_details"
-    val arguments = listOf(navArgument("tripId") { type = NavType.IntType} )
-    val routeWithArgs = "$route/{tripId}"
+    val arguments = listOf(
+        navArgument("tripId") { type = NavType.IntType},
+        navArgument("source") {
+            type = NavType.StringType
+            defaultValue = "trips"
+        }
+    )
+    val routeWithArgs = "$route/{tripId}?source={source}"
     val deepLink = navDeepLink {
-        uriPattern = "travelapp://trip_details/{tripId}"
+        uriPattern = "travelapp://trip_details/{tripId}?source=dashboard"
         action = Intent.ACTION_VIEW
     }
 }
@@ -146,8 +152,14 @@ object AddItineraryDestination : NavigationDestination {
  */
 object PackingDestination : NavigationDestination {
     override val route = "packing_items"
-    val arguments = listOf(navArgument("tripId") { type = NavType.IntType } )
-    val routeWithArgs = "$route/{tripId}"
+    val arguments = listOf(
+        navArgument("tripId") { type = NavType.IntType } ,
+        navArgument("source") {
+            type = NavType.StringType
+            defaultValue = "trip"
+        }
+    )
+    val routeWithArgs = "$route/{tripId}?source={source}"
 }
 
 /**

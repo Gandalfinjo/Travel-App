@@ -102,7 +102,9 @@ fun TravelApp(modifier: Modifier = Modifier) {
             if (showBottomNav) {
                 NavigationBar {
                     NavigationBarItem(
-                        selected = currentRoute == DashboardDestination.route,
+                        selected = currentRoute == DashboardDestination.route ||
+                                (currentRoute.startsWith(TripDetailsDestination.route) && currentSource == "dashboard") ||
+                                (currentRoute.startsWith(PackingDestination.route) && currentSource == "dashboard"),
                         onClick = { navController.navigateToDashboardScreen() },
                         icon = {
                             Icon(
@@ -113,7 +115,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                         label = { Text(stringResource(R.string.home)) }
                     )
                     NavigationBarItem(
-                        selected = tripRoutes.any { currentRoute.startsWith(it) && currentSource != "stats" && currentSource != "ai" },
+                        selected = tripRoutes.any { currentRoute.startsWith(it) && currentSource != "stats" && currentSource != "ai" && currentSource != "dashboard" },
                         onClick = { navController.navigateToTripListScreen() },
                         icon = {
                             Icon(
@@ -189,7 +191,10 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 DashboardScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
-                    onLogoutClick = { navController.navigateToLoginScreen() }
+                    onLogoutClick = { navController.navigateToLoginScreen() },
+                    onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromDashboard(tripId) },
+                    onPackingClick = { tripId -> navController.navigateToPackingScreenFromDashboard(tripId) },
+                    onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) }
                 )
             }
 
@@ -216,7 +221,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onLogoutClick = { navController.navigateToLoginScreen() },
-                    onTripClick = { tripId -> navController.navigateToTripDetailsScreen(tripId) },
+                    onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromTripList(tripId) },
                     onBackClick = { navController.popBackStack() },
                     onFabClick = { navController.navigateToAddTripScreen() }
                 )
@@ -237,7 +242,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                     onMapClick = { navController.navigateToMapScreenFromTrip() },
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
-                    onPackingClick = { tripId -> navController.navigateToPackingScreen(tripId) },
+                    onPackingClick = { tripId -> navController.navigateToPackingScreenFromTripDetails(tripId) },
                     onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromTripDetailsScreen(tripId)},
                     modifier = modifier,
                     authViewModel = authViewModel
@@ -481,10 +486,19 @@ private fun NavHostController.navigateToTripListScreen() {
     }
 }
 
-private fun NavHostController.navigateToTripDetailsScreen(tripId: Int) {
-    this.navigate("${TripDetailsDestination.route}/$tripId") {
+private fun NavHostController.navigateToTripDetailsScreenFromTripList(tripId: Int) {
+    this.navigate("${TripDetailsDestination.route}/$tripId?source=trips") {
         launchSingleTop = true
         popUpTo(TripListDestination.route) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToTripDetailsScreenFromDashboard(tripId: Int) {
+    this.navigate("${TripDetailsDestination.route}/$tripId?source=dashboard") {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
             inclusive = false
         }
     }
@@ -546,10 +560,19 @@ private fun NavHostController.navigateToAddItineraryScreen(tripId: Int) {
     }
 }
 
-private fun NavHostController.navigateToPackingScreen(tripId: Int) {
-    this.navigate("${PackingDestination.route}/$tripId") {
+private fun NavHostController.navigateToPackingScreenFromTripDetails(tripId: Int) {
+    this.navigate("${PackingDestination.route}/$tripId?source=trip") {
         launchSingleTop = true
         popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToPackingScreenFromDashboard(tripId: Int) {
+    this.navigate("${PackingDestination.route}/$tripId?source=dashboard") {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
             inclusive = false
         }
     }
