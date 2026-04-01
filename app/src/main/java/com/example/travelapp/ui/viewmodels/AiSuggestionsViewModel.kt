@@ -3,6 +3,7 @@ package com.example.travelapp.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.database.repositories.TripRepository
+import com.example.travelapp.session.SessionManager
 import com.google.ai.client.generativeai.GenerativeModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +50,8 @@ data class AiSuggestionsUiState(
 @HiltViewModel
 class AiSuggestionsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
-    private val generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel,
+    // private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiSuggestionsUiState())
     val uiState: StateFlow<AiSuggestionsUiState> = _uiState.asStateFlow()
@@ -72,6 +74,8 @@ class AiSuggestionsViewModel @Inject constructor(
      * @param userId ID of the user for whom to generate suggestions
      */
     fun generateSuggestions(userId: Int) = viewModelScope.launch {
+        // val userId = sessionManager.loggedInUserId.first() ?: return@launch
+
         _uiState.update {
             it.copy(
                 isLoading = true,

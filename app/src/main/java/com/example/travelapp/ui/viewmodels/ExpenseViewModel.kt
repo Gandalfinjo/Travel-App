@@ -4,12 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.database.models.CategoryTotal
 import com.example.travelapp.database.models.Expense
-import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.models.enums.ExpenseCategory
 import com.example.travelapp.database.repositories.ExpenseRepository
-import com.example.travelapp.database.repositories.ItineraryRepository
-import com.example.travelapp.database.repositories.TripRepository
-import com.example.travelapp.schedulers.TripScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +20,6 @@ data class ExpenseUiState(
     val totalSpent: Double = 0.0,
     val totalByCategory: List<CategoryTotal> = emptyList(),
     val selectedCategory: ExpenseCategory? = null, // null means all categories
-    val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
 
@@ -49,14 +44,11 @@ class ExpenseViewModel @Inject constructor(
      * @param tripId ID of the trip for which to load expenses
      */
     fun loadExpenses(tripId: Int) = viewModelScope.launch {
-        _uiState.update { it.copy(isLoading = true) }
-
         launch {
             expenseRepository.getExpensesByTripId(tripId).collect { expenses ->
                 _uiState.update {
                     it.copy(
                         expenses = expenses,
-                        isLoading = false
                     )
                 }
             }

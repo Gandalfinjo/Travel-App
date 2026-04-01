@@ -52,26 +52,48 @@ fun TripInfoCard(trip: Trip) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(
             width = 0.5.dp,
-            color = MaterialTheme.colorScheme.outlineVariant)
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
-                    Text(trip.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Medium)
+                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                    Text(
+                        text = trip.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Medium
+                    )
+
                     Spacer(Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(13.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(trip.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(13.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Text(
+                            text = trip.location,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
                 Surface(shape = RoundedCornerShape(20.dp), color = statusColor.second) {
                     Text(
-                        trip.status.name.lowercase().replaceFirstChar { it.uppercase() },
+                        text = trip.status.name.lowercase().replaceFirstChar { it.uppercase() },
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium,
@@ -83,13 +105,29 @@ fun TripInfoCard(trip: Trip) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(13.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("${trip.startDate} → ${trip.endDate}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    modifier = Modifier.size(13.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = "${trip.startDate} → ${trip.endDate}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             trip.description?.let {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 20.sp)
+
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 20.sp
+                )
             }
         }
     }
