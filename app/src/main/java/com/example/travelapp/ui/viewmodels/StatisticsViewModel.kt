@@ -7,10 +7,12 @@ import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.database.repositories.ExpenseRepository
 import com.example.travelapp.database.repositories.TripRepository
+import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.temporal.ChronoUnit
@@ -31,6 +33,7 @@ data class StatisticsUiState(
     val topDestination: String? = null,
     val topSpendingTrips: List<TripWithExpenses> = emptyList(),
     val totalByCategory: List<CategoryTotal> = emptyList(),
+    val isLoading: Boolean = true
 )
 
 /**
@@ -48,10 +51,19 @@ data class StatisticsUiState(
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState: StateFlow<StatisticsUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionManager.loggedInUserId.first()?.let {
+                loadStatistics(it)
+            }
+        }
+    }
 
     /**
      * Loads and calculates statistics for the specified user.
@@ -68,6 +80,8 @@ class StatisticsViewModel @Inject constructor(
      * @param userId ID of the user whose statistics should be calculated
      */
     fun loadStatistics(userId: Int) = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+
         launch {
             tripRepository.getUserTrips(userId).collect { trips ->
                 if (trips.isEmpty()) {
@@ -103,7 +117,8 @@ class StatisticsViewModel @Inject constructor(
                         tripsByStatus = byStatus,
                         averageDuration = averageDuration,
                         topDestination = topDestination,
-                        topSpendingTrips = topSpendingTrips
+                        topSpendingTrips = topSpendingTrips,
+                        isLoading = false
                     )
                 }
             }

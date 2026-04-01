@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +33,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,15 +70,8 @@ fun StatisticsScreen(
     statisticsViewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by statisticsViewModel.uiState.collectAsState()
-    val authUiState by authViewModel.uiState.collectAsState()
 
     var showLogoutDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(authUiState.loggedInUserId) {
-        authUiState.loggedInUserId?.let { userId ->
-            statisticsViewModel.loadStatistics(userId)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -108,6 +101,19 @@ fun StatisticsScreen(
         },
         containerColor = Color.Transparent
     ) { innerPadding ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+
+            return@Scaffold
+        }
+
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -165,12 +171,14 @@ fun StatisticsScreen(
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
+
                             Column {
                                 Text(
                                     text = stringResource(R.string.top_destination),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+
                                 Text(
                                     destination,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -225,6 +233,7 @@ fun StatisticsScreen(
                                                 imageVector = categoryTotal.category.icon(),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(14.dp),
+
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                             Text(
@@ -233,12 +242,14 @@ fun StatisticsScreen(
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
+
                                         Text(
                                             text = "%.2f".format(categoryTotal.total),
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
+
                                     LinearProgressIndicator(
                                         progress = { fraction },
                                         modifier = Modifier
