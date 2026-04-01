@@ -13,23 +13,44 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Extension property that provides a [DataStore] instance for storing session preferences.
+ * Uses a single instance per [Context] with the name "session".
+ */
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "session")
 
+/**
+ * Manages user session persistence using Jetpack DataStore.
+ *
+ * Handles saving, retrieving and clearing the logged-in user's session data.
+ * Session data is persisted across app launches until explicitly cleared.
+ */
 @Singleton
 class SessionManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
     companion object {
+        /** DataStore key for storing the logged-in user's username. */
         val KEY_USERNAME = stringPreferencesKey("username")
+
+        /** DataStore key for storing the logged-in user's ID. */
         val KEY_USER_ID = intPreferencesKey("user_id")
     }
 
+    /** Emits the currently logged-in user's username, or null if no session exists. */
     val loggedInUsername: Flow<String?> = context.dataStore.data
         .map { it[KEY_USERNAME] }
 
+    /** Emits the currently logged-in user's ID, or null if no session exists. */
     val loggedInUserId: Flow<Int?> = context.dataStore.data
         .map { it[KEY_USER_ID] }
 
+    /**
+     * Persists the user's session data to DataStore.
+     *
+     * @param username Username of the logged-in user
+     * @param userId ID of the logged-in user
+     */
     suspend fun saveSession(username: String, userId: Int) {
         context.dataStore.edit { prefs ->
             prefs[KEY_USERNAME] = username
@@ -37,6 +58,12 @@ class SessionManager @Inject constructor(
         }
     }
 
+    /**
+     * Clears all session data from DataStore.
+     *
+     * Should be called on logout to ensure the user is not
+     * automatically logged in on the next app launch.
+     */
     suspend fun clearSession() {
         context.dataStore.edit { it.clear() }
     }
