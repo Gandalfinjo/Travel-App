@@ -9,10 +9,14 @@ import com.example.travelapp.database.repositories.ExpenseRepository
 import com.example.travelapp.database.repositories.ItineraryRepository
 import com.example.travelapp.database.repositories.PackingRepository
 import com.example.travelapp.database.repositories.TripRepository
+import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -28,7 +32,7 @@ data class DashboardUiState(
     val upcomingTripPackingProgress: Pair<Int, Int> = Pair(0, 0),
     val totalTrips: Int = 0,
     val uniqueDestinations: Int = 0,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = true
 )
 
 /**
@@ -39,17 +43,26 @@ data class DashboardUiState(
  * @param tripRepository Repository for retrieving trip information
  * @param itineraryRepository Repository for retrieving itinerary information
  * @param expenseRepository Repository for retrieving expense information
- * @param packingRepository Repository for retrieving packing infomration
+ * @param packingRepository Repository for retrieving packing information
  */
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val itineraryRepository: ItineraryRepository,
     private val expenseRepository: ExpenseRepository,
-    private val packingRepository: PackingRepository
+    private val packingRepository: PackingRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionManager.loggedInUserId.first()?.let {
+                loadDashboard(it)
+            }
+        }
+    }
 
     /**
      * Loads data for the logged-in user about ongoing trip, upcoming trip, short overview of all trips, today's itinerary
@@ -77,44 +90,62 @@ class DashboardViewModel @Inject constructor(
                         upcomingTrip = upcomingTrip,
                         totalTrips = trips.size,
                         uniqueDestinations = trips.map { t -> t.location }.toSet().size,
-                        isLoading = false
+                        // isLoading = false
                     )
                 }
 
-                activeTrip?.let { trip ->
-                    launch {
-                        itineraryRepository.getItemsForTrip(trip.id).collect { items ->
-                            val todayItems = items.filter { it.date == LocalDate.now() }
+                launch {
+                    activeTrip?.let { trip ->
+                        launch {
+                            itineraryRepository.getItemsForTrip(trip.id).collect { items ->
+                                val todayItems = items.filter { it.date == LocalDate.now() }
 
-                            _uiState.update { it.copy(todayItinerary = todayItems) }
+                                _uiState.update { it.copy(todayItinerary = todayItems) }
+                            }
+                        }
+
+                        launch {
+                            expenseRepository.getTotalByTrip(trip.id).collect { total ->
+                                _uiState.update { it.copy(totalSpentOnActiveTrip = total ?: 0.0) }
+                            }
+                        }
+
+                        launch {
+                            packingRepository.getItemsForTrip(trip.id).collect { items ->
+                                val packed = items.count { it.isPacked }
+                                val total = items.size
+
+                                _uiState.update { it.copy(activeTripPackingProgress = Pair(packed, total)) }
+                            }
                         }
                     }
 
-                    launch {
-                        expenseRepository.getTotalByTrip(trip.id).collect { total ->
-                            _uiState.update { it.copy(totalSpentOnActiveTrip = total ?: 0.0) }
+                    upcomingTrip?.let { trip ->
+                        launch {
+                            packingRepository.getItemsForTrip(trip.id).collect { items ->
+                                val packed = items.count { it.isPacked }
+                                val total = items.size
+
+                                _uiState.update { it.copy(upcomingTripPackingProgress = Pair(packed, total)) }
+                            }
                         }
                     }
 
-                    launch {
-                        packingRepository.getItemsForTrip(trip.id).collect { items ->
-                            val packed = items.count { it.isPacked }
-                            val total = items.size
+                    val jobs = buildList {
+                        activeTrip?.let { trip ->
+                            add(async { expenseRepository.getTotalByTrip(trip.id).first() })
+                            add(async { packingRepository.getItemsForTrip(trip.id).first() })
+                            add(async { itineraryRepository.getItemsForTrip(trip.id).first() })
+                        }
 
-                            _uiState.update { it.copy(activeTripPackingProgress = Pair(packed, total)) }
+                        upcomingTrip?.let { trip ->
+                            add(async { packingRepository.getItemsForTrip(trip.id).first() })
                         }
                     }
-                }
 
-                upcomingTrip?.let { trip ->
-                    launch {
-                        packingRepository.getItemsForTrip(trip.id).collect { items ->
-                            val packed = items.count { it.isPacked }
-                            val total = items.size
+                    jobs.awaitAll()
 
-                            _uiState.update { it.copy(upcomingTripPackingProgress = Pair(packed, total)) }
-                        }
-                    }
+                    _uiState.update { it.copy(isLoading = false) }
                 }
             }
         }

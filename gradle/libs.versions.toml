@@ -25,6 +25,7 @@ osmdroid = "6.1.20"
 accompanist = "0.37.3"
 playServicesLocation = "21.3.0"
 secrets = "2.0.1"
+datastore = "1.2.1"
 
 [libraries]
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
@@ -63,6 +64,7 @@ work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "w
 osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -31,7 +31,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,16 +68,9 @@ fun DashboardScreen(
     onPackingClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit
 ) {
-    val authUiState by authViewModel.uiState.collectAsState()
     val uiState by dashboardViewModel.uiState.collectAsState()
 
     var showLogoutDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(authUiState.loggedInUserId) {
-        authUiState.loggedInUserId?.let {
-            dashboardViewModel.loadDashboard(it)
-        }
-    }
 
     Scaffold(
         topBar = {

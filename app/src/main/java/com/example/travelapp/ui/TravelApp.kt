@@ -75,6 +75,12 @@ fun TravelApp(modifier: Modifier = Modifier) {
 
     val authViewModel: AuthViewModel = viewModel()
 
+    val authUiState by authViewModel.uiState.collectAsState()
+    if (!authUiState.isSessionChecked) return
+
+    val startDestination = if (authUiState.loggedInUser != null)
+        DashboardDestination.route else LoginDestination.route
+
     val routesWithoutBottomNav = listOf(
         LoginDestination.route,
         RegisterDestination.route
@@ -94,7 +100,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
         AddExpenseDestination.route
     )
 
-    val showBottomNav = currentRoute !in routesWithoutBottomNav
+    val showBottomNav = currentRoute !in routesWithoutBottomNav && authUiState.loggedInUser != null
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -112,7 +118,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
                                 contentDescription = stringResource(R.string.home)
                             )
                         },
-                        label = { Text(stringResource(R.string.home)) }
+                        label = { Text(text = stringResource(R.string.home)) }
                     )
                     NavigationBarItem(
                         selected = tripRoutes.any { currentRoute.startsWith(it) && currentSource != "stats" && currentSource != "ai" && currentSource != "dashboard" },
@@ -166,7 +172,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
     ) {
         NavHost(
             navController = navController,
-            startDestination = LoginDestination.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(it)
         ) {
             composable(route = LoginDestination.route) {

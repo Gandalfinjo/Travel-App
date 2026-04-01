@@ -3,10 +3,12 @@ package com.example.travelapp.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.database.repositories.UserRepository
+import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,7 +17,8 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val loggedInUser: String? = null,
-    val loggedInUserId: Int? = null
+    val loggedInUserId: Int? = null,
+    val isSessionChecked: Boolean = false
 )
 
 /**
@@ -26,10 +29,28 @@ data class AuthUiState(
  */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionManager.loggedInUsername.collect { username ->
+                val userId = sessionManager.loggedInUserId.first()
+                _uiState.update {
+                    it.copy(
+                        loggedInUser = username,
+                        loggedInUserId = userId,
+                        isSessionChecked = true
+                    )
+                }
+
+                return@collect
+            }
+        }
+    }
 
     /**
      * Registers a new user and automatically logs them in.
@@ -78,6 +99,8 @@ class AuthViewModel @Inject constructor(
                     val loggedInUser = userRepository.login(username, password)
 
                     if (loggedInUser != null) {
+                        sessionManager.saveSession(loggedInUser.username, loggedInUser.id)
+
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -125,6 +148,8 @@ class AuthViewModel @Inject constructor(
         val user = userRepository.login(username, password)
 
         if (user != null) {
+            sessionManager.saveSession(user.username, user.id,)
+
             _uiState.update {
                 it.copy(
                     isLoading = false,
@@ -146,10 +171,13 @@ class AuthViewModel @Inject constructor(
     /**
      * Logs out the current user by clearing authentication state.
      */
-    fun logout() {
+    fun logout() = viewModelScope.launch {
+        sessionManager.clearSession()
+
         _uiState.update {
             it.copy(
                 loggedInUser = null,
+                loggedInUserId = null,
                 errorMessage = null
             )
         }

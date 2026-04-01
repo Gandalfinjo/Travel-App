@@ -109,4 +109,7 @@ dependencies {
 
     // Gemini AI
     implementation(libs.generativeai)
+
+    // Session
+    implementation(libs.datastore.preferences)
 }
