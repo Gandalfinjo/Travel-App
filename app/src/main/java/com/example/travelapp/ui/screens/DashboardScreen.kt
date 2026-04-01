@@ -173,20 +173,6 @@ fun DashboardScreen(
                             }
                         }
                     }
-
-//                    if (uiState.activeTripPackingProgress.second > 0) {
-//                        item {
-//                            DashboardSectionLabel(stringResource(R.string.packing, trip.name))
-//                        }
-//
-//                        item {
-//                            PackingProgressCard(
-//                                packed = uiState.activeTripPackingProgress.first,
-//                                total = uiState.activeTripPackingProgress.second,
-//                                onClick = { onPackingClick(trip.id) }
-//                            )
-//                        }
-//                    }
                 }
 
                 uiState.upcomingTrip?.let { trip ->
@@ -202,20 +188,6 @@ fun DashboardScreen(
                             onPackingClick = { onPackingClick(trip.id) }
                         )
                     }
-
-//                    if (uiState.upcomingTripPackingProgress.second > 0) {
-//                        item {
-//                            DashboardSectionLabel(stringResource(R.string.packing, trip.name))
-//                        }
-//
-//                        item {
-//                            PackingProgressCard(
-//                                packed = uiState.upcomingTripPackingProgress.first,
-//                                total = uiState.upcomingTripPackingProgress.second,
-//                                onClick = { onPackingClick(trip.id) }
-//                            )
-//                        }
-//                    }
                 }
 
                 if (uiState.activeTrip == null && uiState.upcomingTrip == null) {
@@ -230,7 +202,9 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
-                                modifier = Modifier.padding(20.dp),
+                                modifier = Modifier
+                                    .padding(20.dp)
+                                    .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
