@@ -19,7 +19,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +50,7 @@ fun TripListScreen(
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    val authState by authViewModel.uiState.collectAsState()
     val tripUiState by tripViewModel.uiState.collectAsState()
-
-    LaunchedEffect(authState.loggedInUserId) {
-        authState.loggedInUserId?.let {
-            tripViewModel.loadTrips(authState.loggedInUserId!!)
-        }
-    }
 
     Scaffold(
         topBar = {

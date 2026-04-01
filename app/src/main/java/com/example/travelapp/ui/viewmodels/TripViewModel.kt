@@ -11,11 +11,13 @@ import com.example.travelapp.database.models.enums.TransportType
 import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.schedulers.TripScheduler
+import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +26,7 @@ data class TripUiState(
     val trips: List<Trip> = emptyList(),
     val errorMessage: String? = null,
     val tripAddedSuccessfully: Boolean = false,
+    val isLoading: Boolean = true
 )
 
 /**
@@ -36,10 +39,19 @@ data class TripUiState(
 @HiltViewModel
 class TripViewModel @Inject constructor(
     private val tripRepository: TripRepository,
-    private val tripScheduler: TripScheduler
+    private val tripScheduler: TripScheduler,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TripUiState())
     val uiState: StateFlow<TripUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionManager.loggedInUserId.first()?.let {
+                loadTrips(it)
+            }
+        }
+    }
 
     /**
      * Validates user input and creates a new trip if all validations pass.
@@ -140,9 +152,14 @@ class TripViewModel @Inject constructor(
      * @param userId ID of the user whose trips to load
      */
     fun loadTrips(userId: Int) = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+
         tripRepository.getUserTrips(userId).collect { trips ->
             _uiState.update {
-                it.copy(trips = trips)
+                it.copy(
+                    trips = trips,
+                    isLoading = false
+                )
             }
         }
     }
