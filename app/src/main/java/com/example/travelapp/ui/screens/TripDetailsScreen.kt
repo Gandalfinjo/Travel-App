@@ -72,8 +72,6 @@ fun TripDetailsScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
 
     var showCancelDialog by remember { mutableStateOf(false) }
@@ -256,7 +254,7 @@ fun TripDetailsScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showCancelDialog = false
-                    tripViewModel.cancelTrip(context, tripId)
+                    tripViewModel.cancelTrip(tripId)
                 }) { Text(text = stringResource(R.string.yes)) }
             },
             dismissButton = {

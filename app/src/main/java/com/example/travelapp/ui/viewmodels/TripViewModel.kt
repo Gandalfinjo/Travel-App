@@ -184,15 +184,11 @@ class TripViewModel @Inject constructor(
     /**
      * Cancels a trip and removes all scheduled notifications and status updates.
      *
-     * @param context Android context for accessing WorkManager
      * @param tripId ID of the trip to cancel
      */
-    fun cancelTrip(context: Context, tripId: Int) = viewModelScope.launch {
+    fun cancelTrip(tripId: Int) = viewModelScope.launch {
         tripRepository.updateTripStatus(tripId, TripStatus.CANCELLED)
-        WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_3days")
-        WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_1day")
-        WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_startTrip")
-        WorkManager.getInstance(context).cancelUniqueWork("trip_${tripId}_endTrip")
+        tripScheduler.cancelTripNotifications(tripId)
     }
 
 }

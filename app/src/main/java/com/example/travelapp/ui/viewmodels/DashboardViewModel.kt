@@ -90,7 +90,6 @@ class DashboardViewModel @Inject constructor(
                         upcomingTrip = upcomingTrip,
                         totalTrips = trips.size,
                         uniqueDestinations = trips.map { t -> t.location }.toSet().size,
-                        // isLoading = false
                     )
                 }
 

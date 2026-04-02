@@ -101,6 +101,21 @@ class TripScheduler @Inject constructor(
     }
 
     /**
+     * Cancels trip reminder notifications for a specified trip
+     *
+     * @param tripId ID of the trip for which to cancel the notifications
+     */
+
+    fun cancelTripNotifications(tripId: Int) {
+        val workManager = WorkManager.getInstance(context)
+
+        workManager.cancelUniqueWork("trip_${tripId}_3days")
+        workManager.cancelUniqueWork("trip_${tripId}_1days")
+        workManager.cancelUniqueWork("trip_${tripId}_startTrip")
+        workManager.cancelUniqueWork("trip_${tripId}_endTrip")
+    }
+
+    /**
      * Schedules automatic status updates for a trip.
      *
      * Creates workers that will:
