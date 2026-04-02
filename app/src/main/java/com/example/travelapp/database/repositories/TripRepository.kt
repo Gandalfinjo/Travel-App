@@ -4,6 +4,8 @@ import com.example.travelapp.database.dao.TripDao
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.TripStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -82,4 +84,26 @@ class TripRepository @Inject constructor(
      */
     fun getUserTripsByStatus(userId: Int, status: TripStatus): Flow<List<Trip>> =
         tripDao.getTripsByUserAndStatus(userId, status)
+
+    /**
+     * Syncs trip statuses upon opening the application
+     */
+    suspend fun syncTripStatuses(userId: Int) {
+        val today = LocalDate.now()
+        val trips = getUserTrips(userId).first()
+
+        trips.forEach { trip ->
+            if (trip.status == TripStatus.CANCELLED) return@forEach
+
+            val newStatus = when {
+                today < trip.startDate -> TripStatus.PLANNED
+                today <= trip.endDate -> TripStatus.ONGOING
+                else -> TripStatus.FINISHED
+            }
+
+            if (newStatus != trip.status) {
+                updateTripStatus(trip.id, newStatus)
+            }
+        }
+    }
 }

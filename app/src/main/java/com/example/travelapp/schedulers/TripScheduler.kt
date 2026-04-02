@@ -111,19 +111,32 @@ class TripScheduler @Inject constructor(
      */
     fun scheduleTripStatusUpdates(trip: Trip) {
         val workManager = WorkManager.getInstance(context)
+        val now = LocalDateTime.now(ZoneId.systemDefault())
+        val startDateTime = trip.startDate.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()
+        val endDateTime = trip.endDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime()
+
+        val startDelay = Duration.between(now, startDateTime).toMillis()
+        val endDelay = Duration.between(now, endDateTime).toMillis()
 
         // Start worker
-        val startDelay = Duration.between(LocalDateTime.now(), trip.startDate.atStartOfDay()).toMillis()
-        if (startDelay > 0) {
-            val startWork = OneTimeWorkRequestBuilder<StartTripWorker>()
-                .setInitialDelay(startDelay, TimeUnit.MILLISECONDS)
-                .setInputData(workDataOf("tripId" to trip.id))
-                .build()
-            workManager.enqueueUniqueWork("trip_${trip.id}_startTrip", ExistingWorkPolicy.REPLACE, startWork)
+        when {
+            startDelay <= 0 && endDelay > 0 -> {
+                val startWork = OneTimeWorkRequestBuilder<StartTripWorker>()
+                    .setInitialDelay(0, TimeUnit.MILLISECONDS)
+                    .setInputData(workDataOf("tripId" to trip.id))
+                    .build()
+                workManager.enqueueUniqueWork("trip_${trip.id}_startTrip", ExistingWorkPolicy.REPLACE, startWork)
+            }
+            startDelay > 0 -> {
+                val startWork = OneTimeWorkRequestBuilder<StartTripWorker>()
+                    .setInitialDelay(startDelay, TimeUnit.MILLISECONDS)
+                    .setInputData(workDataOf("tripId" to trip.id))
+                    .build()
+                workManager.enqueueUniqueWork("trip_${trip.id}_startTrip", ExistingWorkPolicy.REPLACE, startWork)
+            }
         }
 
         // End worker
-        val endDelay = Duration.between(LocalDateTime.now(), trip.endDate.atStartOfDay()).toMillis()
         if (endDelay > 0) {
             val endWork = OneTimeWorkRequestBuilder<EndTripWorker>()
                 .setInitialDelay(endDelay, TimeUnit.MILLISECONDS)

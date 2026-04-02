@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -65,21 +64,18 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
 @Composable
-fun TravelApp(modifier: Modifier = Modifier) {
+fun TravelApp(
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    startDestination: String,
+    isLoggedIn: Boolean
+) {
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
     val currentRoute = currentDestination?.route ?: LoginDestination.route
     val currentSource = currentBackStackEntry?.arguments?.getString("source")
-
-    val authViewModel: AuthViewModel = viewModel()
-
-    val authUiState by authViewModel.uiState.collectAsState()
-    if (!authUiState.isSessionChecked) return
-
-    val startDestination = if (authUiState.loggedInUser != null)
-        DashboardDestination.route else LoginDestination.route
 
     val routesWithoutBottomNav = listOf(
         LoginDestination.route,
@@ -100,7 +96,7 @@ fun TravelApp(modifier: Modifier = Modifier) {
         AddExpenseDestination.route
     )
 
-    val showBottomNav = currentRoute !in routesWithoutBottomNav && authUiState.loggedInUser != null
+    val showBottomNav = currentRoute !in routesWithoutBottomNav && isLoggedIn
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -169,11 +165,11 @@ fun TravelApp(modifier: Modifier = Modifier) {
                 }
             }
         }
-    ) {
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(it)
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = LoginDestination.route) {
                 LoginScreen(

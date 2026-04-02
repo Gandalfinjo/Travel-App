@@ -146,6 +146,14 @@ fun AiSuggestionsScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp)
                         ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+
+                            Spacer(Modifier.width(8.dp))
+
                             Text(text = stringResource(R.string.generate_suggestions))
                         }
                     }
@@ -186,7 +194,7 @@ fun AiSuggestionsScreen(
                             shape = RoundedCornerShape(10.dp)
                         ) {
                             Icon(
-                                Icons.Default.AutoAwesome,
+                                imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )

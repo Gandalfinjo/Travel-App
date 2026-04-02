@@ -10,12 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.travelapp.navigation.DashboardDestination
+import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.ui.TravelApp
 import com.example.travelapp.ui.theme.TravelAppTheme
+import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.worker.utils.NotificationHelper
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,6 +36,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TravelAppTheme {
+                val authViewModel: AuthViewModel = hiltViewModel()
+                val authUiState by authViewModel.uiState.collectAsState()
+
+                LaunchedEffect(authUiState.loggedInUserId) {
+                    authUiState.loggedInUserId?.let {
+                        authViewModel.syncTripStatuses(it)
+                    }
+                }
+
+                if (!authUiState.isSessionChecked) return@TravelAppTheme
+
+                val startDestination = if (authUiState.loggedInUser != null)
+                    DashboardDestination.route else LoginDestination.route
+
                 Scaffold(
                     containerColor = Color.Transparent,
                     modifier = Modifier
@@ -42,7 +63,12 @@ class MainActivity : ComponentActivity() {
                             )
                         )
                 ) { innerPadding ->
-                    TravelApp(modifier = Modifier.padding(innerPadding))
+                    TravelApp(
+                        modifier = Modifier.padding(innerPadding),
+                        authViewModel = authViewModel,
+                        startDestination = startDestination,
+                        isLoggedIn = authUiState.loggedInUser != null
+                    )
                 }
             }
         }
@@ -53,6 +79,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     TravelAppTheme {
-        TravelApp()
+        TravelApp(
+            authViewModel = hiltViewModel(),
+            startDestination = LoginDestination.route,
+            isLoggedIn = false
+        )
     }
 }

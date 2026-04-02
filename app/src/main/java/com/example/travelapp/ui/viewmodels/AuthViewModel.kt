@@ -2,6 +2,7 @@ package com.example.travelapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.database.repositories.UserRepository
 import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,7 @@ data class AuthUiState(
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val tripRepository: TripRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -148,7 +150,7 @@ class AuthViewModel @Inject constructor(
         val user = userRepository.login(username, password)
 
         if (user != null) {
-            sessionManager.saveSession(user.username, user.id,)
+            sessionManager.saveSession(user.username, user.id)
 
             _uiState.update {
                 it.copy(
@@ -199,5 +201,9 @@ class AuthViewModel @Inject constructor(
      */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun syncTripStatuses(userId: Int) = viewModelScope.launch {
+        tripRepository.syncTripStatuses(userId)
     }
 }
