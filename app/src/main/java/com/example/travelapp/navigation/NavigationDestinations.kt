@@ -147,6 +147,16 @@ object AddItineraryDestination : NavigationDestination {
 }
 
 /**
+ * Ai Itinerary screen destination.
+ * Requires tripId parameter.
+ */
+object AiItineraryDestination : NavigationDestination {
+    override val route = "ai_itinerary"
+    val arguments = listOf(navArgument("tripId") { type = NavType.IntType })
+    val routeWithArgs = "$route/{tripId}"
+}
+
+/**
  * Packing list screen destination.
  * Requires tripId parameter.
  */

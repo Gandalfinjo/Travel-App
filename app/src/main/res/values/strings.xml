@@ -158,4 +158,15 @@
     <string name="overview">Overview</string>
     <string name="all_packed">All packed!</string>
     <string name="items_packed">%1$d / %2$d items packed</string>
+    <string name="add_manually">Add manually</string>
+    <string name="generate_with_ai">Generate with AI</string>
+    <string name="no_itinerary_items_yet">No itinerary items yet</string>
+    <string name="add_manually_or_generate_with_ai">Add manually or generate with AI</string>
+    <string name="failed_to_generate_itinerary">Failed to generate itinerary: %1$s</string>
+    <string name="add_selected">Add selected (%1$d)</string>
+    <string name="select_activities_to_add">Select activities to add</string>
+    <string name="generate_itinerary">Generate itinerary</string>
+    <string name="choose_a_date">Choose a date</string>
+    <string name="select_day">Select day</string>
+    <string name="ai_itinerary">AI Itinerary</string>
 </resources>

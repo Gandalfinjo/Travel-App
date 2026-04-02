@@ -51,7 +51,7 @@ data class AiSuggestionsUiState(
 class AiSuggestionsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val generativeModel: GenerativeModel,
-    // private val sessionManager: SessionManager
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiSuggestionsUiState())
     val uiState: StateFlow<AiSuggestionsUiState> = _uiState.asStateFlow()
@@ -70,11 +70,9 @@ class AiSuggestionsViewModel @Inject constructor(
      *
      * Analyzes past trips (locations, dates, budgets) and uses Gemini AI to
      * suggest 3 new destinations that match the user's travel patterns.
-     *
-     * @param userId ID of the user for whom to generate suggestions
      */
-    fun generateSuggestions(userId: Int) = viewModelScope.launch {
-        // val userId = sessionManager.loggedInUserId.first() ?: return@launch
+    fun generateSuggestions() = viewModelScope.launch {
+        val userId = sessionManager.loggedInUserId.first() ?: return@launch
 
         _uiState.update {
             it.copy(

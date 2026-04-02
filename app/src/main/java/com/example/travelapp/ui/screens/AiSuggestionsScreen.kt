@@ -184,9 +184,7 @@ fun AiSuggestionsScreen(
 
                         OutlinedButton(
                             onClick = {
-                                authUiState.loggedInUserId?.let {
-                                    aiViewModel.generateSuggestions(it)
-                                }
+                                aiViewModel.generateSuggestions()
                             },
                             enabled = !uiState.isLoading,
                             modifier = Modifier.fillMaxWidth(),
@@ -245,9 +243,7 @@ fun AiSuggestionsScreen(
 
                             OutlinedButton(
                                 onClick = {
-                                    authUiState.loggedInUserId?.let {
-                                        aiViewModel.generateSuggestions(it)
-                                    }
+                                    aiViewModel.generateSuggestions()
                                 }
                             ) {
                                 Text(text = stringResource(R.string.retry))

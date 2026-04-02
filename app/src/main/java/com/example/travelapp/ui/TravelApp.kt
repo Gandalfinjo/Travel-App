@@ -31,6 +31,7 @@ import com.example.travelapp.navigation.AddExpenseDestination
 import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddPackingItemDestination
 import com.example.travelapp.navigation.AddTripDestination
+import com.example.travelapp.navigation.AiItineraryDestination
 import com.example.travelapp.navigation.AiSuggestionsDestination
 import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
@@ -48,6 +49,7 @@ import com.example.travelapp.ui.screens.AddExpenseScreen
 import com.example.travelapp.ui.screens.AddItineraryScreen
 import com.example.travelapp.ui.screens.AddPackingItemScreen
 import com.example.travelapp.ui.screens.AddTripScreen
+import com.example.travelapp.ui.screens.AiItineraryScreen
 import com.example.travelapp.ui.screens.AiSuggestionsScreen
 import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
@@ -303,7 +305,8 @@ fun TravelApp(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) }
+                    onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) },
+                    onAiItineraryClick = { navController.navigateToAiItineraryScreen(tripId) },
                 )
             }
 
@@ -319,6 +322,19 @@ fun TravelApp(
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddItem = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = AiItineraryDestination.routeWithArgs,
+                arguments = AiItineraryDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+
+                AiItineraryScreen(
+                    tripId = tripId,
+                    onBackClick = { navController.popBackStack() },
+                    modifier = modifier
                 )
             }
 
@@ -553,6 +569,15 @@ private fun NavHostController.navigateToItineraryScreen(tripId: Int) {
 
 private fun NavHostController.navigateToAddItineraryScreen(tripId: Int) {
     this.navigate("${AddItineraryDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(ItineraryDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToAiItineraryScreen(tripId: Int) {
+    this.navigate("${AiItineraryDestination.route}/$tripId") {
         launchSingleTop = true
         popUpTo(ItineraryDestination.routeWithArgs) {
             inclusive = false
