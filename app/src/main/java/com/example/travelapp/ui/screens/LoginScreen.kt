@@ -59,7 +59,6 @@ import com.example.travelapp.ui.theme.TravelAppTheme
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onRegisterClick: () -> Unit,
-    onLogin: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by authViewModel.uiState.collectAsState()
@@ -212,7 +211,6 @@ fun LoginScreen(
 
     LaunchedEffect(uiState.loggedInUser, uiState.errorMessage) {
         when {
-            uiState.loggedInUser != null -> onLogin()
             uiState.errorMessage != null -> {
                 alertMessage = uiState.errorMessage!!
                 showAlert = true
@@ -243,8 +241,7 @@ fun LoginScreen(
 fun LoginPreview() {
     TravelAppTheme {
         LoginScreen(
-            onRegisterClick = {},
-            onLogin = {}
+            onRegisterClick = {}
         )
     }
 }

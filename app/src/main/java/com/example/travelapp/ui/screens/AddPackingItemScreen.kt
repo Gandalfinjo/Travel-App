@@ -61,7 +61,6 @@ fun AddPackingItemScreen(
     tripId: Int,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onAddItem: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel(),
     packingViewModel: PackingViewModel = hiltViewModel()
@@ -248,11 +247,12 @@ fun AddPackingItemScreen(
             title = { Text(text = stringResource(R.string.logout)) },
             text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
-                TextButton(onClick = {
-                    showLogoutDialog = false
-                    authViewModel.logout()
-                    onLogoutClick()
-                }) { Text(text = stringResource(R.string.yes)) }
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        authViewModel.logout()
+                    }
+                ) { Text(text = stringResource(R.string.yes)) }
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {

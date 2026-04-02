@@ -259,7 +259,6 @@ fun DashboardScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

@@ -60,7 +60,6 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 @Composable
 fun AiSuggestionsScreen(
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onAddToTrips: (destination: String, name: String, budget: String, currency: String, transport: String) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
@@ -287,7 +286,6 @@ fun AiSuggestionsScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

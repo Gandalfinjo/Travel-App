@@ -74,7 +74,6 @@ fun AlbumScreen(
     tripId: Int,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
     photoViewModel: PhotoViewModel = hiltViewModel()
@@ -286,7 +285,6 @@ fun AlbumScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

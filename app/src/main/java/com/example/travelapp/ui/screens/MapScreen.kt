@@ -70,7 +70,6 @@ fun MapScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -210,7 +209,6 @@ fun MapScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

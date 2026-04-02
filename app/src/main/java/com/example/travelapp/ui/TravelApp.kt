@@ -14,6 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -67,9 +68,10 @@ import com.example.travelapp.ui.viewmodels.TripViewModel
 fun TravelApp(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
-    startDestination: String,
-    isLoggedIn: Boolean
+    startDestination: String
 ) {
+    val authUiState by authViewModel.uiState.collectAsState()
+
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -96,7 +98,16 @@ fun TravelApp(
         AddExpenseDestination.route
     )
 
-    val showBottomNav = currentRoute !in routesWithoutBottomNav && isLoggedIn
+    val showBottomNav = currentRoute !in routesWithoutBottomNav
+
+    LaunchedEffect(authUiState.loggedInUser) {
+        if (authUiState.loggedInUser == null) {
+            navController.navigateToLoginScreen()
+        }
+        else {
+            navController.navigateToDashboardScreen()
+        }
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -175,7 +186,6 @@ fun TravelApp(
                 LoginScreen(
                     modifier = modifier,
                     onRegisterClick = { navController.navigateToRegisterScreen() },
-                    onLogin = { navController.navigateToDashboardScreen() },
                     authViewModel = authViewModel
                 )
             }
@@ -184,7 +194,6 @@ fun TravelApp(
                 RegisterScreen(
                     modifier = modifier,
                     onLoginClick = { navController.navigateToLoginScreen() },
-                    onRegister = { navController.navigateToDashboardScreen() },
                     authViewModel = authViewModel
                 )
             }
@@ -207,7 +216,6 @@ fun TravelApp(
                 AddTripScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onAddTrip = { navController.popBackStack() },
                     onBackClick = { navController.popBackStack() },
                     prefillName = backStackEntry.arguments?.getString("destination"),
@@ -222,7 +230,6 @@ fun TravelApp(
                 TripListScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromTripList(tripId) },
                     onBackClick = { navController.popBackStack() },
                     onFabClick = { navController.navigateToAddTripScreen() }
@@ -239,7 +246,6 @@ fun TravelApp(
                 TripDetailsScreen(
                     tripId = tripId,
                     onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
                     onMapClick = { navController.navigateToMapScreenFromTrip() },
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
@@ -269,7 +275,6 @@ fun TravelApp(
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     modifier = modifier,
-                    onLogoutClick = { navController.navigateToLoginScreen() }
                 )
             }
 
@@ -283,8 +288,7 @@ fun TravelApp(
                     tripId = tripId,
                     modifier = Modifier,
                     authViewModel = authViewModel,
-                    onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() }
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -299,8 +303,7 @@ fun TravelApp(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) },
-                    onLogoutClick = { navController.navigateToLoginScreen() }
+                    onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) }
                 )
             }
 
@@ -315,7 +318,6 @@ fun TravelApp(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onAddItem = { navController.popBackStack() }
                 )
             }
@@ -331,8 +333,7 @@ fun TravelApp(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onAddItemClick = { tripId -> navController.navigateToAddPackingItemScreen(tripId) },
-                    onLogoutClick = { navController.navigateToLoginScreen() }
+                    onAddItemClick = { tripId -> navController.navigateToAddPackingItemScreen(tripId) }
                 )
             }
 
@@ -347,7 +348,6 @@ fun TravelApp(
                     modifier = modifier,
                     authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onAddItem = { navController.popBackStack() }
                 )
             }
@@ -355,7 +355,6 @@ fun TravelApp(
             composable(route = StatisticsDestination.route) {
                 StatisticsScreen(
                     onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromStatisticsScreen(tripId) },
                     modifier = modifier,
                     authViewModel = authViewModel
@@ -365,7 +364,6 @@ fun TravelApp(
             composable(route = AiSuggestionsDestination.route) {
                 AiSuggestionsScreen(
                     onBackClick = { navController.popBackStack() },
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onAddToTrips = { destination, name, budget, currency, transport ->
                         navController.navigateToAddTripScreenWithPrefill(destination, name, budget, currency, transport)
                     },
@@ -422,8 +420,8 @@ private fun NavHostController.navigateToRegisterScreen() {
 private fun NavHostController.navigateToLoginScreen() {
     this.navigate(LoginDestination.route) {
         launchSingleTop = true
-        popUpTo(LoginDestination.route) {
-            inclusive = false
+        popUpTo(graph.startDestinationId) {
+            inclusive = true
         }
     }
 }
@@ -431,7 +429,7 @@ private fun NavHostController.navigateToLoginScreen() {
 private fun NavHostController.navigateToDashboardScreen() {
     this.navigate(DashboardDestination.route) {
         launchSingleTop = true
-        popUpTo(LoginDestination.route) {
+        popUpTo(graph.startDestinationId) {
             inclusive = true
         }
     }

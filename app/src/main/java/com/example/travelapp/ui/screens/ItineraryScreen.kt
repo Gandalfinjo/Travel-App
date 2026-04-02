@@ -59,7 +59,6 @@ fun ItineraryScreen(
     tripId: Int,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onAddItemClick: (Int) -> Unit,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
@@ -202,7 +201,6 @@ fun ItineraryScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

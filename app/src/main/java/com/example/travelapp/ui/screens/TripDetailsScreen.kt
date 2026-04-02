@@ -62,7 +62,6 @@ import com.example.travelapp.ui.elements.TripInfoCard
 fun TripDetailsScreen(
     tripId: Int,
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onWeatherClick: (String) -> Unit,
     onMapClick: () -> Unit,
     onAlbumClick: (Int) -> Unit,
@@ -276,7 +275,6 @@ fun TripDetailsScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

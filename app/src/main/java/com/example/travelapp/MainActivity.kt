@@ -67,7 +67,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         authViewModel = authViewModel,
                         startDestination = startDestination,
-                        isLoggedIn = authUiState.loggedInUser != null
                     )
                 }
             }
@@ -81,8 +80,7 @@ fun GreetingPreview() {
     TravelAppTheme {
         TravelApp(
             authViewModel = hiltViewModel(),
-            startDestination = LoginDestination.route,
-            isLoggedIn = false
+            startDestination = LoginDestination.route
         )
     }
 }

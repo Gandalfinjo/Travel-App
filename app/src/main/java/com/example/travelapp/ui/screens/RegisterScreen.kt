@@ -66,7 +66,6 @@ import com.example.travelapp.ui.theme.TravelAppTheme
 fun RegisterScreen(
     modifier: Modifier = Modifier,
     onLoginClick: () -> Unit,
-    onRegister: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -374,7 +373,6 @@ fun RegisterScreen(
 
     LaunchedEffect(uiState.loggedInUser, uiState.errorMessage) {
         when {
-            uiState.loggedInUser != null -> onRegister()
             uiState.errorMessage != null -> {
                 alertMessage = uiState.errorMessage!!
                 showAlert = true
@@ -405,8 +403,7 @@ fun RegisterScreen(
 fun RegisterPreview() {
     TravelAppTheme {
         RegisterScreen(
-            onLoginClick = {},
-            onRegister = {}
+            onLoginClick = {}
         )
     }
 }

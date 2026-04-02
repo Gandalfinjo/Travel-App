@@ -43,7 +43,6 @@ fun TripListScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
-    onLogoutClick: () -> Unit,
     onTripClick: (Int) -> Unit,
     onBackClick: () -> Unit,
     onFabClick: () -> Unit
@@ -117,7 +116,6 @@ fun TripListScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

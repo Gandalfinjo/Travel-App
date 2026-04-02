@@ -63,7 +63,6 @@ import com.example.travelapp.ui.viewmodels.StatisticsViewModel
 @Composable
 fun StatisticsScreen(
     onBackClick: () -> Unit,
-    onLogoutClick: () -> Unit,
     onExpensesClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
@@ -278,7 +277,6 @@ fun StatisticsScreen(
                     onClick = {
                         showLogoutDialog = false
                         authViewModel.logout()
-                        onLogoutClick()
                     }
                 ) {
                     Text(text = stringResource(R.string.yes))

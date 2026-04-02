@@ -76,7 +76,6 @@ fun AddTripScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
-    onLogoutClick: () -> Unit,
     onAddTrip: () -> Unit,
     onBackClick: () -> Unit,
     prefillDestination: String? = null,
@@ -468,11 +467,12 @@ fun AddTripScreen(
             title = { Text(text = stringResource(R.string.logout)) },
             text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
-                TextButton(onClick = {
-                    showLogoutDialog = false
-                    authViewModel.logout()
-                    onLogoutClick()
-                }) { Text(text = stringResource(R.string.yes)) }
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        authViewModel.logout()
+                    }
+                ) { Text(text = stringResource(R.string.yes)) }
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) { Text(text = stringResource(R.string.no)) }
@@ -527,7 +527,6 @@ fun AddTripScreen(
 fun AddTripPreview() {
     TravelAppTheme {
         AddTripScreen(
-            onLogoutClick = {},
             onAddTrip = {},
             onBackClick = {}
         )
