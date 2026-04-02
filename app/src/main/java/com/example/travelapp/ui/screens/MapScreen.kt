@@ -2,9 +2,13 @@ package com.example.travelapp.ui.screens
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +48,7 @@ import com.example.travelapp.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -59,6 +64,8 @@ import com.example.travelapp.api.maps.OTMPoi
 import com.example.travelapp.api.maps.fetchNearbyPOI
 import com.example.travelapp.api.maps.formatKinds
 import com.example.travelapp.ui.viewmodels.AuthViewModel
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationSettingsRequest
 
 /**
  * Displays an interactive map with user location and nearby points of interest.
@@ -81,13 +88,10 @@ fun MapScreen(
 
     var pois by remember { mutableStateOf<List<OTMPoi>>(emptyList()) }
 
-    LaunchedEffect(locationPermission.status.isGranted) {
-        Configuration.getInstance().load(
-            context,
-            context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
-        )
-
-        if (locationPermission.status.isGranted) {
+    val locationSettingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
                 .addOnSuccessListener { location ->
@@ -97,6 +101,44 @@ fun MapScreen(
                         fetchNearbyPOI(it.latitude, it.longitude) { result ->
                             pois = result
                         }
+                    }
+                }
+        }
+    }
+
+    LaunchedEffect(locationPermission.status.isGranted) {
+        Configuration.getInstance().load(
+            context,
+            context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+        )
+
+        if (locationPermission.status.isGranted) {
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
+            val settingsRequest = LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .build()
+
+            val settingsClient = LocationServices.getSettingsClient(context)
+
+            settingsClient.checkLocationSettings(settingsRequest)
+                .addOnSuccessListener {
+                    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+                        .addOnSuccessListener { location ->
+                            location?.let {
+                                currentLocation = GeoPoint(it.latitude, it.longitude)
+
+                                fetchNearbyPOI(it.latitude, it.longitude) { result ->
+                                    pois = result
+                                }
+                            }
+                        }
+                }
+                .addOnFailureListener { exception ->
+                    if (exception is ResolvableApiException) {
+                        locationSettingsLauncher.launch(
+                            IntentSenderRequest.Builder(exception.resolution.intentSender).build()
+                        )
                     }
                 }
         }
