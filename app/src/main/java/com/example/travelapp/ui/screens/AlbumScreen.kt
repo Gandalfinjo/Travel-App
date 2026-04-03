@@ -3,7 +3,7 @@ package com.example.travelapp.ui.screens
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -100,7 +100,7 @@ fun AlbumScreen(
     val pagerState = rememberPagerState(pageCount = { photos.size })
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
 
-    var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
+    var selectedPhotoIndex by remember { mutableStateOf<Int?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     var cameraPhotoUri by remember { mutableStateOf<Uri?>(null) }
@@ -216,7 +216,9 @@ fun AlbumScreen(
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp)
                                     )
+
                                     Spacer(Modifier.width(6.dp))
+
                                     Text(text = stringResource(R.string.gallery))
                                 }
 
@@ -336,7 +338,7 @@ fun AlbumScreen(
                                             .fillMaxSize()
                                             .padding(horizontal = 4.dp)
                                             .clip(RoundedCornerShape(10.dp))
-                                            .clickable { selectedPhoto = photo }
+                                            .clickable { selectedPhotoIndex = page }
                                     )
                                 }
 
@@ -366,14 +368,20 @@ fun AlbumScreen(
         }
     }
 
-    if (selectedPhoto != null) {
-        var showDeleteDialog by remember { mutableStateOf(false) }
-        var savedToGallery by remember { mutableStateOf(false) }
+    if (selectedPhotoIndex != null) {
+        val dialogPagerState = rememberPagerState(
+            initialPage = selectedPhotoIndex!!,
+            pageCount = { photos.size }
+        )
 
-        val isCameraPhoto = selectedPhoto!!.filePath.startsWith("/")
+        val currentPhoto = photos[dialogPagerState.currentPage]
+        val isCameraPhoto = currentPhoto.filePath.startsWith("content://${context.packageName}.provider")
+
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var savedToGallery by remember(dialogPagerState.currentPage) { mutableStateOf(false) }
 
         Dialog(
-            onDismissRequest = { selectedPhoto = null },
+            onDismissRequest = { selectedPhotoIndex = null },
             properties = DialogProperties(
                 usePlatformDefaultWidth = false
             )
@@ -384,25 +392,33 @@ fun AlbumScreen(
                     .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = selectedPhoto!!.filePath.toUri(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
+                HorizontalPager(
+                    state = dialogPagerState,
                     modifier = Modifier.fillMaxSize()
-                )
+                ) { page ->
+                    AsyncImage(
+                        model = photos[page].filePath.toUri(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
-                Box(
+                Row(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.4f))
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { selectedPhoto = null },
-                        modifier = Modifier
-                            .background(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                shape = CircleShape
-                            )
+                        onClick = { selectedPhotoIndex = null },
+                        modifier = Modifier.background(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            shape = CircleShape
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -410,6 +426,14 @@ fun AlbumScreen(
                             tint = Color.White
                         )
                     }
+
+                    Text(
+                        text = "${dialogPagerState.currentPage + 1} / ${photos.size}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White
+                    )
+
+                    Spacer(Modifier.size(48.dp))
                 }
 
                 Row(
@@ -429,8 +453,12 @@ fun AlbumScreen(
                             IconButton(
                                 onClick = {
                                     if (!savedToGallery) {
-                                        val file = File(selectedPhoto!!.filePath)
-                                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                                        val bitmap = ImageDecoder.decodeBitmap(
+                                            ImageDecoder.createSource(
+                                                context.contentResolver,
+                                                currentPhoto.filePath.toUri()
+                                            )
+                                        )
 
                                         val contentValues = ContentValues().apply {
                                             put(MediaStore.Images.Media.DISPLAY_NAME, "travel_${System.currentTimeMillis()}.jpg")
@@ -512,9 +540,12 @@ fun AlbumScreen(
                 text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_photo)) },
                 confirmButton = {
                     TextButton(onClick = {
-                        photoViewModel.deletePhoto(selectedPhoto!!)
+                        photoViewModel.deletePhoto(currentPhoto)
                         showDeleteDialog = false
-                        selectedPhoto = null
+
+                        if (photos.size <= 1) {
+                            selectedPhotoIndex = null
+                        }
                     }) { Text(text = stringResource(R.string.yes)) }
                 },
                 dismissButton = {
