@@ -150,7 +150,7 @@
     <string name="destinations">Destinacije</string>
     <string name="ongoing">Putovanje u toku</string>
     <string name="spent">Potrošeno</string>
-    <string name="active_trip">Aktivno putovanje</string>
+    <string name="ongoing_trip">Trenutno putovanje</string>
     <string name="today_s_itinerary">Današnji itinerar</string>
     <string name="see_full_itinerary">Pogledaj ceo itinerar</string>
     <string name="packing">Pakovanje - %1$s</string>

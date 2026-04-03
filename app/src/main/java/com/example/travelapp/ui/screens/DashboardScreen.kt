@@ -113,7 +113,7 @@ fun DashboardScreen(
             ) {
                 uiState.activeTrip?.let { trip ->
                     item {
-                        DashboardSectionLabel(stringResource(R.string.active_trip))
+                        DashboardSectionLabel(stringResource(R.string.ongoing_trip))
                     }
 
                     item {

@@ -150,7 +150,7 @@
     <string name="destinations">Destinations</string>
     <string name="ongoing">Ongoing</string>
     <string name="spent">Spent</string>
-    <string name="active_trip">Active trip</string>
+    <string name="ongoing_trip">Ongoing trip</string>
     <string name="today_s_itinerary">Today\'s itinerary</string>
     <string name="see_full_itinerary">See full itinerary</string>
     <string name="packing">Packing - %1$s</string>
