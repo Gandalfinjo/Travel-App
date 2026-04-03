@@ -54,9 +54,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.ui.viewmodels.AiItineraryViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 
 /**
@@ -80,6 +82,10 @@ fun AiItineraryScreen(
             aiItineraryViewModel.resetAddedSuccessfully()
             onBackClick()
         }
+    }
+
+    LaunchedEffect(tripId) {
+        aiItineraryViewModel.loadExistingItems(tripId)
     }
 
     Scaffold(
@@ -117,7 +123,11 @@ fun AiItineraryScreen(
                         val pickedDate = Instant.ofEpochMilli(utcTimeMillis)
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate()
-                        return !pickedDate.isBefore(trip!!.startDate) && !pickedDate.isAfter(trip!!.endDate)
+
+                        val startLimit = if (trip!!.status == TripStatus.ONGOING)
+                            LocalDate.now() else trip!!.startDate
+
+                        return !pickedDate.isBefore(startLimit) && !pickedDate.isAfter(trip!!.endDate)
                     }
                 }
             )
@@ -167,7 +177,13 @@ fun AiItineraryScreen(
                             }
 
                             Text(
-                                text = stringResource(
+                                text = if (trip!!.status == TripStatus.ONGOING)
+                                    stringResource(
+                                        R.string.you_can_generate_itinerary_from_today_to,
+                                        LocalDate.now(),
+                                        trip!!.endDate
+                                    )
+                                    else stringResource(
                                     R.string.only_dates_within_the_trip_are_selectable,
                                     trip!!.startDate,
                                     trip!!.endDate

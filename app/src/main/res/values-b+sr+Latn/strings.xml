@@ -158,4 +158,16 @@
     <string name="overview">Pregled</string>
     <string name="all_packed">Sve spakovano!</string>
     <string name="items_packed">%1$d / %2$d stvari spakovano</string>
+    <string name="add_manually">Dodaj ručno</string>
+    <string name="generate_with_ai">Generiši uz pomoć AI-a</string>
+    <string name="no_itinerary_items_yet">Nema itinerara trenutno</string>
+    <string name="add_manually_or_generate_with_ai">Dodaj ručno ili generiši uz pomoć AI-a</string>
+    <string name="failed_to_generate_itinerary">Greška prilikom generisanja itinerara: %1$s</string>
+    <string name="add_selected">Dodaj izabrano (%1$d)</string>
+    <string name="select_activities_to_add">Izaberi aktivnosti koje bi da dodaš</string>
+    <string name="generate_itinerary">Generiši itinerar</string>
+    <string name="choose_a_date">Izaberi datum</string>
+    <string name="select_day">Izaberi dan</string>
+    <string name="ai_itinerary">AI Itinerar</string>
+    <string name="you_can_generate_itinerary_from_today_to">Možeš da generišeš itinerar od danas (%1$s) do %2$s.</string>
 </resources>

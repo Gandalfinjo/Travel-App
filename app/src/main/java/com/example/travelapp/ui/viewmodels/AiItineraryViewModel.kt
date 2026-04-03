@@ -28,7 +28,8 @@ data class AiItineraryUiState(
     val suggestions: List<AiItineraryItem> = emptyList(),
     val selectedDate: LocalDate? = null,
     val errorMessage: String? = null,
-    val addedSuccessfully: Boolean = false
+    val addedSuccessfully: Boolean = false,
+    val existingItems: List<ItineraryItem> = emptyList()
 )
 
 /**
@@ -47,6 +48,15 @@ class AiItineraryViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiItineraryUiState())
     val uiState: StateFlow<AiItineraryUiState> = _uiState.asStateFlow()
+
+    /**
+     * Loads existing itinerary items to the [uiState]
+     */
+    fun loadExistingItems(tripId: Int) = viewModelScope.launch {
+        itineraryRepository.getItemsForTrip(tripId).collect { items ->
+            _uiState.update { it.copy(existingItems = items) }
+        }
+    }
 
     /**
      * Selects the date for which to generate the itinerary
@@ -84,8 +94,15 @@ class AiItineraryViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         try {
+            val existingActivities = if (_uiState.value.existingItems.isNotEmpty()) {
+                "The user already has these activities planned, do NOT suggest them again:\n" +
+                _uiState.value.existingItems.joinToString("\n") { "- ${it.title}" }
+            } else ""
+
             val prompt = """
                 Generate a detailed day itinerary for a tourist visiting $tripLocation on ${date}.
+                
+                $existingActivities
                 
                 Suggest 5 activities/places to visit throughout the day.
                 For each activity provide:

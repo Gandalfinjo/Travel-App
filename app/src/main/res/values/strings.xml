@@ -169,4 +169,5 @@
     <string name="choose_a_date">Choose a date</string>
     <string name="select_day">Select day</string>
     <string name="ai_itinerary">AI Itinerary</string>
+    <string name="you_can_generate_itinerary_from_today_to">You can generate itinerary from today (%1$s) to %2$s.</string>
 </resources>
