@@ -540,7 +540,6 @@ fun AlbumScreen(
                 text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_photo)) },
                 confirmButton = {
                     TextButton(onClick = {
-                        val photoToDelete = currentPhoto
                         val currentIndex = dialogPagerState.currentPage
 
                         if (photos.size <= 1) {
