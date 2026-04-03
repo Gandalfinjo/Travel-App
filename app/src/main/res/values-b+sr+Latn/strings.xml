@@ -180,4 +180,10 @@
     <string name="saved">Sačuvano</string>
     <string name="delete_photo">Izbriši fotografiju</string>
     <string name="are_you_sure_you_want_to_delete_this_photo">Jeste li sigurni da želite da obrišete fotografiju?</string>
+    <string name="view_profile">Pogledaj profil</string>
+    <string name="profile">Profil</string>
+    <string name="manage_your_account">Upravljaj nalogom</string>
+    <string name="dark_mode">Mračna tema</string>
+    <string name="same_as_device">Isto kao uređaj</string>
+    <string name="appearance">Izgled</string>
 </resources>
