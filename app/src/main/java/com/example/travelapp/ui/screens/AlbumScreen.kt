@@ -540,12 +540,20 @@ fun AlbumScreen(
                 text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_photo)) },
                 confirmButton = {
                     TextButton(onClick = {
-                        photoViewModel.deletePhoto(currentPhoto)
-                        showDeleteDialog = false
+                        val photoToDelete = currentPhoto
+                        val currentIndex = dialogPagerState.currentPage
 
                         if (photos.size <= 1) {
                             selectedPhotoIndex = null
                         }
+                        else {
+                            val targetIndex = if (currentIndex >= photos.size - 1) currentIndex - 1 else currentIndex
+                            selectedPhotoIndex = targetIndex
+                        }
+
+                        photoViewModel.deletePhoto(currentPhoto)
+                        showDeleteDialog = false
+                        selectedPhotoIndex = null
                     }) { Text(text = stringResource(R.string.yes)) }
                 },
                 dismissButton = {
