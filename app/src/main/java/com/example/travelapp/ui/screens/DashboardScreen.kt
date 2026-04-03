@@ -63,7 +63,6 @@ fun DashboardScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     dashboardViewModel: DashboardViewModel = hiltViewModel(),
-    onLogoutClick: () -> Unit,
     onTripClick: (Int) -> Unit,
     onPackingClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit
@@ -280,7 +279,6 @@ fun DashboardScreen(
 fun DashboardPreview() {
     TravelAppTheme {
         DashboardScreen(
-            onLogoutClick = {},
             onTripClick = {},
             onPackingClick = {},
             onItineraryClick = {}

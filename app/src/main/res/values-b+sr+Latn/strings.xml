@@ -170,4 +170,14 @@
     <string name="select_day">Izaberi dan</string>
     <string name="ai_itinerary">AI Itinerar</string>
     <string name="you_can_generate_itinerary_from_today_to">Možeš da generišeš itinerar od danas (%1$s) do %2$s.</string>
+    <string name="close">Zatvori</string>
+    <string name="add_photos_to_remember_your_trip">Dodaj fotografije da se podsetiš svog putovanja</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galerija</string>
+    <string name="add_photos">Dodaj fotografije</string>
+    <string name="photos">Fotografije (%1$d)</string>
+    <string name="save_to_gallery">Sačuvaj u galeriji</string>
+    <string name="saved">Sačuvano</string>
+    <string name="delete_photo">Izbriši fotografiju</string>
+    <string name="are_you_sure_you_want_to_delete_this_photo">Jeste li sigurni da želite da obrišete fotografiju?</string>
 </resources>

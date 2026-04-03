@@ -40,4 +40,13 @@ class PhotoViewModel @Inject constructor(
      */
     fun getTripPhotos(tripId: Int): Flow<List<Photo>> =
         photoRepository.getTripPhotos(tripId)
+
+    /**
+     * Deletes the specified photo from the app.
+     *
+     * @param photo Photo to delete
+     */
+    fun deletePhoto(photo: Photo) = viewModelScope.launch {
+        photoRepository.deletePhoto(photo)
+    }
 }

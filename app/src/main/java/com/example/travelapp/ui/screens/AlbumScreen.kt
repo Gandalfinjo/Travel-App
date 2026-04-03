@@ -1,15 +1,21 @@
 package com.example.travelapp.ui.screens
 
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
@@ -26,13 +33,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,8 +66,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -63,7 +81,6 @@ import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PhotoViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.io.File
-import java.io.FileOutputStream
 
 /**
  * Photo album screen for viewing and adding trip photos.
@@ -80,51 +97,41 @@ fun AlbumScreen(
 ) {
     val context = LocalContext.current
     val photos by photoViewModel.getTripPhotos(tripId).collectAsState(initial = emptyList())
-
     val pagerState = rememberPagerState(pageCount = { photos.size })
-
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
-    var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
 
+    var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    var cameraPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val filePath = it.toString()
-            val photo = Photo(
-                filePath = filePath,
-                tripId = tripId,
-                dateTaken = System.currentTimeMillis()
-            )
-
             context.contentResolver.takePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
-
-            photoViewModel.addPhoto(photo)
+            photoViewModel.addPhoto(Photo(
+                filePath = it.toString(),
+                tripId = tripId,
+                dateTaken = System.currentTimeMillis()
+            ))
         }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        bitmap?.let {
-            val file = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
-
-            FileOutputStream(file).use { out ->
-                it.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success) {
+            cameraPhotoUri?.let { uri ->
+                photoViewModel.addPhoto(Photo(
+                    filePath = uri.toString(),
+                    tripId = tripId,
+                    dateTaken = System.currentTimeMillis()
+                ))
             }
-
-            val photo = Photo(
-                filePath = file.absolutePath,
-                tripId = tripId,
-                dateTaken = System.currentTimeMillis()
-            )
-
-            photoViewModel.addPhoto(photo)
         }
     }
 
@@ -169,92 +176,189 @@ fun AlbumScreen(
         else {
             val canAddPhotos = trip!!.status == TripStatus.ONGOING || trip!!.status == TripStatus.FINISHED
 
-            Column(
-                verticalArrangement = Arrangement.Center,
+            LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = { galleryLauncher.launch("image/*") },
-                        enabled = canAddPhotos,
-                        modifier = Modifier.weight(1f)
+                item {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(
+                            width = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = stringResource(R.string.add_from_gallery))
-                    }
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.add_photos),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                OutlinedButton(
+                                    onClick = { galleryLauncher.launch("image/*") },
+                                    enabled = canAddPhotos,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PhotoLibrary,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(text = stringResource(R.string.gallery))
+                                }
 
-                    Button(
-                        onClick = { cameraLauncher.launch(null) },
-                        enabled = canAddPhotos,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = stringResource(R.string.take_a_photo))
+                                OutlinedButton(
+                                    onClick = {
+                                        val file = File(
+                                            context.filesDir,
+                                            "photo_${System.currentTimeMillis()}.jpg"
+                                        )
+                                        val uri = FileProvider.getUriForFile(
+                                            context,
+                                            "${context.packageName}.provider",
+                                            file
+                                        )
+                                        cameraPhotoUri = uri
+                                        cameraLauncher.launch(uri)
+                                    },
+                                    enabled = canAddPhotos,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CameraAlt,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+
+                                    Spacer(Modifier.width(6.dp))
+
+                                    Text(text = stringResource(R.string.camera))
+                                }
+                            }
+
+                            if (!canAddPhotos) {
+                                Text(
+                                    text = stringResource(R.string.photos_can_be_added_only_for_ongoing_or_finished_trips),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
-
-                if (!canAddPhotos) {
-                    Text(
-                        text = stringResource(R.string.photos_can_be_added_only_for_ongoing_or_finished_trips),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .padding(8.dp),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 if (photos.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = stringResource(R.string.no_photos_yet))
+                    item {
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(20.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoLibrary,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(36.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+
+                                Text(
+                                    text = stringResource(R.string.no_photos_yet),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+
+                                Text(
+                                    text = stringResource(R.string.add_photos_to_remember_your_trip),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
                 else {
-                    HorizontalPager(
-                        state = pagerState,
-                        pageSize = PageSize.Fill,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    ) { page ->
-                        val photo = photos[page]
-                        AsyncImage(
-                            model = photo.filePath.toUri(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable { selectedPhoto = photo }
-                        )
-                    }
+                    item {
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.photos, photos.size),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
 
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                        photos.forEachIndexed { index, _ ->
-                            Box(
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .size(8.dp)
-                                    .background(
-                                        color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else Color.Gray,
-                                        shape = CircleShape
+                                HorizontalPager(
+                                    state = pagerState,
+                                    pageSize = PageSize.Fill,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(260.dp)
+                                ) { page ->
+                                    val photo = photos[page]
+                                    AsyncImage(
+                                        model = photo.filePath.toUri(),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = 4.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .clickable { selectedPhoto = photo }
                                     )
-                            )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    photos.forEachIndexed { index, _ ->
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(2.dp)
+                                                .size(if (pagerState.currentPage == index) 8.dp else 6.dp)
+                                                .background(
+                                                    color = if (pagerState.currentPage == index)
+                                                        MaterialTheme.colorScheme.primary
+                                                    else MaterialTheme.colorScheme.outlineVariant,
+                                                    shape = CircleShape
+                                                )
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -263,14 +367,161 @@ fun AlbumScreen(
     }
 
     if (selectedPhoto != null) {
-        Dialog(onDismissRequest = { selectedPhoto = null }) {
-            AsyncImage(
-                model = selectedPhoto!!.filePath.toUri(),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var savedToGallery by remember { mutableStateOf(false) }
+
+        val isCameraPhoto = selectedPhoto!!.filePath.startsWith("/")
+
+        Dialog(
+            onDismissRequest = { selectedPhoto = null },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = selectedPhoto!!.filePath.toUri(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                ) {
+                    IconButton(
+                        onClick = { selectedPhoto = null },
+                        modifier = Modifier
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.close),
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isCameraPhoto) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    if (!savedToGallery) {
+                                        val file = File(selectedPhoto!!.filePath)
+                                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+                                        val contentValues = ContentValues().apply {
+                                            put(MediaStore.Images.Media.DISPLAY_NAME, "travel_${System.currentTimeMillis()}.jpg")
+                                            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                                            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/TravelApp")
+                                        }
+
+                                        val uri = context.contentResolver.insert(
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                            contentValues
+                                        )
+
+                                        uri?.let {
+                                            context.contentResolver.openOutputStream(it)?.use { stream ->
+                                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                                            }
+                                            savedToGallery = true
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.background(
+                                    color = if (savedToGallery)
+                                        Color.White.copy(alpha = 0.1f)
+                                    else Color.White.copy(alpha = 0.2f),
+                                    shape = CircleShape
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = if (savedToGallery)
+                                        Icons.Default.CheckCircle
+                                    else Icons.Default.SaveAlt,
+                                    contentDescription = stringResource(R.string.save_to_gallery),
+                                    tint = if (savedToGallery) Color.Green else Color.White
+                                )
+                            }
+
+                            Text(
+                                text = if (savedToGallery)
+                                    stringResource(R.string.saved)
+                                else stringResource(R.string.save_to_gallery),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (savedToGallery) Color.Green else Color.White
+                            )
+                        }
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        IconButton(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.background(
+                                color = Color.White.copy(alpha = 0.2f),
+                                shape = CircleShape
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = stringResource(R.string.delete),
+                                tint = Color.White
+                            )
+                        }
+
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text(text = stringResource(R.string.delete_photo)) },
+                text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete_this_photo)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        photoViewModel.deletePhoto(selectedPhoto!!)
+                        showDeleteDialog = false
+                        selectedPhoto = null
+                    }) { Text(text = stringResource(R.string.yes)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text(text = stringResource(R.string.no))
+                    }
+                }
             )
         }
     }
@@ -281,19 +532,13 @@ fun AlbumScreen(
             title = { Text(text = stringResource(R.string.logout)) },
             text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.yes))
-                }
+                TextButton(onClick = {
+                    showLogoutDialog = false
+                    authViewModel.logout()
+                }) { Text(text = stringResource(R.string.yes)) }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showLogoutDialog = false }
-                ) {
+                TextButton(onClick = { showLogoutDialog = false }) {
                     Text(text = stringResource(R.string.no))
                 }
             }

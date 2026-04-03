@@ -170,4 +170,14 @@
     <string name="select_day">Select day</string>
     <string name="ai_itinerary">AI Itinerary</string>
     <string name="you_can_generate_itinerary_from_today_to">You can generate itinerary from today (%1$s) to %2$s.</string>
+    <string name="close">Close</string>
+    <string name="add_photos_to_remember_your_trip">Add photos to remember your trip</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="add_photos">Add photos</string>
+    <string name="photos">Photos (%1$d)</string>
+    <string name="save_to_gallery">Save to gallery</string>
+    <string name="saved">Saved</string>
+    <string name="delete_photo">Delete photo</string>
+    <string name="are_you_sure_you_want_to_delete_this_photo">Are you sure you want to delete this photo?</string>
 </resources>

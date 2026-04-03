@@ -204,7 +204,6 @@ fun TravelApp(
                 DashboardScreen(
                     modifier = modifier,
                     authViewModel = authViewModel,
-                    onLogoutClick = { navController.navigateToLoginScreen() },
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromDashboard(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreenFromDashboard(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) }
