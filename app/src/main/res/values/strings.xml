@@ -186,4 +186,6 @@
     <string name="dark_mode">Dark mode</string>
     <string name="same_as_device">Same as device</string>
     <string name="appearance">Appearance</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

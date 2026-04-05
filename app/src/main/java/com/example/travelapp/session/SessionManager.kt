@@ -35,6 +35,9 @@ class SessionManager @Inject constructor(
 
         /** DataStore key for storing the logged-in user's ID. */
         val KEY_USER_ID = intPreferencesKey("user_id")
+
+        /** DataStore key for storing the theme preference */
+        val KEY_THEME = stringPreferencesKey("theme")
     }
 
     /** Emits the currently logged-in user's username, or null if no session exists. */
@@ -44,6 +47,16 @@ class SessionManager @Inject constructor(
     /** Emits the currently logged-in user's ID, or null if no session exists. */
     val loggedInUserId: Flow<Int?> = context.dataStore.data
         .map { it[KEY_USER_ID] }
+
+    /** Emits the current theme preference */
+    val themePreference: Flow<ThemePreference> = context.dataStore.data
+        .map { prefs ->
+            when (prefs[KEY_THEME]) {
+                "LIGHT" -> ThemePreference.LIGHT
+                "DARK" -> ThemePreference.DARK
+                else -> ThemePreference.SYSTEM
+            }
+        }
 
     /**
      * Persists the user's session data to DataStore.
@@ -57,6 +70,18 @@ class SessionManager @Inject constructor(
             prefs[KEY_USER_ID] = userId
         }
     }
+
+    /**
+     * Persists the theme preference session data to DataStore.
+     *
+     * @param theme Selected theme preference
+     */
+    suspend fun saveThemePreference(theme: ThemePreference) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_THEME] = theme.name
+        }
+    }
+
 
     /**
      * Clears all session data from DataStore.

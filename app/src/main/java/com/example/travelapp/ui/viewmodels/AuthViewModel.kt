@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.database.repositories.UserRepository
 import com.example.travelapp.session.SessionManager
+import com.example.travelapp.session.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +39,9 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    val themePreference: StateFlow<ThemePreference> = sessionManager.themePreference
+        .stateIn(viewModelScope, SharingStarted.Eagerly, ThemePreference.SYSTEM)
 
     init {
         viewModelScope.launch {
@@ -183,6 +189,15 @@ class AuthViewModel @Inject constructor(
                 errorMessage = null
             )
         }
+    }
+
+    /**
+     * Sets the selected theme preference and saves it to the DataStore
+     *
+     * @param theme Selected theme to be set
+     */
+    fun setThemePreference(theme: ThemePreference) = viewModelScope.launch {
+        sessionManager.saveThemePreference(theme)
     }
 
     /**

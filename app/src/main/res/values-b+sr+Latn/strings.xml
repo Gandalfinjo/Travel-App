@@ -186,4 +186,6 @@
     <string name="dark_mode">Mračna tema</string>
     <string name="same_as_device">Isto kao uređaj</string>
     <string name="appearance">Izgled</string>
+    <string name="light">Svetlo</string>
+    <string name="dark">Tamno</string>
 </resources>

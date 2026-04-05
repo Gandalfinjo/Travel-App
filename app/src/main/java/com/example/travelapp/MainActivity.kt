@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.LoginDestination
+import com.example.travelapp.session.ThemePreference
 import com.example.travelapp.ui.TravelApp
 import com.example.travelapp.ui.theme.TravelAppTheme
 import com.example.travelapp.ui.viewmodels.AuthViewModel
@@ -35,21 +37,28 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            TravelAppTheme {
-                val authViewModel: AuthViewModel = hiltViewModel()
-                val authUiState by authViewModel.uiState.collectAsState()
+            val authViewModel: AuthViewModel = hiltViewModel()
+            val authUiState by authViewModel.uiState.collectAsState()
+            val themePreference by authViewModel.themePreference.collectAsState()
 
-                LaunchedEffect(authUiState.loggedInUserId) {
-                    authUiState.loggedInUserId?.let {
-                        authViewModel.syncTripStatuses(it)
-                    }
+            LaunchedEffect(authUiState.loggedInUserId) {
+                authUiState.loggedInUserId?.let {
+                    authViewModel.syncTripStatuses(it)
                 }
+            }
 
-                if (!authUiState.isSessionChecked) return@TravelAppTheme
+            if (!authUiState.isSessionChecked) return@setContent
 
-                val startDestination = if (authUiState.loggedInUser != null)
-                    DashboardDestination.route else LoginDestination.route
+            val startDestination = if (authUiState.loggedInUser != null)
+                DashboardDestination.route else LoginDestination.route
 
+            val darkTheme = when (themePreference) {
+                ThemePreference.LIGHT -> false
+                ThemePreference.DARK -> true
+                ThemePreference.SYSTEM -> isSystemInDarkTheme()
+            }
+
+            TravelAppTheme(darkTheme = darkTheme) {
                 Scaffold(
                     containerColor = Color.Transparent,
                     modifier = Modifier

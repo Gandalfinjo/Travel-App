@@ -1,5 +1,6 @@
 package com.example.travelapp.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.AlertDialog
@@ -54,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.session.ThemePreference
 import com.example.travelapp.ui.elements.DashboardSectionLabel
 import com.example.travelapp.ui.elements.ItineraryItemCard
 import com.example.travelapp.ui.elements.OngoingTripCard
@@ -83,6 +90,9 @@ fun DashboardScreen(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val themePreference by authViewModel.themePreference.collectAsState()
+    var showThemeOptions by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -341,11 +351,6 @@ fun DashboardScreen(
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium
                         )
-                        Text(
-                            text = stringResource(R.string.view_profile),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
 
@@ -406,7 +411,7 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .clickable { /* TODO: implement theme switching */ }
+                        .clickable { showThemeOptions = !showThemeOptions }
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -421,7 +426,11 @@ fun DashboardScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.DarkMode,
+                            imageVector = when (themePreference) {
+                                ThemePreference.LIGHT -> Icons.Default.LightMode
+                                ThemePreference.DARK -> Icons.Default.DarkMode
+                                ThemePreference.SYSTEM -> Icons.Default.Contrast
+                            },
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -436,18 +445,83 @@ fun DashboardScreen(
                         )
 
                         Text(
-                            text = stringResource(R.string.same_as_device),
+                            text = when (themePreference) {
+                                ThemePreference.LIGHT -> stringResource(R.string.light)
+                                ThemePreference.DARK -> stringResource(R.string.dark)
+                                ThemePreference.SYSTEM -> stringResource(R.string.same_as_device)
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        imageVector = if (showThemeOptions)
+                            Icons.Default.KeyboardArrowUp
+                        else Icons.Default.KeyboardArrowDown,
                         contentDescription = null,
-                        modifier = Modifier.size(12.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+
+                AnimatedVisibility(visible = showThemeOptions) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 62.dp, end = 12.dp, bottom = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        ThemePreference.entries.forEach { theme ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        authViewModel.setThemePreference(theme)
+                                        showThemeOptions = false
+                                    }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = when (theme) {
+                                        ThemePreference.LIGHT -> Icons.Default.LightMode
+                                        ThemePreference.DARK -> Icons.Default.DarkMode
+                                        ThemePreference.SYSTEM -> Icons.Default.Contrast
+                                    },
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (themePreference == theme)
+                                        MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+
+                                Text(
+                                    text = when (theme) {
+                                        ThemePreference.LIGHT -> stringResource(R.string.light)
+                                        ThemePreference.DARK -> stringResource(R.string.dark)
+                                        ThemePreference.SYSTEM -> stringResource(R.string.same_as_device)
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (themePreference == theme)
+                                        MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                if (themePreference == theme) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 HorizontalDivider(
