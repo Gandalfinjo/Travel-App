@@ -1,5 +1,7 @@
 package com.example.travelapp.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,12 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.travelapp.R
+import com.example.travelapp.ui.elements.WeatherDetailRow
 import com.example.travelapp.ui.viewmodels.WeatherViewModel
 
 /**
@@ -100,12 +104,14 @@ fun WeatherScreen(
                 uiState.isLoading -> {
                     CircularProgressIndicator()
                 }
+
                 uiState.error != null -> {
                         Text(
                             text = stringResource(R.string.error, uiState.error!!),
                             color = Color.Red
                         )
                 }
+
                 uiState.weather != null -> {
                     val weather = uiState.weather!!
                     val iconCode = weather.weather.firstOrNull()?.icon ?: "01d"
@@ -123,56 +129,97 @@ fun WeatherScreen(
                         else -> MaterialTheme.colorScheme.surface
                     }
 
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(8.dp),
+                    val contentColor = Color.Black.copy(alpha = 0.75f)
+
+                    Column(
                         modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = cardColor
-                        )
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .padding(24.dp)
-                                .fillMaxWidth()
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(0.5.dp, Color.Black.copy(alpha = 0.1f)),
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = cardColor),
+                            elevation = CardDefaults.cardElevation(0.dp)
                         ) {
-                            Text(
-                                text = weather.name,
-                                style = MaterialTheme.typography.headlineSmall.copy(
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .padding(24.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = weather.name,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+
+                                AsyncImage(
+                                    model = iconUrl,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(120.dp)
+                                )
+
+                                Text(
+                                    text = "${weather.main.temp}°C",
+                                    style = MaterialTheme.typography.displayMedium,
                                     fontWeight = FontWeight.Bold
                                 )
-                            )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(Modifier.height(4.dp))
 
-                            AsyncImage(
-                                model = iconUrl,
-                                contentDescription = null,
-                                modifier = Modifier.size(120.dp)
-                            )
-
-                            Text(
-                                text = "${weather.main.temp}°C",
-                                fontSize = 36.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Text(
-                                text = weather.weather.joinToString { it.description },
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                                    color = MaterialTheme.colorScheme.primary
+                                Text(
+                                    text = weather.weather.joinToString { it.description }
+                                        .replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = contentColor,
+                                    fontStyle = FontStyle.Italic
                                 )
-                            )
+                            }
+                        }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text(
+                                    text = stringResource(R.string.details),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
 
-                            Text(text = "Feels like: ${weather.main.feelsLike}°C")
-                            Text(text = "Humidity: ${weather.main.humidity}%")
-                            Text(text = "Wind: ${weather.wind.speed} m/s")
+                                Spacer(Modifier.height(12.dp))
+
+                                WeatherDetailRow(
+                                    label = stringResource(R.string.feels_like),
+                                    value = "${weather.main.feelsLike}°C"
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    thickness = 0.5.dp
+                                )
+
+                                WeatherDetailRow(
+                                    label = stringResource(R.string.humidity),
+                                    value = "${weather.main.humidity}%"
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    thickness = 0.5.dp
+                                )
+
+                                WeatherDetailRow(
+                                    label = stringResource(R.string.wind_speed),
+                                    value = "${weather.wind.speed} m/s"
+                                )
+                            }
                         }
                     }
                 }
