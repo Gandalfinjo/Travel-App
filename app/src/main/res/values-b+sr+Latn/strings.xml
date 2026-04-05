@@ -191,4 +191,7 @@
     <string name="wind_speed">Brzina vetra</string>
     <string name="feels_like">Subjektivni osećaj</string>
     <string name="details">Detalji</string>
+    <string name="enable_location">Dozvoli lokaciju</string>
+    <string name="location_permission_required">Potrebna dozvola za lokaciju</string>
+    <string name="allow_location_to_see_your_position_and_nearby_places">Dozvoli lokaciju da vidiš svoju poziciju i mesta u blizini</string>
 </resources>

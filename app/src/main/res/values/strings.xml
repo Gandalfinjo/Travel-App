@@ -191,4 +191,7 @@
     <string name="wind_speed">Wind speed</string>
     <string name="feels_like">Feels like</string>
     <string name="details">Details</string>
+    <string name="enable_location">Enable location</string>
+    <string name="location_permission_required">Location permission required</string>
+    <string name="allow_location_to_see_your_position_and_nearby_places">Allow location to see your position and nearby places</string>
 </resources>
