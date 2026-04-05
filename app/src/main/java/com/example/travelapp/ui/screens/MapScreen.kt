@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -61,11 +58,9 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.api.maps.OTMPoi
 import com.example.travelapp.api.maps.fetchNearbyPOI
 import com.example.travelapp.api.maps.formatKinds
-import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationSettingsRequest
 
@@ -77,12 +72,9 @@ import com.google.android.gms.location.LocationSettingsRequest
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
 ) {
     val context = LocalContext.current
-
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -171,15 +163,8 @@ fun MapScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = stringResource(R.string.logout)
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -254,30 +239,5 @@ fun MapScreen(
                 }
             }
         }
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.yes))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showLogoutDialog = false }
-                ) {
-                    Text(text = stringResource(R.string.no))
-                }
-            }
-        )
     }
 }

@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -91,8 +90,6 @@ fun AddTripScreen(
     val authUiState by authViewModel.uiState.collectAsState()
     val uiState by tripViewModel.uiState.collectAsState()
 
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
     var name by remember { mutableStateOf(prefillName ?: "") }
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf(prefillDestination ?: "") }
@@ -156,15 +153,8 @@ fun AddTripScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -474,25 +464,6 @@ fun AddTripScreen(
 
             Spacer(Modifier.height(8.dp))
         }
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) { Text(text = stringResource(R.string.yes)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) { Text(text = stringResource(R.string.no)) }
-            }
-        )
     }
 
     if (showAlert) {

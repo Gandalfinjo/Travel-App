@@ -15,9 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,15 +28,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -52,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.ui.elements.AiSuggestionCard
 import com.example.travelapp.ui.viewmodels.AiSuggestionsViewModel
-import com.example.travelapp.ui.viewmodels.AuthViewModel
 
 /**
  * Displays AI-generated travel destination suggestions.
@@ -64,15 +57,11 @@ fun AiSuggestionsScreen(
     onBackClick: () -> Unit,
     onAddToTrips: (destination: String, name: String, budget: String, currency: String, transport: String) -> Unit,
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel = hiltViewModel(),
     aiViewModel: AiSuggestionsViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
 
-    val authUiState by authViewModel.uiState.collectAsState()
     val uiState by aiViewModel.uiState.collectAsState()
-
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -99,15 +88,8 @@ fun AiSuggestionsScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = stringResource(R.string.logout)
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -285,28 +267,5 @@ fun AiSuggestionsScreen(
                 }
             }
         }
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.yes))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text(text = stringResource(R.string.no))
-                }
-            }
-        )
     }
 }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.PackingItem
-import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PackingViewModel
 
 /**
@@ -64,10 +62,8 @@ fun AddPackingItemScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onAddItem: () -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel(),
     packingViewModel: PackingViewModel = hiltViewModel()
 ) {
-    var showLogoutDialog by remember { mutableStateOf(false) }
     var showAlert by remember { mutableStateOf(false) }
 
     var name by remember { mutableStateOf("") }
@@ -98,15 +94,8 @@ fun AddPackingItemScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -253,27 +242,6 @@ fun AddPackingItemScreen(
             },
             title = { Text(text = stringResource(R.string.add_packing_item)) },
             text = { Text(text = stringResource(R.string.missing_fields)) }
-        )
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) { Text(text = stringResource(R.string.yes)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text(text = stringResource(R.string.no))
-                }
-            }
         )
     }
 }

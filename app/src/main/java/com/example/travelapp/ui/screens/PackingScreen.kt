@@ -11,9 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -25,16 +23,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -45,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.enums.TripStatus
-import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PackingViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
@@ -59,15 +52,12 @@ fun PackingScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onAddItemClick: (Int) -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
     packingViewModel: PackingViewModel = hiltViewModel()
 ) {
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
 
     val uiState by packingViewModel.uiState.collectAsState()
-
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(tripId) {
         packingViewModel.loadPackingItems(tripId)
@@ -98,15 +88,8 @@ fun PackingScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = stringResource(R.string.logout)
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -177,30 +160,5 @@ fun PackingScreen(
                 }
             }
         }
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showLogoutDialog = false
-                        authViewModel.logout()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.yes))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showLogoutDialog = false }
-                ) {
-                    Text(text = stringResource(R.string.no))
-                }
-            }
-        )
     }
 }

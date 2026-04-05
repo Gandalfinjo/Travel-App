@@ -230,7 +230,6 @@ fun TravelApp(
             composable(route = TripListDestination.route) {
                 TripListScreen(
                     modifier = modifier,
-                    authViewModel = authViewModel,
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromTripList(tripId) },
                     onBackClick = { navController.popBackStack() },
                     onFabClick = { navController.navigateToAddTripScreen() }
@@ -253,8 +252,7 @@ fun TravelApp(
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreenFromTripDetails(tripId) },
                     onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromTripDetailsScreen(tripId)},
-                    modifier = modifier,
-                    authViewModel = authViewModel
+                    modifier = modifier
                 )
             }
 
@@ -273,7 +271,6 @@ fun TravelApp(
 
             composable(route = MapDestination.route) {
                 MapScreen(
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     modifier = modifier,
                 )
@@ -288,7 +285,6 @@ fun TravelApp(
                 AlbumScreen(
                     tripId = tripId,
                     modifier = Modifier,
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() }
                 )
             }
@@ -302,7 +298,6 @@ fun TravelApp(
                 ItineraryScreen(
                     tripId = tripId,
                     modifier = modifier,
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) },
                     onAiItineraryClick = { navController.navigateToAiItineraryScreen(tripId) },
@@ -318,7 +313,6 @@ fun TravelApp(
                 AddItineraryScreen(
                     tripId = tripId,
                     modifier = modifier,
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddItem = { navController.popBackStack() }
                 )
@@ -346,7 +340,6 @@ fun TravelApp(
                 PackingScreen(
                     tripId = tripId,
                     modifier = modifier,
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddItemClick = { tripId -> navController.navigateToAddPackingItemScreen(tripId) }
                 )
@@ -361,7 +354,6 @@ fun TravelApp(
                 AddPackingItemScreen(
                     tripId = tripId,
                     modifier = modifier,
-                    authViewModel = authViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddItem = { navController.popBackStack() }
                 )
@@ -371,8 +363,7 @@ fun TravelApp(
                 StatisticsScreen(
                     onBackClick = { navController.popBackStack() },
                     onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromStatisticsScreen(tripId) },
-                    modifier = modifier,
-                    authViewModel = authViewModel
+                    modifier = modifier
                 )
             }
 
@@ -382,8 +373,7 @@ fun TravelApp(
                     onAddToTrips = { destination, name, budget, currency, transport ->
                         navController.navigateToAddTripScreenWithPrefill(destination, name, budget, currency, transport)
                     },
-                    modifier = modifier,
-                    authViewModel = authViewModel
+                    modifier = modifier
                 )
             }
 

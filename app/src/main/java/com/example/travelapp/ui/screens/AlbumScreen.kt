@@ -32,7 +32,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -78,7 +77,6 @@ import coil.compose.AsyncImage
 import com.example.travelapp.R
 import com.example.travelapp.database.models.Photo
 import com.example.travelapp.database.models.enums.TripStatus
-import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.PhotoViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.io.File
@@ -92,7 +90,6 @@ fun AlbumScreen(
     tripId: Int,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel(),
     tripViewModel: TripViewModel = hiltViewModel(),
     photoViewModel: PhotoViewModel = hiltViewModel()
 ) {
@@ -102,7 +99,6 @@ fun AlbumScreen(
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
 
     var selectedPhotoIndex by remember { mutableStateOf<Int?>(null) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     var cameraPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -161,15 +157,8 @@ fun AlbumScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = stringResource(R.string.logout)
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -576,24 +565,5 @@ fun AlbumScreen(
                 }
             )
         }
-    }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text(text = stringResource(R.string.logout)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_logout)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showLogoutDialog = false
-                    authViewModel.logout()
-                }) { Text(text = stringResource(R.string.yes)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text(text = stringResource(R.string.no))
-                }
-            }
-        )
     }
 }
