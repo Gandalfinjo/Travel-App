@@ -8,12 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * Composable that displays the title of a dashboard section
+ * Composable that displays the title of a  section
  *
  * @param title Title to display
  */
 @Composable
-fun DashboardSectionLabel(title: String) {
+fun SectionLabel(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelSmall,

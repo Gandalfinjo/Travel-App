@@ -60,9 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.session.ThemePreference
-import com.example.travelapp.ui.elements.DashboardSectionLabel
 import com.example.travelapp.ui.elements.ItineraryItemCard
 import com.example.travelapp.ui.elements.OngoingTripCard
+import com.example.travelapp.ui.elements.SectionLabel
 import com.example.travelapp.ui.elements.StatMetricCard
 import com.example.travelapp.ui.elements.UpcomingTripCard
 import com.example.travelapp.ui.elements.UserAvatar
@@ -152,7 +152,7 @@ fun DashboardScreen(
             ) {
                 uiState.activeTrip?.let { trip ->
                     item {
-                        DashboardSectionLabel(stringResource(R.string.ongoing_trip))
+                        SectionLabel(stringResource(R.string.ongoing_trip))
                     }
 
                     item {
@@ -167,7 +167,7 @@ fun DashboardScreen(
 
                     if (uiState.todayItinerary.isNotEmpty()) {
                         item {
-                            DashboardSectionLabel(stringResource(R.string.today_s_itinerary))
+                            SectionLabel(stringResource(R.string.today_s_itinerary))
                         }
 
                         items(uiState.todayItinerary) { item ->
@@ -208,7 +208,7 @@ fun DashboardScreen(
 
                 uiState.upcomingTrip?.let { trip ->
                     item {
-                        DashboardSectionLabel(stringResource(R.string.coming_up))
+                        SectionLabel(stringResource(R.string.coming_up))
                     }
 
                     item {
@@ -263,7 +263,7 @@ fun DashboardScreen(
                 }
 
                 item {
-                    DashboardSectionLabel(stringResource(R.string.overview))
+                    SectionLabel(stringResource(R.string.overview))
                 }
 
                 item {

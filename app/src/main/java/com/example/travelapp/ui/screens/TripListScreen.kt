@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.enums.TripStatus
-import com.example.travelapp.ui.elements.DashboardSectionLabel
+import com.example.travelapp.ui.elements.SectionLabel
 import com.example.travelapp.ui.elements.TripCard
 import com.example.travelapp.ui.viewmodels.TripViewModel
 
@@ -166,7 +166,7 @@ fun TripListScreen(
 
                 if (ongoing.isNotEmpty()) {
                     item {
-                        DashboardSectionLabel(stringResource(R.string.ongoing_trip))
+                        SectionLabel(stringResource(R.string.ongoing_trip))
                     }
 
                     items(ongoing, key = { it.id }) { trip ->
@@ -176,7 +176,7 @@ fun TripListScreen(
 
                 if (planned.isNotEmpty()) {
                     item {
-                        DashboardSectionLabel(stringResource(R.string.planned))
+                        SectionLabel(stringResource(R.string.planned))
                     }
 
                     items(planned, key = { it.id }) { trip ->
@@ -186,7 +186,7 @@ fun TripListScreen(
 
                 if (finished.isNotEmpty()) {
                     item {
-                        DashboardSectionLabel(stringResource(R.string.finished))
+                        SectionLabel(stringResource(R.string.finished))
                     }
 
                     items(finished, key = { it.id }) { trip ->
@@ -196,7 +196,7 @@ fun TripListScreen(
 
                 if (cancelled.isNotEmpty()) {
                     item {
-                        DashboardSectionLabel(stringResource(R.string.cancelled))
+                        SectionLabel(stringResource(R.string.cancelled))
                     }
 
                     items(cancelled, key = { it.id }) { trip ->

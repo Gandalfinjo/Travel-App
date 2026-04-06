@@ -67,8 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
-import com.example.travelapp.ui.elements.DashboardSectionLabel
 import com.example.travelapp.ui.elements.ProfileInfoRow
+import com.example.travelapp.ui.elements.SectionLabel
 import com.example.travelapp.ui.elements.StatMetricCard
 import com.example.travelapp.ui.elements.UserAvatar
 import com.example.travelapp.ui.viewmodels.AuthViewModel
@@ -234,7 +234,7 @@ fun ProfileScreen(
                 }
 
                 item {
-                    DashboardSectionLabel(stringResource(R.string.overview))
+                    SectionLabel(stringResource(R.string.overview))
                 }
 
                 item {
@@ -257,7 +257,7 @@ fun ProfileScreen(
                 }
 
                 item {
-                    DashboardSectionLabel(stringResource(R.string.personal_info))
+                    SectionLabel(stringResource(R.string.personal_info))
                 }
 
                 item {
@@ -291,7 +291,7 @@ fun ProfileScreen(
                 }
 
                 item {
-                    DashboardSectionLabel(stringResource(R.string.account_info))
+                    SectionLabel(stringResource(R.string.account_info))
                 }
 
                 item {
@@ -336,7 +336,7 @@ fun ProfileScreen(
                 }
 
                 item {
-                    DashboardSectionLabel(stringResource(R.string.preferences))
+                    SectionLabel(stringResource(R.string.preferences))
                 }
 
                 item {
