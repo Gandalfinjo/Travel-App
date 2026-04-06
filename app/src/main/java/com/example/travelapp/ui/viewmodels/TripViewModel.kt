@@ -3,7 +3,6 @@ package com.example.travelapp.ui.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkManager
 import com.example.travelapp.R
 import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.models.Trip

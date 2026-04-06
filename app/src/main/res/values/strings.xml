@@ -198,4 +198,9 @@
     <string name="no_items_yet">No items yet</string>
     <string name="delete_item">Delete item</string>
     <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete %1$s?</string>
+    <string name="finished">Finished</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="planned">Planned</string>
+    <string name="tap_the_button_to_add_your_first_trip">Tap the button to add your first trip</string>
+    <string name="no_trips_yet">No trips yet</string>
 </resources>

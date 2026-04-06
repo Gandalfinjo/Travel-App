@@ -18,12 +18,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,13 +38,6 @@ import com.example.travelapp.database.models.enums.TripStatus
  */
 @Composable
 fun TripInfoCard(trip: Trip) {
-    val statusColor = when (trip.status) {
-        TripStatus.PLANNED -> Color(0xFF3B6D11) to Color(0xFFEAF3DE)
-        TripStatus.ONGOING -> Color(0xFF185FA5) to Color(0xFFE6F1FB)
-        TripStatus.CANCELLED -> Color(0xFFA32D2D) to Color(0xFFFCEBEB)
-        else -> MaterialTheme.colorScheme.onSurfaceVariant to MaterialTheme.colorScheme.surfaceVariant
-    }
-
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -91,15 +82,7 @@ fun TripInfoCard(trip: Trip) {
                     }
                 }
 
-                Surface(shape = RoundedCornerShape(20.dp), color = statusColor.second) {
-                    Text(
-                        text = trip.status.name.lowercase().replaceFirstChar { it.uppercase() },
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = statusColor.first
-                    )
-                }
+                TripStatusBadge(trip.status)
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)

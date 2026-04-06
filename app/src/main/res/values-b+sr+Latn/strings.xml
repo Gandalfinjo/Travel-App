@@ -198,4 +198,9 @@
     <string name="no_items_yet">Nema stvari još uvek</string>
     <string name="delete_item">Obriši stvar</string>
     <string name="are_you_sure_you_want_to_delete">Jeste li sigurni da želite da obrišete %1$s?</string>
+    <string name="finished">Završeno</string>
+    <string name="cancelled">Otkazano</string>
+    <string name="planned">Planned</string>
+    <string name="tap_the_button_to_add_your_first_trip">Pritisni dugme da dodaš prvo putovanje</string>
+    <string name="no_trips_yet">Nema putovanja još uvek</string>
 </resources>

@@ -6,11 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -24,11 +21,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.travelapp.R
 import com.example.travelapp.database.models.enums.TripStatus
-import kotlin.math.min
 
 /**
  * Composable that displays a pie chart of trips grouped by [TripStatus].
@@ -41,16 +38,20 @@ import kotlin.math.min
 @Composable
 fun PieChart(data: Map<TripStatus, Int>) {
     if (data.isEmpty()) {
-        Text("No data", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = stringResource(R.string.no_data),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         return
     }
 
     val total = data.values.sum().toFloat()
     val statusColors = mapOf(
-        TripStatus.FINISHED  to Color(0xFF3B6D11),
+        TripStatus.FINISHED  to Color(0xFF6B4E00),
         TripStatus.PLANNED   to Color(0xFF185FA5),
-        TripStatus.ONGOING   to Color(0xFF854F0B),
-        TripStatus.CANCELLED to Color(0xFFA32D2D)
+        TripStatus.ONGOING   to Color(0xFF0F6E56),
+        TripStatus.CANCELLED to Color(0xFF9B1C1C)
     )
     val entries = data.entries.toList()
 
@@ -71,6 +72,7 @@ fun PieChart(data: Map<TripStatus, Int>) {
 
             entries.forEach { (status, count) ->
                 val sweepAngle = (count / total) * 360f
+
                 drawArc(
                     color = statusColors[status] ?: Color.Gray,
                     startAngle = startAngle,
@@ -80,6 +82,7 @@ fun PieChart(data: Map<TripStatus, Int>) {
                     size = Size(adjustedRadius * 2, adjustedRadius * 2),
                     topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
                 )
+
                 startAngle += sweepAngle
             }
         }
@@ -104,14 +107,16 @@ fun PieChart(data: Map<TripStatus, Int>) {
                                 .clip(CircleShape)
                                 .background(statusColors[status] ?: Color.Gray)
                         )
+
                         Text(
-                            status.name.lowercase().replaceFirstChar { it.uppercase() },
+                            text = status.name.lowercase().replaceFirstChar { it.uppercase() },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+
                     Text(
-                        count.toString(),
+                        text = count.toString(),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium
                     )
