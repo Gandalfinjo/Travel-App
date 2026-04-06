@@ -34,4 +34,7 @@ interface UserDao {
 
     @Query("UPDATE users SET password = :password WHERE id = :userId")
     suspend fun updatePassword(userId: Int, password: String)
+
+    @Query("UPDATE users SET profile_picture_path = :path WHERE id = :userId")
+    suspend fun updateProfilePicture(userId: Int, path: String?)
 }

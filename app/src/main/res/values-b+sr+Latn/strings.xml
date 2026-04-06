@@ -223,4 +223,7 @@
     <string name="username_updated_successfully">Korisničko ime uspešno ažurirano</string>
     <string name="current_password_is_incorrect">Trenutna lozinka je pogrešna</string>
     <string name="password_updated_successfully">Lozinka uspešno ažurirana</string>
+    <string name="profile_picture">Profilna slika</string>
+    <string name="choose_from_gallery">Izaberi iz galerije</string>
+    <string name="remove_photo">Ukloni fotografiju</string>
 </resources>

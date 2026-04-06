@@ -25,6 +25,7 @@ data class ProfileUiState(
     val lastname: String = "",
     val email: String = "",
     val username: String = "",
+    val profilePicturePath: String? = null,
     val totalTrips: Int = 0,
     val uniqueDestinations: Int = 0,
     val successMessage: String? = null,
@@ -54,6 +55,7 @@ class ProfileViewModel @Inject constructor(
                     lastname = user?.lastname ?: "",
                     email = user?.email ?: "",
                     username = user?.username ?: "",
+                    profilePicturePath = user?.profilePicturePath,
                     totalTrips = trips.size,
                     uniqueDestinations = trips.map { t -> t.location }.toSet().size
                 )
@@ -171,6 +173,19 @@ class ProfileViewModel @Inject constructor(
         userRepository.updatePassword(userId, new)
 
         _uiState.update { it.copy(successMessage = context.getString(R.string.password_updated_successfully)) }
+    }
+
+    fun updateProfilePicture(path: String?) = viewModelScope.launch {
+        val userId = sessionManager.loggedInUserId.first() ?: return@launch
+        userRepository.updateProfilePicture(userId, path)
+        sessionManager.saveSession(
+            username = _uiState.value.username,
+            userId = userId,
+            firstname = _uiState.value.firstname,
+            lastname = _uiState.value.lastname,
+            profilePicturePath = path
+        )
+        _uiState.update { it.copy(profilePicturePath = path) }
     }
 
     fun clearMessages() {

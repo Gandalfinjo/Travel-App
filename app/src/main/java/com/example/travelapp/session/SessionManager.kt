@@ -42,6 +42,9 @@ class SessionManager @Inject constructor(
         /** DataStore key for storing the logged-in user's last name */
         val KEY_LASTNAME = stringPreferencesKey("lastname")
 
+        /** DataStore key for storing the logged-in user's profile picture path */
+        val KEY_PROFILE_PICTURE = stringPreferencesKey("profile_picture_path")
+
         /** DataStore key for storing the theme preference */
         val KEY_THEME = stringPreferencesKey("theme")
     }
@@ -62,6 +65,10 @@ class SessionManager @Inject constructor(
     val loggedInUserLastname: Flow<String?> = context.dataStore.data
         .map { it[KEY_LASTNAME] }
 
+    /** Emits the currently logged-in user's profile picture path, or null if no session exists. */
+    val loggedInUserProfilePicture: Flow<String?> = context.dataStore.data
+        .map { it[KEY_PROFILE_PICTURE] }
+
     /** Emits the current theme preference */
     val themePreference: Flow<ThemePreference> = context.dataStore.data
         .map { prefs ->
@@ -79,13 +86,27 @@ class SessionManager @Inject constructor(
      * @param userId ID of the logged-in user
      * @param firstname First name of the logged-in user
      * @param lastname Last name of the logged-in user
+     * @param profilePicturePath Path to the logged-in user's profile picture
      */
-    suspend fun saveSession(username: String, userId: Int, firstname: String, lastname: String) {
+    suspend fun saveSession(
+        username: String,
+        userId: Int,
+        firstname: String,
+        lastname: String,
+        profilePicturePath: String? = null
+    ) {
         context.dataStore.edit { prefs ->
             prefs[KEY_USERNAME] = username
             prefs[KEY_USER_ID] = userId
             prefs[KEY_FIRSTNAME] = firstname
             prefs[KEY_LASTNAME] = lastname
+
+            if (profilePicturePath != null) {
+                prefs[KEY_PROFILE_PICTURE] = profilePicturePath
+            }
+            else {
+                prefs.remove(KEY_PROFILE_PICTURE)
+            }
         }
     }
 

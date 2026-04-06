@@ -1,5 +1,6 @@
 package com.example.travelapp.database.models
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,5 +11,6 @@ data class User(
     val lastname: String,
     val email: String,
     val username: String,
-    val password: String
+    val password: String,
+    @ColumnInfo(name = "profile_picture_path") val profilePicturePath: String? = null
 )

@@ -223,4 +223,7 @@
     <string name="username_updated_successfully">Username updated successfully</string>
     <string name="current_password_is_incorrect">Current password is incorrect</string>
     <string name="password_updated_successfully">Password updated successfully</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="remove_photo">Remove photo</string>
 </resources>

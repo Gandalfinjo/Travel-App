@@ -118,6 +118,15 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
     }
 
     /**
+     * Updates the profile picture of the provided user.
+     *
+     * @param userId ID of the user for which to update the profile picture
+     * @param path Path to the profile picture
+     */
+    suspend fun updateProfilePicture(userId: Int, path: String?) =
+        userDao.updateProfilePicture(userId, path)
+
+    /**
      * Hashes password using SHA-256.
      *
      * NOTE: This is a simplified implementation for demonstration purposes.

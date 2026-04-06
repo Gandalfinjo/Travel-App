@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
@@ -66,6 +65,7 @@ import com.example.travelapp.ui.elements.ItineraryItemCard
 import com.example.travelapp.ui.elements.OngoingTripCard
 import com.example.travelapp.ui.elements.StatMetricCard
 import com.example.travelapp.ui.elements.UpcomingTripCard
+import com.example.travelapp.ui.elements.UserAvatar
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
 import com.example.travelapp.ui.viewmodels.DashboardViewModel
@@ -86,11 +86,6 @@ fun DashboardScreen(
 ) {
     val uiState by dashboardViewModel.uiState.collectAsState()
     val authUiState by authViewModel.uiState.collectAsState()
-
-    val initials = buildString {
-        authUiState.loggedInUserFirstname?.firstOrNull()?.let { append(it.uppercaseChar()) }
-        authUiState.loggedInUserLastname?.firstOrNull()?.let { append(it.uppercaseChar()) }
-    }
 
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -122,27 +117,13 @@ fun DashboardScreen(
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 actions = {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .size(36.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.tertiary
-                                    )
-                                ),
-                                shape = CircleShape
-                            )
-                            .clickable { showBottomSheet = true },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = initials,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                    Box(modifier = Modifier.padding(end = 12.dp)) {
+                        UserAvatar(
+                            firstname = authUiState.loggedInUserFirstname,
+                            lastname = authUiState.loggedInUserLastname,
+                            profilePicturePath = authUiState.loggedInUserProfilePicture,
+                            size = 36.dp,
+                            onClick = { showBottomSheet = true }
                         )
                     }
                 }
@@ -325,27 +306,12 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.padding(vertical = 8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.tertiary
-                                    )
-                                ),
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = initials,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
+                    UserAvatar(
+                        firstname = authUiState.loggedInUserFirstname,
+                        lastname = authUiState.loggedInUserLastname,
+                        profilePicturePath = authUiState.loggedInUserProfilePicture,
+                        size = 48.dp
+                    )
 
                     Column {
                         Text(

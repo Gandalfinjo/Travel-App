@@ -49,7 +49,7 @@ import com.example.travelapp.database.models.User
         PackingItem::class,
         Expense::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class TravelDatabase : RoomDatabase() {
@@ -78,7 +78,7 @@ abstract class TravelDatabase : RoomDatabase() {
                     context.applicationContext,
                     TravelDatabase::class.java,
                     "travel_database"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
 
                 INSTANCE = instance
 
@@ -175,6 +175,16 @@ abstract class TravelDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE expenses")
                 db.execSQL("ALTER TABLE expenses_new RENAME TO expenses")
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_trip_id ON expenses(trip_id)")
+            }
+        }
+
+        /**
+         * Migration from database version 4 to 5.
+         * Adds the profile_picture_path column to the users table
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE users ADD COLUMN profile_picture_path TEXT")
             }
         }
     }

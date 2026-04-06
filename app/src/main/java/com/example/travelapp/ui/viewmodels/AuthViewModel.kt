@@ -24,6 +24,7 @@ data class AuthUiState(
     val loggedInUserId: Int? = null,
     val loggedInUserFirstname: String? = null,
     val loggedInUserLastname: String? = null,
+    val loggedInUserProfilePicture: String? = null,
     val isSessionChecked: Boolean = false,
     val isLoggedIn: Boolean = false
 )
@@ -52,6 +53,7 @@ class AuthViewModel @Inject constructor(
                 val userId = sessionManager.loggedInUserId.first()
                 val firstname = sessionManager.loggedInUserFirstname.first()
                 val lastname = sessionManager.loggedInUserLastname.first()
+                val profilePicture = sessionManager.loggedInUserProfilePicture.first()
 
                 _uiState.update {
                     it.copy(
@@ -59,6 +61,7 @@ class AuthViewModel @Inject constructor(
                         loggedInUserId = userId,
                         loggedInUserFirstname = firstname,
                         loggedInUserLastname = lastname,
+                        loggedInUserProfilePicture = profilePicture,
                         isSessionChecked = true,
                         isLoggedIn = username != null
                     )
@@ -189,6 +192,15 @@ class AuthViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    /**
+     * Updates the profile picture for the logged-in user
+     *
+     * @param path Path to the profile picture (null if removing the profile picture)
+     */
+    fun updateProfilePicture(path: String?) {
+        _uiState.update { it.copy(loggedInUserProfilePicture = path) }
     }
 
     /**
