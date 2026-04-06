@@ -95,13 +95,14 @@ fun AddTripScreen(
     var location by remember { mutableStateOf(prefillDestination ?: "") }
     var transport by remember {
         mutableStateOf(
-            prefillTransport?.let {
-                runCatching { TransportType.valueOf(it) }.getOrDefault(TransportType.OTHER)
-            } ?: TransportType.OTHER
+            prefillTransport
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { TransportType.valueOf(it) }.getOrDefault(TransportType.OTHER) }
+                ?: TransportType.OTHER
         )
     }
-    var budget by remember { mutableStateOf(prefillBudget ?: "") }
-    var currency by remember { mutableStateOf(prefillCurrency ?: "") }
+    var budget by remember { mutableStateOf(prefillBudget?.takeIf { it.isNotBlank() } ?: "") }
+    var currency by remember { mutableStateOf(prefillCurrency?.takeIf { it.isNotBlank() } ?: "EUR") }
     var startDate by remember { mutableStateOf<Long?>(null) }
     var endDate by remember { mutableStateOf<Long?>(null) }
 

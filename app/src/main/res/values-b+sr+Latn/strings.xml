@@ -31,7 +31,7 @@
     <string name="add">Dodaj</string>
     <string name="start_date">Datum početka</string>
     <string name="end_date">Datum kraja</string>
-    <string name="dd_mm_yyyy">DD/MM/YYYY</string>
+    <string name="dd_mm_yyyy">DD/MM/GGGG</string>
     <string name="add_trip">Dodaj putovanje</string>
     <string name="my_trips">Moja putovanja</string>
     <string name="trip_details">Detalji putovanja</string>
