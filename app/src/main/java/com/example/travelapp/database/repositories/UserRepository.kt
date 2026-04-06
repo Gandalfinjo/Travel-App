@@ -61,13 +61,61 @@ class UserRepository @Inject constructor(private val userDao: UserDao) {
         userDao.getUserByUsername(username)
 
     /**
-     * Retrieves a user for the provided username.
+     * Retrieves a user for the provided email.
      *
      * @param email Email for which to retrieve a user
      * @return User object if the email is found, null otherwise
      */
     suspend fun getUserByEmail(email: String) =
         userDao.getUserByEmail(email)
+
+    /**
+     * Retrieves a user for the provided id.
+     *
+     * @param userId ID of the user to retrieve
+     * @return User object if the email is found, null otherwise
+     */
+    suspend fun getUserById(userId: Int): User? =
+        userDao.getUserById(userId)
+
+    /**
+     * Updates the full name of the provided user.
+     *
+     * @param userId ID of the user for which to update the name
+     * @param firstname New first name
+     * @param lastname New last name
+     */
+    suspend fun updateName(userId: Int, firstname: String, lastname: String) =
+        userDao.updateName(userId, firstname, lastname)
+
+    /**
+     * Updates the email of the provided user.
+     *
+     * @param userId ID of the user for which to update the email
+     * @param email New email
+     */
+    suspend fun updateEmail(userId: Int, email: String) =
+        userDao.updateEmail(userId, email)
+
+    /**
+     * Updates the username of the provided user.
+     *
+     * @param userId ID of the user for which to update the username
+     * @param username New username
+     */
+    suspend fun updateUsername(userId: Int, username: String) =
+        userDao.updateUsername(userId, username)
+
+    /**
+     * Updates the password of the provided user.
+     *
+     * @param userId ID of the user for which to update the password
+     * @param password New password
+     */
+    suspend fun updatePassword(userId: Int, password: String) {
+        val hashed = hashPassword(password)
+        userDao.updatePassword(userId, hashed)
+    }
 
     /**
      * Hashes password using SHA-256.

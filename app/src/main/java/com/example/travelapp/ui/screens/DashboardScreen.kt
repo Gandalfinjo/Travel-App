@@ -81,7 +81,8 @@ fun DashboardScreen(
     dashboardViewModel: DashboardViewModel = hiltViewModel(),
     onTripClick: (Int) -> Unit,
     onPackingClick: (Int) -> Unit,
-    onItineraryClick: (Int) -> Unit
+    onItineraryClick: (Int) -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val uiState by dashboardViewModel.uiState.collectAsState()
     val authUiState by authViewModel.uiState.collectAsState()
@@ -370,7 +371,10 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .clickable { /* TODO: navigate to profile screen */ }
+                        .clickable {
+                            showBottomSheet = false
+                            onProfileClick()
+                        }
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -609,7 +613,8 @@ fun DashboardPreview() {
         DashboardScreen(
             onTripClick = {},
             onPackingClick = {},
-            onItineraryClick = {}
+            onItineraryClick = {},
+            onProfileClick = {}
         )
     }
 }

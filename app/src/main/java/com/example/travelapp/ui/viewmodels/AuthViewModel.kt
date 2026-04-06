@@ -24,7 +24,8 @@ data class AuthUiState(
     val loggedInUserId: Int? = null,
     val loggedInUserFirstname: String? = null,
     val loggedInUserLastname: String? = null,
-    val isSessionChecked: Boolean = false
+    val isSessionChecked: Boolean = false,
+    val isLoggedIn: Boolean = false
 )
 
 /**
@@ -58,7 +59,8 @@ class AuthViewModel @Inject constructor(
                         loggedInUserId = userId,
                         loggedInUserFirstname = firstname,
                         loggedInUserLastname = lastname,
-                        isSessionChecked = true
+                        isSessionChecked = true,
+                        isLoggedIn = username != null
                     )
                 }
 
@@ -122,7 +124,8 @@ class AuthViewModel @Inject constructor(
                                 loggedInUser = loggedInUser.username,
                                 loggedInUserFirstname = loggedInUser.firstname,
                                 loggedInUserLastname = loggedInUser.lastname,
-                                loggedInUserId = loggedInUser.id
+                                loggedInUserId = loggedInUser.id,
+                                isLoggedIn = true
                             )
                         }
                     }
@@ -173,7 +176,8 @@ class AuthViewModel @Inject constructor(
                     loggedInUser = user.username,
                     loggedInUserFirstname = user.firstname,
                     loggedInUserLastname = user.lastname,
-                    loggedInUserId = user.id
+                    loggedInUserId = user.id,
+                    isLoggedIn = true
                 )
             }
         }
@@ -197,7 +201,8 @@ class AuthViewModel @Inject constructor(
             it.copy(
                 loggedInUser = null,
                 loggedInUserId = null,
-                errorMessage = null
+                errorMessage = null,
+                isLoggedIn = false
             )
         }
     }

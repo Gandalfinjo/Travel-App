@@ -203,4 +203,24 @@
     <string name="planned">Planned</string>
     <string name="tap_the_button_to_add_your_first_trip">Pritisni dugme da dodaš prvo putovanje</string>
     <string name="no_trips_yet">Nema putovanja još uvek</string>
+    <string name="edit">Izmeni</string>
+    <string name="preferences">Preferencije</string>
+    <string name="default_currency">Podrazumevana valuta</string>
+    <string name="edit_name">Izmeni ime</string>
+    <string name="save">Sačuvaj</string>
+    <string name="edit_email">Izmeni email</string>
+    <string name="edit_username">Izmeni korisničko ime</string>
+    <string name="change_password">Promeni lozinku</string>
+    <string name="current_password">Trenutna lozinka</string>
+    <string name="new_password">Nova lozinka</string>
+    <string name="name_fields_cannot_be_empty">Polja za ime ne smeju biti prazna</string>
+    <string name="name_updated_successfully">Ime uspešno ažurirano</string>
+    <string name="invalid_email_address">Pogrešna email adresa</string>
+    <string name="email_is_already_in_use">Email je već u upotrebi</string>
+    <string name="email_updated_successfully">Email uspešno ažuriran</string>
+    <string name="username_cannot_be_empty">Korisničko ime ne sme biti prazno</string>
+    <string name="username_is_already_taken">Korisničko ime je već u upotrebi</string>
+    <string name="username_updated_successfully">Korisničko ime uspešno ažurirano</string>
+    <string name="current_password_is_incorrect">Trenutna lozinka je pogrešna</string>
+    <string name="password_updated_successfully">Lozinka uspešno ažurirana</string>
 </resources>

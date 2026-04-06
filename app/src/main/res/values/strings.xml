@@ -203,4 +203,24 @@
     <string name="planned">Planned</string>
     <string name="tap_the_button_to_add_your_first_trip">Tap the button to add your first trip</string>
     <string name="no_trips_yet">No trips yet</string>
+    <string name="edit">Edit</string>
+    <string name="preferences">Preferences</string>
+    <string name="default_currency">Default currency</string>
+    <string name="edit_name">Edit name</string>
+    <string name="save">Save</string>
+    <string name="edit_email">Edit email</string>
+    <string name="edit_username">Edit username</string>
+    <string name="change_password">Change password</string>
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="name_fields_cannot_be_empty">Name fields cannot be empty</string>
+    <string name="name_updated_successfully">Name updated successfully</string>
+    <string name="invalid_email_address">Invalid email address</string>
+    <string name="email_is_already_in_use">Email is already in use</string>
+    <string name="email_updated_successfully">Email updated successfully</string>
+    <string name="username_cannot_be_empty">Username cannot be empty</string>
+    <string name="username_is_already_taken">Username is already taken</string>
+    <string name="username_updated_successfully">Username updated successfully</string>
+    <string name="current_password_is_incorrect">Current password is incorrect</string>
+    <string name="password_updated_successfully">Password updated successfully</string>
 </resources>

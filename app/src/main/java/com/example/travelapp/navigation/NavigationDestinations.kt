@@ -219,3 +219,10 @@ object AddExpenseDestination : NavigationDestination {
     val arguments = listOf(navArgument("tripId") { type = NavType.IntType })
     val routeWithArgs = "$route/{tripId}"
 }
+
+/**
+ * Profile screen destination.
+ */
+object ProfileDestination : NavigationDestination {
+    override val route = "profile"
+}

@@ -40,6 +40,7 @@ import com.example.travelapp.navigation.ItineraryDestination
 import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
 import com.example.travelapp.navigation.PackingDestination
+import com.example.travelapp.navigation.ProfileDestination
 import com.example.travelapp.navigation.RegisterDestination
 import com.example.travelapp.navigation.StatisticsDestination
 import com.example.travelapp.navigation.TripDetailsDestination
@@ -58,6 +59,7 @@ import com.example.travelapp.ui.screens.ItineraryScreen
 import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
 import com.example.travelapp.ui.screens.PackingScreen
+import com.example.travelapp.ui.screens.ProfileScreen
 import com.example.travelapp.ui.screens.RegisterScreen
 import com.example.travelapp.ui.screens.StatisticsScreen
 import com.example.travelapp.ui.screens.TripDetailsScreen
@@ -102,12 +104,12 @@ fun TravelApp(
 
     val showBottomNav = currentRoute !in routesWithoutBottomNav
 
-    LaunchedEffect(authUiState.loggedInUser) {
-        if (authUiState.loggedInUser == null) {
-            navController.navigateToLoginScreen()
+    LaunchedEffect(authUiState.isLoggedIn) {
+        if (authUiState.isLoggedIn) {
+            navController.navigateToDashboardScreen()
         }
         else {
-            navController.navigateToDashboardScreen()
+            navController.navigateToLoginScreen()
         }
     }
 
@@ -206,7 +208,8 @@ fun TravelApp(
                     authViewModel = authViewModel,
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromDashboard(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreenFromDashboard(tripId) },
-                    onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) }
+                    onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
+                    onProfileClick = { navController.navigateToProfileScreen() }
                 )
             }
 
@@ -404,6 +407,13 @@ fun TravelApp(
                         modifier = modifier
                     )
                 }
+            }
+
+            composable(route = ProfileDestination.route) {
+                ProfileScreen(
+                    onBackClick = { navController.popBackStack() },
+                    modifier = modifier
+                )
             }
         }
     }
@@ -641,6 +651,15 @@ private fun NavHostController.navigateToAddExpenseScreen(tripId: Int) {
     this.navigate("${AddExpenseDestination.route}/$tripId") {
         launchSingleTop = true
         popUpTo(ExpenseDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToProfileScreen() {
+    this.navigate(ProfileDestination.route) {
+        launchSingleTop = true
+        popUpTo(DashboardDestination.route) {
             inclusive = false
         }
     }
