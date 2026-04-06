@@ -86,6 +86,11 @@ fun DashboardScreen(
     val uiState by dashboardViewModel.uiState.collectAsState()
     val authUiState by authViewModel.uiState.collectAsState()
 
+    val initials = buildString {
+        authUiState.loggedInUserFirstname?.firstOrNull()?.let { append(it.uppercaseChar()) }
+        authUiState.loggedInUserLastname?.firstOrNull()?.let { append(it.uppercaseChar()) }
+    }
+
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -133,9 +138,7 @@ fun DashboardScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = authUiState.loggedInUser
-                                ?.take(2)
-                                ?.uppercase() ?: "?",
+                            text = initials,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -336,9 +339,7 @@ fun DashboardScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = authUiState.loggedInUser
-                                ?.take(2)
-                                ?.uppercase() ?: "?",
+                            text = initials,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -347,9 +348,15 @@ fun DashboardScreen(
 
                     Column {
                         Text(
-                            text = authUiState.loggedInUser ?: "",
+                            text = "${authUiState.loggedInUserFirstname ?: ""} ${authUiState.loggedInUserLastname ?: ""}".trim(),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium
+                        )
+
+                        Text(
+                            text = "@${authUiState.loggedInUser ?: ""}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

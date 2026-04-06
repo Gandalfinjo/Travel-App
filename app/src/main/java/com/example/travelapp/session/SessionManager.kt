@@ -36,6 +36,12 @@ class SessionManager @Inject constructor(
         /** DataStore key for storing the logged-in user's ID. */
         val KEY_USER_ID = intPreferencesKey("user_id")
 
+        /** DataStore key for storing the logged-in user's first name */
+        val KEY_FIRSTNAME = stringPreferencesKey("firstname")
+
+        /** DataStore key for storing the logged-in user's last name */
+        val KEY_LASTNAME = stringPreferencesKey("lastname")
+
         /** DataStore key for storing the theme preference */
         val KEY_THEME = stringPreferencesKey("theme")
     }
@@ -47,6 +53,14 @@ class SessionManager @Inject constructor(
     /** Emits the currently logged-in user's ID, or null if no session exists. */
     val loggedInUserId: Flow<Int?> = context.dataStore.data
         .map { it[KEY_USER_ID] }
+
+    /** Emits the currently logged-in user's first name, or null if no session exists. */
+    val loggedInUserFirstname: Flow<String?> = context.dataStore.data
+        .map { it[KEY_FIRSTNAME] }
+
+    /** Emits the currently logged-in user's last name, or null if no session exists. */
+    val loggedInUserLastname: Flow<String?> = context.dataStore.data
+        .map { it[KEY_LASTNAME] }
 
     /** Emits the current theme preference */
     val themePreference: Flow<ThemePreference> = context.dataStore.data
@@ -63,11 +77,15 @@ class SessionManager @Inject constructor(
      *
      * @param username Username of the logged-in user
      * @param userId ID of the logged-in user
+     * @param firstname First name of the logged-in user
+     * @param lastname Last name of the logged-in user
      */
-    suspend fun saveSession(username: String, userId: Int) {
+    suspend fun saveSession(username: String, userId: Int, firstname: String, lastname: String) {
         context.dataStore.edit { prefs ->
             prefs[KEY_USERNAME] = username
             prefs[KEY_USER_ID] = userId
+            prefs[KEY_FIRSTNAME] = firstname
+            prefs[KEY_LASTNAME] = lastname
         }
     }
 

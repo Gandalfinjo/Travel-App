@@ -22,6 +22,8 @@ data class AuthUiState(
     val errorMessage: String? = null,
     val loggedInUser: String? = null,
     val loggedInUserId: Int? = null,
+    val loggedInUserFirstname: String? = null,
+    val loggedInUserLastname: String? = null,
     val isSessionChecked: Boolean = false
 )
 
@@ -47,10 +49,15 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             sessionManager.loggedInUsername.collect { username ->
                 val userId = sessionManager.loggedInUserId.first()
+                val firstname = sessionManager.loggedInUserFirstname.first()
+                val lastname = sessionManager.loggedInUserLastname.first()
+
                 _uiState.update {
                     it.copy(
                         loggedInUser = username,
                         loggedInUserId = userId,
+                        loggedInUserFirstname = firstname,
+                        loggedInUserLastname = lastname,
                         isSessionChecked = true
                     )
                 }
@@ -107,12 +114,14 @@ class AuthViewModel @Inject constructor(
                     val loggedInUser = userRepository.login(username, password)
 
                     if (loggedInUser != null) {
-                        sessionManager.saveSession(loggedInUser.username, loggedInUser.id)
+                        sessionManager.saveSession(loggedInUser.username, loggedInUser.id, loggedInUser.firstname, loggedInUser.lastname)
 
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 loggedInUser = loggedInUser.username,
+                                loggedInUserFirstname = loggedInUser.firstname,
+                                loggedInUserLastname = loggedInUser.lastname,
                                 loggedInUserId = loggedInUser.id
                             )
                         }
@@ -156,12 +165,14 @@ class AuthViewModel @Inject constructor(
         val user = userRepository.login(username, password)
 
         if (user != null) {
-            sessionManager.saveSession(user.username, user.id)
+            sessionManager.saveSession(user.username, user.id, user.firstname, user.lastname)
 
             _uiState.update {
                 it.copy(
                     isLoading = false,
                     loggedInUser = user.username,
+                    loggedInUserFirstname = user.firstname,
+                    loggedInUserLastname = user.lastname,
                     loggedInUserId = user.id
                 )
             }
