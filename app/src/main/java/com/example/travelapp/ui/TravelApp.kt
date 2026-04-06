@@ -231,7 +231,6 @@ fun TravelApp(
                 TripListScreen(
                     modifier = modifier,
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromTripList(tripId) },
-                    onBackClick = { navController.popBackStack() },
                     onFabClick = { navController.navigateToAddTripScreen() }
                 )
             }
@@ -271,7 +270,6 @@ fun TravelApp(
 
             composable(route = MapDestination.route) {
                 MapScreen(
-                    onBackClick = { navController.popBackStack() },
                     modifier = modifier,
                 )
             }
@@ -361,7 +359,6 @@ fun TravelApp(
 
             composable(route = StatisticsDestination.route) {
                 StatisticsScreen(
-                    onBackClick = { navController.popBackStack() },
                     onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromStatisticsScreen(tripId) },
                     modifier = modifier
                 )
@@ -369,7 +366,6 @@ fun TravelApp(
 
             composable(route = AiSuggestionsDestination.route) {
                 AiSuggestionsScreen(
-                    onBackClick = { navController.popBackStack() },
                     onAddToTrips = { destination, name, budget, currency, transport ->
                         navController.navigateToAddTripScreenWithPrefill(destination, name, budget, currency, transport)
                     },
