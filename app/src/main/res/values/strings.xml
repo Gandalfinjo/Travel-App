@@ -194,4 +194,8 @@
     <string name="enable_location">Enable location</string>
     <string name="location_permission_required">Location permission required</string>
     <string name="allow_location_to_see_your_position_and_nearby_places">Allow location to see your position and nearby places</string>
+    <string name="add_items_to_your_packing_list">Add items to your packing list</string>
+    <string name="no_items_yet">No items yet</string>
+    <string name="delete_item">Delete item</string>
+    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete %1$s?</string>
 </resources>

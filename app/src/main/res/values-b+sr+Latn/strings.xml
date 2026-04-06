@@ -194,4 +194,8 @@
     <string name="enable_location">Dozvoli lokaciju</string>
     <string name="location_permission_required">Potrebna dozvola za lokaciju</string>
     <string name="allow_location_to_see_your_position_and_nearby_places">Dozvoli lokaciju da vidiš svoju poziciju i mesta u blizini</string>
+    <string name="add_items_to_your_packing_list">Dodaj stvari na listu za pakovanje</string>
+    <string name="no_items_yet">Nema stvari još uvek</string>
+    <string name="delete_item">Obriši stvar</string>
+    <string name="are_you_sure_you_want_to_delete">Jeste li sigurni da želite da obrišete %1$s?</string>
 </resources>
