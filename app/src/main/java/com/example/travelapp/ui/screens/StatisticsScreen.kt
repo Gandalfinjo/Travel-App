@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.InsertChartOutlined
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -124,6 +125,47 @@ fun StatisticsScreen(
                         unit = stringResource(R.string.days),
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            if (uiState.totalTrips == 0) {
+                item {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(
+                            width = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.InsertChartOutlined,
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Text(
+                                text = stringResource(R.string.no_statistics_yet),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Text(
+                                text = stringResource(R.string.add_trips_to_see_statistics),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
 

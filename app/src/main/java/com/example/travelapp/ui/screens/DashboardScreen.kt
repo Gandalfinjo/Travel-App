@@ -9,16 +9,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -82,7 +86,8 @@ fun DashboardScreen(
     onTripClick: (Int) -> Unit,
     onPackingClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onAddTripClick: () -> Unit,
 ) {
     val uiState by dashboardViewModel.uiState.collectAsState()
     val authUiState by authViewModel.uiState.collectAsState()
@@ -257,6 +262,22 @@ fun DashboardScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+
+                                Button(
+                                    onClick = onAddTripClick,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+
+                                    Spacer(Modifier.width(8.dp))
+
+                                    Text(text = stringResource(R.string.add_trip))
+                                }
                             }
                         }
                     }
@@ -580,7 +601,8 @@ fun DashboardPreview() {
             onTripClick = {},
             onPackingClick = {},
             onItineraryClick = {},
-            onProfileClick = {}
+            onProfileClick = {},
+            onAddTripClick = {}
         )
     }
 }

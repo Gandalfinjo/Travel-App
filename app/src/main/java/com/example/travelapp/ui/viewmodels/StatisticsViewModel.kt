@@ -89,7 +89,10 @@ class StatisticsViewModel @Inject constructor(
         launch {
             tripRepository.getUserTrips(userId).collect { trips ->
                 if (trips.isEmpty()) {
-                    _uiState.value = StatisticsUiState()
+                    _uiState.update {
+                        StatisticsUiState(isLoading = false, defaultCurrency = defaultCurrency)
+                    }
+
                     return@collect
                 }
 

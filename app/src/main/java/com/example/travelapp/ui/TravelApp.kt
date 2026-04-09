@@ -209,7 +209,8 @@ fun TravelApp(
                     onTripClick = { tripId -> navController.navigateToTripDetailsScreenFromDashboard(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreenFromDashboard(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
-                    onProfileClick = { navController.navigateToProfileScreen() }
+                    onProfileClick = { navController.navigateToProfileScreen() },
+                    onAddTripClick = { navController.navigateToAddTripScreen() }
                 )
             }
 

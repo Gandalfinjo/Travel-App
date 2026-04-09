@@ -226,4 +226,6 @@
     <string name="profile_picture">Profilna slika</string>
     <string name="choose_from_gallery">Izaberi iz galerije</string>
     <string name="remove_photo">Ukloni fotografiju</string>
+    <string name="no_statistics_yet">Nema statistike još uvek</string>
+    <string name="add_trips_to_see_statistics">Dodaj putovanja da vidiš statistiku</string>
 </resources>

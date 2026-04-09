@@ -226,4 +226,6 @@
     <string name="profile_picture">Profile picture</string>
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="remove_photo">Remove photo</string>
+    <string name="no_statistics_yet">No statistics yet</string>
+    <string name="add_trips_to_see_statistics">Add trips to see statistics</string>
 </resources>
