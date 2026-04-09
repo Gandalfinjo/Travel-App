@@ -364,7 +364,8 @@ fun RegisterScreen(
         TextButton(onClick = onLoginClick) {
             Text(
                 text = stringResource(R.string.already_have_an_account_login),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 

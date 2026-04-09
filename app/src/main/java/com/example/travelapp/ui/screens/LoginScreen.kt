@@ -204,7 +204,8 @@ fun LoginScreen(
         TextButton(onClick = onRegisterClick) {
             Text(
                 text = stringResource(R.string.don_t_have_an_account_register),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
