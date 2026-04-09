@@ -3,6 +3,7 @@ package com.example.travelapp.worker
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
@@ -47,7 +48,7 @@ class TripReminderWorker(
         notificationManager.createNotificationChannel(channel)
 
         val deepLinkIntent = Intent(Intent.ACTION_VIEW).apply {
-            data = "travelapp://trip_details/$tripId".toUri()
+            data = "travelapp://trip_details/$tripId?source=dashboard".toUri()
             setPackage(applicationContext.packageName)
         }
 

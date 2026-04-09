@@ -382,12 +382,18 @@ fun TravelApp(
             ) { backStackEntry ->
                 val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
 
-                ExpenseScreen(
-                    tripId = tripId,
-                    onBackClick = { navController.popBackStack() },
-                    onAddExpenseClick = { navController.navigateToAddExpenseScreen(tripId) },
-                    modifier = modifier
-                )
+                val tripViewModel: TripViewModel = hiltViewModel()
+                val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
+
+                trip?.let {
+                    ExpenseScreen(
+                        tripId = tripId,
+                        trip = it,
+                        onBackClick = { navController.popBackStack() },
+                        onAddExpenseClick = { navController.navigateToAddExpenseScreen(tripId) },
+                        modifier = modifier
+                    )
+                }
             }
 
             composable(

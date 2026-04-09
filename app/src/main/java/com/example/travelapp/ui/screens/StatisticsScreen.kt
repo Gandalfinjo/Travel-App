@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -182,12 +183,60 @@ fun StatisticsScreen(
                 }
             }
 
+            item {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFEEEDFE)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccountBalanceWallet,
+                                contentDescription = null,
+                                tint = Color(0xFF534AB7),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = stringResource(R.string.total_spent),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Text(
+                                text = "≈ %.2f %s".format(
+                                    uiState.totalSpentAllTrips,
+                                    uiState.defaultCurrency
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+
             if (uiState.topSpendingTrips.isNotEmpty()) {
                 item {
                     StatSectionCard(title = stringResource(R.string.top_spending_trips)) {
                         BarChart(
                             trips = uiState.topSpendingTrips,
-                            onTripClick = onExpensesClick
+                            onTripClick = onExpensesClick,
+                            currency = uiState.defaultCurrency
                         )
                     }
                 }
@@ -228,7 +277,7 @@ fun StatisticsScreen(
                                         }
 
                                         Text(
-                                            text = "%.2f".format(categoryTotal.total),
+                                            text = "%.2f %s".format(categoryTotal.total, uiState.defaultCurrency),
                                             style = MaterialTheme.typography.bodySmall,
                                             fontWeight = FontWeight.Medium
                                         )

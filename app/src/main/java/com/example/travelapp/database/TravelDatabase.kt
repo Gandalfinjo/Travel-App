@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.travelapp.database.converters.TravelTypeConverters
+import com.example.travelapp.database.dao.CachedRateDao
 import com.example.travelapp.database.dao.ExpenseDao
 import com.example.travelapp.database.dao.ItineraryDao
 import com.example.travelapp.database.dao.NotificationDao
@@ -17,6 +18,7 @@ import com.example.travelapp.database.dao.PlaceDao
 import com.example.travelapp.database.dao.TripDao
 import com.example.travelapp.database.dao.UserDao
 import com.example.travelapp.database.models.AppNotification
+import com.example.travelapp.database.models.CachedRate
 import com.example.travelapp.database.models.Expense
 import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.models.PackingItem
@@ -47,9 +49,10 @@ import com.example.travelapp.database.models.User
         AppNotification::class,
         ItineraryItem::class,
         PackingItem::class,
-        Expense::class
+        Expense::class,
+        CachedRate::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class TravelDatabase : RoomDatabase() {
@@ -61,6 +64,7 @@ abstract class TravelDatabase : RoomDatabase() {
     abstract fun itineraryDao(): ItineraryDao
     abstract fun packingDao(): PackingDao
     abstract fun expenseDao(): ExpenseDao
+    abstract fun cachedRateDao(): CachedRateDao
 
     companion object {
         private var INSTANCE: TravelDatabase? = null
@@ -78,7 +82,7 @@ abstract class TravelDatabase : RoomDatabase() {
                     context.applicationContext,
                     TravelDatabase::class.java,
                     "travel_database"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7).build()
 
                 INSTANCE = instance
 
@@ -185,6 +189,36 @@ abstract class TravelDatabase : RoomDatabase() {
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE users ADD COLUMN profile_picture_path TEXT")
+            }
+        }
+
+        /**
+         * Migration from database version 5 to 6.
+         * Adds the cached_rates table.
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS cached_rates (
+                        currencyPair TEXT PRIMARY KEY NOT NULL,
+                        rate REAL NOT NULL,
+                        timestamp INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
+        /**
+         * Migration from database version 6 to 7.
+         * Adds amount_in_trip_currency and amount_in_default_currency fields to expenses table.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE expenses ADD COLUMN amount_in_trip_currency REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE expenses ADD COLUMN amount_in_default_currency REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("UPDATE expenses SET amount_in_trip_currency = amount, amount_in_default_currency = amount")
             }
         }
     }

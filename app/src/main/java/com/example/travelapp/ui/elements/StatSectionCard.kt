@@ -35,7 +35,7 @@ fun StatSectionCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                title,
+                text = title,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 14.dp)

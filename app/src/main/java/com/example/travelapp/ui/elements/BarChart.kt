@@ -40,6 +40,7 @@ import com.example.travelapp.ui.viewmodels.TripWithExpenses
 fun BarChart(
     trips: List<TripWithExpenses>,
     modifier: Modifier = Modifier,
+    currency: String,
     onTripClick: (Int) -> Unit = {}
 ) {
     if (trips.isEmpty()) {
@@ -75,7 +76,7 @@ fun BarChart(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            tripWithExpenses.trip.name,
+                            text = tripWithExpenses.trip.name,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -85,14 +86,14 @@ fun BarChart(
 
                         Row {
                             Text(
-                                "${tripWithExpenses.totalSpent} ${tripWithExpenses.trip.currency}",
+                                text = "${"%.2f".format(tripWithExpenses.totalSpent)} $currency",
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
 
                             Icon(
-                                Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                 contentDescription = null,
                                 modifier = Modifier.size(10.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant

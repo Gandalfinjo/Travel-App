@@ -17,11 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Visibility
@@ -67,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.api.repositories.CurrencyRepository
 import com.example.travelapp.ui.elements.ProfileInfoRow
 import com.example.travelapp.ui.elements.SectionLabel
 import com.example.travelapp.ui.elements.StatMetricCard
@@ -119,11 +122,8 @@ fun ProfileScreen(
     var showEditUsername by remember { mutableStateOf(false) }
     var showEditPassword by remember { mutableStateOf(false) }
 
-//    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
-//        if (uiState.successMessage != null || uiState.errorMessage != null) {
-//            profileViewModel.clearMessages()
-//        }
-//    }
+    val defaultCurrency by authViewModel.defaultCurrency.collectAsState()
+    var showCurrencyPicker by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -351,8 +351,8 @@ fun ProfileScreen(
                         Column(modifier = Modifier.padding(20.dp)) {
                             ProfileInfoRow(
                                 label = stringResource(R.string.default_currency),
-                                value = "EUR",
-                                onEditClick = { /* TODO */ }
+                                value = defaultCurrency,
+                                onEditClick = { showCurrencyPicker = true }
                             )
                         }
                     }
@@ -664,7 +664,7 @@ fun ProfileScreen(
                     OutlinedTextField(
                         value = confirm,
                         onValueChange = { confirm = it },
-                        label = { Text(stringResource(R.string.confirm_password)) },
+                        label = { Text(text = stringResource(R.string.confirm_password)) },
                         singleLine = true,
                         visualTransformation = if (confirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -683,11 +683,58 @@ fun ProfileScreen(
                 TextButton(onClick = {
                     profileViewModel.updatePassword(current, new, confirm)
                     showEditPassword = false
-                }) { Text(stringResource(R.string.save)) }
+                }) { Text(text = stringResource(R.string.save)) }
             },
             dismissButton = {
                 TextButton(onClick = { showEditPassword = false }) {
-                    Text(stringResource(R.string.cancel))
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    if (showCurrencyPicker) {
+        AlertDialog(
+            onDismissRequest = { showCurrencyPicker = false },
+            title = { Text(text = stringResource(R.string.default_currency)) },
+            text = {
+                LazyColumn {
+                    items(CurrencyRepository.SUPPORTED_CURRENCIES) { currency ->
+                        val isSelected = defaultCurrency == currency
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    authViewModel.setDefaultCurrency(currency)
+                                    showCurrencyPicker = false
+                                }
+                                .padding(vertical = 16.dp, horizontal = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = currency,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
+
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .align(Alignment.CenterEnd)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCurrencyPicker = false }) {
+                    Text(text = stringResource(R.string.cancel))
                 }
             }
         )

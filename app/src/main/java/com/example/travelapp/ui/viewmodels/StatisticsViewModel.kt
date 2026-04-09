@@ -33,6 +33,8 @@ data class StatisticsUiState(
     val topDestination: String? = null,
     val topSpendingTrips: List<TripWithExpenses> = emptyList(),
     val totalByCategory: List<CategoryTotal> = emptyList(),
+    val defaultCurrency: String = "EUR",
+    val totalSpentAllTrips: Double = 0.0,
     val isLoading: Boolean = true
 )
 
@@ -82,6 +84,8 @@ class StatisticsViewModel @Inject constructor(
     fun loadStatistics(userId: Int) = viewModelScope.launch {
         _uiState.update { it.copy(isLoading = true) }
 
+        val defaultCurrency = sessionManager.defaultCurrency.first()
+
         launch {
             tripRepository.getUserTrips(userId).collect { trips ->
                 if (trips.isEmpty()) {
@@ -100,16 +104,17 @@ class StatisticsViewModel @Inject constructor(
                     .maxByOrNull { it.value }
                     ?.key
 
-                val topSpendingTrips = trips
-                    .map { trip ->
-                        TripWithExpenses(
-                            trip = trip,
-                            totalSpent = expenseRepository.getTotalSpentForTrip(trip.id)
-                        )
-                    }
+                val tripsWithExpenses = trips.map { trip ->
+                    val totalInDefault = expenseRepository.getTotalSpentInDefaultCurrencyForTrip(trip.id)
+                    TripWithExpenses(trip = trip, totalSpent = totalInDefault)
+                }
+
+                val topSpendingTrips = tripsWithExpenses
                     .filter { it.totalSpent > 0 }
                     .sortedByDescending { it.totalSpent }
                     .take(5)
+
+                val totalSpentAllTrips = tripsWithExpenses.sumOf { it.totalSpent }
 
                 _uiState.update {
                     it.copy(
@@ -118,6 +123,8 @@ class StatisticsViewModel @Inject constructor(
                         averageDuration = averageDuration,
                         topDestination = topDestination,
                         topSpendingTrips = topSpendingTrips,
+                        totalSpentAllTrips = totalSpentAllTrips,
+                        defaultCurrency = defaultCurrency,
                         isLoading = false
                     )
                 }

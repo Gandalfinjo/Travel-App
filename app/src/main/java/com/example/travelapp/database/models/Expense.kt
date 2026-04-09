@@ -25,6 +25,8 @@ data class Expense(
     @ColumnInfo(name = "trip_id") val tripId: Int,
     val amount: Double,
     val currency: String,
+    @ColumnInfo(name = "amount_in_trip_currency") val amountInTripCurrency: Double,
+    @ColumnInfo(name = "amount_in_default_currency") val amountInDefaultCurrency: Double,
     val category: ExpenseCategory,
     val description: String? = null,
     val date: LocalDate?,

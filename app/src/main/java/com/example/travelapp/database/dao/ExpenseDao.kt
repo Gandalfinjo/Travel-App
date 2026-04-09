@@ -24,22 +24,31 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE trip_id = :tripId AND category = :category ORDER BY date DESC")
     fun getExpensesByTripIdAndCategory(tripId: Int, category: ExpenseCategory): Flow<List<Expense>>
 
-    @Query("SELECT SUM(amount) FROM expenses WHERE trip_id = :tripId")
+    @Query("SELECT SUM(amount_in_trip_currency) FROM expenses WHERE trip_id = :tripId")
     fun getTotalByTrip(tripId: Int): Flow<Double?>
 
-    @Query("SELECT category, SUM(amount) as total FROM expenses where trip_id = :tripId GROUP BY category")
+    @Query("SELECT category, SUM(amount_in_trip_currency) as total FROM expenses where trip_id = :tripId GROUP BY category")
     fun getTotalByCategory(tripId: Int): Flow<List<CategoryTotal>>
 
     @Query("""
-    SELECT e.category, SUM(e.amount) as total 
+    SELECT e.category, SUM(e.amount_in_default_currency) as total
     FROM expenses e 
     INNER JOIN trips t ON e.trip_id = t.id 
     WHERE t.user_id = :userId 
     GROUP BY e.category
-    ORDER BY e.amount DESC
+    ORDER BY total DESC
     """)
     fun getTotalByCategoryForUser(userId: Int): Flow<List<CategoryTotal>>
 
     @Query("SELECT SUM(amount) FROM expenses WHERE trip_id = :tripId")
     suspend fun getTotalSpentForTrip(tripId: Int): Double?
+
+    @Query("SELECT SUM(amount_in_default_currency) FROM expenses where trip_id = :tripId")
+    suspend fun getTotalSpentInDefaultCurrencyForTrip(tripId: Int): Double?
+
+    @Query("SELECT * FROM expenses")
+    suspend fun getAllExpensesOnce(): List<Expense>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(expenses: List<Expense>)
 }

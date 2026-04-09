@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import com.example.travelapp.database.models.enums.icon
 @Composable
 fun ExpenseItem(
     expense: Expense,
+    tripCurrency: String,
     onDelete: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -66,15 +68,15 @@ fun ExpenseItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = expense.category.icon(),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(28.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -82,14 +84,14 @@ fun ExpenseItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(expense.category.displayName()),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
 
                 expense.description?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -99,7 +101,7 @@ fun ExpenseItem(
                 expense.date?.let {
                     Text(
                         text = it.toString(),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -108,10 +110,21 @@ fun ExpenseItem(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "%.2f %s".format(expense.amount, expense.currency),
+                    text = "%.2f %s".format(expense.amount, expense.currency),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
+
+                Box(modifier = Modifier.height(16.dp)) {
+                    if (expense.currency != tripCurrency) {
+                        Text(
+                            text = "≈ %.2f %s".format(expense.amountInTripCurrency, tripCurrency),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
                 IconButton(
                     onClick = { showDeleteDialog = true },
                     modifier = Modifier.size(24.dp)

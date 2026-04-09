@@ -62,4 +62,9 @@ object DatabaseModule {
     @Singleton
     fun provideExpenseDao(database: TravelDatabase) =
         database.expenseDao()
+
+    @Provides
+    @Singleton
+    fun provideCachedRateDao(database: TravelDatabase) =
+        database.cachedRateDao()
 }

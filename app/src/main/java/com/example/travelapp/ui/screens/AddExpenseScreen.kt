@@ -39,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,8 +75,12 @@ fun AddExpenseScreen(
     modifier: Modifier = Modifier,
     expenseViewModel: ExpenseViewModel = hiltViewModel()
 ) {
+    val tripCurrency = trip.currency
+
+    var convertedPreview by remember { mutableStateOf<Double?>(null) }
+
     var amount by remember { mutableStateOf("") }
-    var currency by remember { mutableStateOf("EUR") }
+    var currency by remember { mutableStateOf(tripCurrency) }
     var description by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(ExpenseCategory.FOOD) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
@@ -96,6 +101,14 @@ fun AddExpenseScreen(
             }
         }
     )
+
+    LaunchedEffect(amount, currency) {
+        val amt = amount.toDoubleOrNull()
+
+        if (amt != null) {
+            convertedPreview = expenseViewModel.convertToTripCurrency(amt, currency, tripCurrency)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -169,6 +182,15 @@ fun AddExpenseScreen(
                             placeholder = { Text(text = stringResource(R.string.eur)) },
                             singleLine = true,
                             modifier = Modifier.width(80.dp)
+                        )
+                    }
+
+                    if (currency != tripCurrency && convertedPreview != null) {
+                        Text(
+                            text = "≈ %.2f %s".format(convertedPreview, tripCurrency),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
@@ -294,7 +316,7 @@ fun AddExpenseScreen(
                 enabled = amount.toDoubleOrNull() != null && amount.isNotBlank(),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.save_expense))
+                Text(text = stringResource(R.string.save_expense))
             }
 
             Spacer(Modifier.height(8.dp))

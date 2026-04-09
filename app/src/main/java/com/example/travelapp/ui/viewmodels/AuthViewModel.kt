@@ -1,12 +1,21 @@
 package com.example.travelapp.ui.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.database.repositories.UserRepository
 import com.example.travelapp.session.SessionManager
 import com.example.travelapp.session.ThemePreference
+import com.example.travelapp.worker.CurrencySyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,13 +48,17 @@ data class AuthUiState(
 class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val tripRepository: TripRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     val themePreference: StateFlow<ThemePreference> = sessionManager.themePreference
         .stateIn(viewModelScope, SharingStarted.Eagerly, ThemePreference.SYSTEM)
+
+    val defaultCurrency: StateFlow<String> = sessionManager.defaultCurrency
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "EUR")
 
     init {
         viewModelScope.launch {
@@ -217,6 +230,30 @@ class AuthViewModel @Inject constructor(
                 isLoggedIn = false
             )
         }
+    }
+
+    /**
+     * Sets the selected currency as default and saves it to the DataStore
+     *
+     * @param currency Selected currency to be set as default
+     */
+    fun setDefaultCurrency(currency: String) = viewModelScope.launch {
+        sessionManager.saveDefaultCurrency(currency)
+
+        val syncRequest = OneTimeWorkRequestBuilder<CurrencySyncWorker>()
+            .setInputData(workDataOf("NEW_CURRENCY" to currency))
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED) // Needs internet for rates
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "currency_sync",
+            ExistingWorkPolicy.REPLACE,
+            syncRequest
+        )
     }
 
     /**

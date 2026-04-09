@@ -45,6 +45,9 @@ class SessionManager @Inject constructor(
         /** DataStore key for storing the logged-in user's profile picture path */
         val KEY_PROFILE_PICTURE = stringPreferencesKey("profile_picture_path")
 
+        /** DataStore key for storing the logged-in user's default currency */
+        val KEY_DEFAULT_CURRENCY = stringPreferencesKey("default_currency")
+
         /** DataStore key for storing the theme preference */
         val KEY_THEME = stringPreferencesKey("theme")
     }
@@ -68,6 +71,10 @@ class SessionManager @Inject constructor(
     /** Emits the currently logged-in user's profile picture path, or null if no session exists. */
     val loggedInUserProfilePicture: Flow<String?> = context.dataStore.data
         .map { it[KEY_PROFILE_PICTURE] }
+
+    /** Emits the currently logged-in user's default currency, or null if no session exists. */
+    val defaultCurrency: Flow<String> = context.dataStore.data
+        .map { it[KEY_DEFAULT_CURRENCY] ?: "EUR" }
 
     /** Emits the current theme preference */
     val themePreference: Flow<ThemePreference> = context.dataStore.data
@@ -107,6 +114,18 @@ class SessionManager @Inject constructor(
             else {
                 prefs.remove(KEY_PROFILE_PICTURE)
             }
+        }
+    }
+
+    /**
+     *
+     * Persists the default currency session data to DataStore.
+     *
+     * @param currency Selected currency preference
+     */
+    suspend fun saveDefaultCurrency(currency: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_DEFAULT_CURRENCY] = currency
         }
     }
 

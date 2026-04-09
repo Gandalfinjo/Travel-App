@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.ExpenseCategory
 import com.example.travelapp.database.models.enums.displayName
 import com.example.travelapp.database.models.enums.icon
@@ -59,6 +60,7 @@ import com.example.travelapp.ui.viewmodels.ExpenseViewModel
 @Composable
 fun ExpenseScreen(
     tripId: Int,
+    trip: Trip,
     onBackClick: () -> Unit,
     onAddExpenseClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -144,7 +146,7 @@ fun ExpenseScreen(
                         Spacer(Modifier.height(4.dp))
 
                         Text(
-                            "%.2f".format(uiState.totalSpent),
+                            "${"%.2f".format(uiState.totalSpent)} ${trip.currency}",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -182,7 +184,7 @@ fun ExpenseScreen(
                                     }
 
                                     Text(
-                                        "%.2f".format(categoryTotal.total),
+                                        text = "${"%.2f".format(categoryTotal.total)} ${trip.currency}",
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -254,6 +256,7 @@ fun ExpenseScreen(
                 items(uiState.expenses, key = { it.id }) { expense ->
                     ExpenseItem(
                         expense = expense,
+                        tripCurrency = trip.currency,
                         onDelete = { expenseViewModel.deleteExpense(expense) }
                     )
                 }

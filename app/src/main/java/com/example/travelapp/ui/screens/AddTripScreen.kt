@@ -65,6 +65,7 @@ import com.example.travelapp.database.models.enums.TransportType
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import com.example.travelapp.ui.theme.TravelAppTheme
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -90,6 +91,8 @@ fun AddTripScreen(
     val authUiState by authViewModel.uiState.collectAsState()
     val uiState by tripViewModel.uiState.collectAsState()
 
+    val defaultAppCurrency by authViewModel.defaultCurrency.collectAsState()
+
     var name by remember { mutableStateOf(prefillName ?: "") }
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf(prefillDestination ?: "") }
@@ -102,7 +105,7 @@ fun AddTripScreen(
         )
     }
     var budget by remember { mutableStateOf(prefillBudget?.takeIf { it.isNotBlank() } ?: "") }
-    var currency by remember { mutableStateOf(prefillCurrency?.takeIf { it.isNotBlank() } ?: "EUR") }
+    var currency by remember { mutableStateOf(prefillCurrency?.takeIf { it.isNotBlank() } ?: defaultAppCurrency) }
     var startDate by remember { mutableStateOf<Long?>(null) }
     var endDate by remember { mutableStateOf<Long?>(null) }
 

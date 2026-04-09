@@ -1,5 +1,6 @@
 package com.example.travelapp.database.repositories
 
+import com.example.travelapp.api.repositories.CurrencyRepository
 import com.example.travelapp.database.dao.ExpenseDao
 import com.example.travelapp.database.models.CategoryTotal
 import com.example.travelapp.database.models.Expense
@@ -15,7 +16,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class ExpenseRepository @Inject constructor(
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val currencyRepository: CurrencyRepository
 ) {
     /**
      * Adds a new expense to the database.
@@ -88,4 +90,33 @@ class ExpenseRepository @Inject constructor(
      */
     suspend fun getTotalSpentForTrip(tripId: Int): Double =
         expenseDao.getTotalSpentForTrip(tripId) ?: 0.0
+
+    /**
+     * Gets the total amount spent for a specific trip in the app's default currency.
+     *
+     * @param tripId ID of the trip for which to retrieve the amount spent
+     * @return Total amount spent or 0.0
+     */
+    suspend fun getTotalSpentInDefaultCurrencyForTrip(tripId: Int): Double =
+        expenseDao.getTotalSpentInDefaultCurrencyForTrip(tripId) ?: 0.0
+
+    /**
+     * Recalculates the expense amounts in the new default currency
+     *
+     * @param newDefaultCurrency The new currency in which the amounts should be recalculated
+     */
+    suspend fun recalculateGlobalSnapshots(newDefaultCurrency: String) {
+        val allExpenses = expenseDao.getAllExpensesOnce()
+
+        val updatedExpenses = allExpenses.map { expense ->
+            val newSnapshot = currencyRepository.convert(
+                amount = expense.amount,
+                from = expense.currency,
+                to = newDefaultCurrency
+            )
+            expense.copy(amountInDefaultCurrency = newSnapshot)
+        }
+
+        expenseDao.insertAll(updatedExpenses)
+    }
 }
