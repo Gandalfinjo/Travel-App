@@ -42,6 +42,15 @@ class PhotoViewModel @Inject constructor(
         photoRepository.getTripPhotos(tripId)
 
     /**
+     * Updates the specified photo.
+     *
+     * @param photo Photo to update
+     */
+    fun updatePhoto(photo: Photo) = viewModelScope.launch {
+        photoRepository.updatePhoto(photo)
+    }
+
+    /**
      * Deletes the specified photo from the app.
      *
      * @param photo Photo to delete

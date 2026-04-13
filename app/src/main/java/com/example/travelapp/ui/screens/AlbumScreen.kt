@@ -30,12 +30,14 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AlertDialog
@@ -47,6 +49,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -68,6 +71,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -385,6 +389,11 @@ fun AlbumScreen(
         var showDeleteDialog by remember { mutableStateOf(false) }
         var savedToGallery by remember(dialogPagerState.currentPage) { mutableStateOf(false) }
 
+        var isEditingDescription by remember { mutableStateOf(false) }
+        var descriptionDraft by remember(dialogPagerState.currentPage) {
+            mutableStateOf(currentPhoto.description ?: "")
+        }
+
         Dialog(
             onDismissRequest = { selectedPhotoIndex = null },
             properties = DialogProperties(
@@ -408,11 +417,29 @@ fun AlbumScreen(
                     modifier = Modifier.fillMaxSize(),
                     userScrollEnabled = !isZoomed
                 ) { page ->
-                    ZoomableImage(
-                        model = photos[page].filePath.toUri(),
-                        modifier = Modifier.fillMaxSize(),
-                        onScaleChanged = { isZoomed = it > 1f }
-                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        ZoomableImage(
+                            model = photos[page].filePath.toUri(),
+                            modifier = Modifier.fillMaxSize(),
+                            onScaleChanged = { isZoomed = it > 1f }
+                        )
+
+                        photos[page].description?.takeIf { it.isNotBlank() }?.let { caption ->
+                            Text(
+                                text = caption,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 90.dp)
+                                    .background(
+                                        color = Color.Black.copy(alpha = 0.4f),
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
                 }
 
                 Row(
@@ -459,7 +486,8 @@ fun AlbumScreen(
                     if (isCameraPhoto) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             IconButton(
                                 onClick = {
@@ -518,7 +546,8 @@ fun AlbumScreen(
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         IconButton(
                             onClick = { showDeleteDialog = true },
@@ -536,6 +565,32 @@ fun AlbumScreen(
 
                         Text(
                             text = stringResource(R.string.delete),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White
+                        )
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        IconButton(
+                            onClick = { isEditingDescription = true },
+                            modifier = Modifier.background(
+                                color = Color.White.copy(alpha = 0.2f),
+                                shape = CircleShape
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.edit_description),
+                                tint = Color.White
+                            )
+                        }
+
+                        Text(
+                            text = stringResource(R.string.caption),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White
                         )
@@ -569,6 +624,36 @@ fun AlbumScreen(
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
                         Text(text = stringResource(R.string.no))
+                    }
+                }
+            )
+        }
+
+        if (isEditingDescription) {
+            AlertDialog(
+                onDismissRequest = { isEditingDescription = false },
+                title = { Text(text = stringResource(R.string.edit_caption)) },
+                text = {
+                    OutlinedTextField(
+                        value = descriptionDraft,
+                        onValueChange = { descriptionDraft = it },
+                        placeholder = { Text(text = stringResource(R.string.describe_this_moment)) },
+                        maxLines = 4,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        photoViewModel.updatePhoto(currentPhoto.copy(description = descriptionDraft))
+                        isEditingDescription = false
+                    }) { Text(text = stringResource(R.string.save)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { isEditingDescription = false }) {
+                        Text(text = stringResource(R.string.cancel))
                     }
                 }
             )

@@ -228,4 +228,8 @@
     <string name="remove_photo">Remove photo</string>
     <string name="no_statistics_yet">No statistics yet</string>
     <string name="add_trips_to_see_statistics">Add trips to see statistics</string>
+    <string name="edit_description">Edit description</string>
+    <string name="caption">Caption</string>
+    <string name="describe_this_moment">Describe this moment</string>
+    <string name="edit_caption">Edit caption</string>
 </resources>

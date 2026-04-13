@@ -52,7 +52,7 @@ import com.example.travelapp.database.models.User
         Expense::class,
         CachedRate::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class TravelDatabase : RoomDatabase() {
@@ -82,7 +82,7 @@ abstract class TravelDatabase : RoomDatabase() {
                     context.applicationContext,
                     TravelDatabase::class.java,
                     "travel_database"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8).build()
 
                 INSTANCE = instance
 
@@ -212,13 +212,23 @@ abstract class TravelDatabase : RoomDatabase() {
 
         /**
          * Migration from database version 6 to 7.
-         * Adds amount_in_trip_currency and amount_in_default_currency fields to expenses table.
+         * Adds amount_in_trip_currency and amount_in_default_currency columns to expenses table.
          */
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE expenses ADD COLUMN amount_in_trip_currency REAL NOT NULL DEFAULT 0.0")
                 db.execSQL("ALTER TABLE expenses ADD COLUMN amount_in_default_currency REAL NOT NULL DEFAULT 0.0")
                 db.execSQL("UPDATE expenses SET amount_in_trip_currency = amount, amount_in_default_currency = amount")
+            }
+        }
+
+        /**
+         * Migration from database version 7 to 8.
+         * Adds description column to photos table.
+         */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE photos ADD COLUMN description TEXT")
             }
         }
     }

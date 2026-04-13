@@ -28,6 +28,7 @@ data class Photo(
     @ColumnInfo(name = "date_taken") val dateTaken: Long? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val description: String? = null,
     @ColumnInfo(name = "trip_id") val tripId: Int,
     @ColumnInfo(name = "place_id") val placeId: Int? = null
 )

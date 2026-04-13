@@ -228,4 +228,8 @@
     <string name="remove_photo">Ukloni fotografiju</string>
     <string name="no_statistics_yet">Nema statistike još uvek</string>
     <string name="add_trips_to_see_statistics">Dodaj putovanja da vidiš statistiku</string>
+    <string name="edit_description">Izmeni opis</string>
+    <string name="caption">Opis</string>
+    <string name="describe_this_moment">Opiši ovaj trenutak</string>
+    <string name="edit_caption">Izmeni opis</string>
 </resources>
