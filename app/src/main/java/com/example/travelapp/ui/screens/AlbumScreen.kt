@@ -53,6 +53,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,6 +78,7 @@ import coil.compose.AsyncImage
 import com.example.travelapp.R
 import com.example.travelapp.database.models.Photo
 import com.example.travelapp.database.models.enums.TripStatus
+import com.example.travelapp.ui.elements.ZoomableImage
 import com.example.travelapp.ui.viewmodels.PhotoViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.io.File
@@ -389,6 +391,12 @@ fun AlbumScreen(
                 usePlatformDefaultWidth = false
             )
         ) {
+            var isZoomed by remember { mutableStateOf(false) }
+
+            LaunchedEffect(dialogPagerState.currentPage) {
+                isZoomed = false
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -397,13 +405,13 @@ fun AlbumScreen(
             ) {
                 HorizontalPager(
                     state = dialogPagerState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    userScrollEnabled = !isZoomed
                 ) { page ->
-                    AsyncImage(
+                    ZoomableImage(
                         model = photos[page].filePath.toUri(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        onScaleChanged = { isZoomed = it > 1f }
                     )
                 }
 
