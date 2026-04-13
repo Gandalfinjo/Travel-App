@@ -232,4 +232,8 @@
     <string name="caption">Caption</string>
     <string name="describe_this_moment">Describe this moment</string>
     <string name="edit_caption">Edit caption</string>
+    <string name="skip">Skip</string>
+    <string name="allow">Allow</string>
+    <string name="location_access">Location access</string>
+    <string name="location_rationale_message">Adding your location to photos helps you remember where each moment happened during your trip.</string>
 </resources>

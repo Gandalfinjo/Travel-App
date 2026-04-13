@@ -232,4 +232,8 @@
     <string name="caption">Opis</string>
     <string name="describe_this_moment">Opiši ovaj trenutak</string>
     <string name="edit_caption">Izmeni opis</string>
+    <string name="skip">Preskoči</string>
+    <string name="allow">Dozvoli</string>
+    <string name="location_access">Pristup lokaciji</string>
+    <string name="location_rationale_message">Dodavanje lokacije slikama ti pomaže da se setiš gde se dogodio svaki momenat tokom putovanja.</string>
 </resources>

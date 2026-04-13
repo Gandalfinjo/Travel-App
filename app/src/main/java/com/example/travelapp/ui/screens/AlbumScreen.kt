@@ -1,13 +1,12 @@
 package com.example.travelapp.ui.screens
 
-import android.content.ContentValues
+import android.Manifest
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -76,8 +75,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.travelapp.R
@@ -86,6 +87,11 @@ import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.ui.elements.ZoomableImage
 import com.example.travelapp.ui.viewmodels.PhotoViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -94,7 +100,7 @@ import java.util.Locale
 /**
  * Photo album screen for viewing and adding trip photos.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AlbumScreen(
     tripId: Int,
@@ -108,9 +114,14 @@ fun AlbumScreen(
     val pagerState = rememberPagerState(pageCount = { photos.size })
     val trip by tripViewModel.getTrip(tripId).collectAsState(initial = null)
 
+    val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
     var selectedPhotoIndex by remember { mutableStateOf<Int?>(null) }
 
     var cameraPhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val launchCamera by photoViewModel.launchCamera.collectAsState()
+    val resolvableException by photoViewModel.resolvableException.collectAsState()
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -133,10 +144,18 @@ fun AlbumScreen(
                 } else null
             } ?: System.currentTimeMillis()
 
+            val exif = context.contentResolver.openInputStream(uri)?.use { stream ->
+                ExifInterface(stream)
+            }
+
+            val latLong = exif?.latLong
+
             photoViewModel.addPhoto(Photo(
                 filePath = it.toString(),
                 tripId = tripId,
-                dateTaken = dateTaken
+                dateTaken = dateTaken,
+                latitude = latLong?.get(0),
+                longitude = latLong?.get(1)
             ))
         }
     }
@@ -146,12 +165,62 @@ fun AlbumScreen(
     ) { success: Boolean ->
         if (success) {
             cameraPhotoUri?.let { uri ->
-                photoViewModel.addPhoto(Photo(
-                    filePath = uri.toString(),
-                    tripId = tripId,
-                    dateTaken = System.currentTimeMillis()
-                ))
+                val hasPermission = ActivityCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (hasPermission) {
+                    LocationServices.getFusedLocationProviderClient(context).getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        null
+                    ).addOnSuccessListener { location ->
+                        photoViewModel.addPhoto(Photo(
+                            filePath = uri.toString(),
+                            tripId = tripId,
+                            dateTaken = System.currentTimeMillis(),
+                            latitude = location?.latitude,
+                            longitude = location?.longitude
+                        ))
+                    }
+                }
+                else {
+                    photoViewModel.addPhoto(
+                        Photo(
+                            filePath = uri.toString(),
+                            tripId = tripId,
+                            dateTaken = System.currentTimeMillis()
+                        )
+                    )
+                }
             }
+        }
+    }
+
+    val locationSettingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { _ ->
+        val file = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        cameraPhotoUri = uri
+        cameraLauncher.launch(uri)
+    }
+
+    LaunchedEffect(resolvableException) {
+        resolvableException?.let { exception ->
+            locationSettingsLauncher.launch(
+                IntentSenderRequest.Builder(exception.resolution.intentSender).build()
+            )
+            photoViewModel.clearResolvableException()
+        }
+    }
+
+    LaunchedEffect(launchCamera) {
+        if (launchCamera) {
+            val file = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+            cameraPhotoUri = uri
+            cameraLauncher.launch(uri)
+            photoViewModel.onCameraLaunched()
         }
     }
 
@@ -250,17 +319,12 @@ fun AlbumScreen(
 
                                 OutlinedButton(
                                     onClick = {
-                                        val file = File(
-                                            context.filesDir,
-                                            "photo_${System.currentTimeMillis()}.jpg"
-                                        )
-                                        val uri = FileProvider.getUriForFile(
-                                            context,
-                                            "${context.packageName}.provider",
-                                            file
-                                        )
-                                        cameraPhotoUri = uri
-                                        cameraLauncher.launch(uri)
+                                        if (locationPermission.status.isGranted) {
+                                            photoViewModel.checkLocationSettingsAndPrepareCamera()
+                                        }
+                                        else {
+                                            locationPermission.launchPermissionRequest()
+                                        }
                                     },
                                     enabled = canAddPhotos,
                                     modifier = Modifier.weight(1f),
@@ -404,7 +468,9 @@ fun AlbumScreen(
         val isCameraPhoto = currentPhoto.filePath.startsWith("content://${context.packageName}.provider")
 
         var showDeleteDialog by remember { mutableStateOf(false) }
-        var savedToGallery by remember(dialogPagerState.currentPage) { mutableStateOf(false) }
+
+        val savedPhotoIds by photoViewModel.savedPhotoIds.collectAsState()
+        val savedToGallery = savedPhotoIds.contains(currentPhoto.id)
 
         var isEditingDescription by remember { mutableStateOf(false) }
         var descriptionDraft by remember(dialogPagerState.currentPage) {
@@ -528,30 +594,10 @@ fun AlbumScreen(
                             IconButton(
                                 onClick = {
                                     if (!savedToGallery) {
-                                        val bitmap = ImageDecoder.decodeBitmap(
-                                            ImageDecoder.createSource(
-                                                context.contentResolver,
-                                                currentPhoto.filePath.toUri()
-                                            )
+                                        photoViewModel.savePhotoToGallery(
+                                            contentResolver = context.contentResolver,
+                                            photo = currentPhoto,
                                         )
-
-                                        val contentValues = ContentValues().apply {
-                                            put(MediaStore.Images.Media.DISPLAY_NAME, "travel_${System.currentTimeMillis()}.jpg")
-                                            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                                            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/TravelApp")
-                                        }
-
-                                        val uri = context.contentResolver.insert(
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                            contentValues
-                                        )
-
-                                        uri?.let {
-                                            context.contentResolver.openOutputStream(it)?.use { stream ->
-                                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                                            }
-                                            savedToGallery = true
-                                        }
                                     }
                                 },
                                 modifier = Modifier.background(

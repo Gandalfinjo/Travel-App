@@ -1,12 +1,34 @@
 package com.example.travelapp.ui.viewmodels
 
+import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.database.models.Photo
 import com.example.travelapp.database.repositories.PhotoRepository
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -17,8 +39,20 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PhotoViewModel @Inject constructor(
-    private val photoRepository: PhotoRepository
+    private val photoRepository: PhotoRepository,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
+    private val _savedPhotoIds = MutableStateFlow<Set<Int>>(emptySet())
+    val savedPhotoIds: StateFlow<Set<Int>> = _savedPhotoIds.asStateFlow()
+
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    private val _resolvableException = MutableStateFlow<ResolvableApiException?>(null)
+    val resolvableException: StateFlow<ResolvableApiException?> = _resolvableException.asStateFlow()
+
+    private val _launchCamera = MutableStateFlow(false)
+    val launchCamera: StateFlow<Boolean> = _launchCamera.asStateFlow()
+
     /**
      * Adds a new photo for a trip.
      *
@@ -57,5 +91,65 @@ class PhotoViewModel @Inject constructor(
      */
     fun deletePhoto(photo: Photo) = viewModelScope.launch {
         photoRepository.deletePhoto(photo)
+    }
+
+    fun clearResolvableException() {
+        _resolvableException.update { null }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun checkLocationSettingsAndPrepareCamera() {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
+        val settingsRequest = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .build()
+
+        LocationServices.getSettingsClient(context)
+            .checkLocationSettings(settingsRequest)
+            .addOnSuccessListener {
+                _launchCamera.update { true }
+            }
+            .addOnFailureListener { exception ->
+                if (exception is ResolvableApiException) {
+                    _resolvableException.update { exception }
+                }
+                else {
+                    _launchCamera.update { true }
+                }
+            }
+    }
+
+    fun onCameraLaunched() {
+        _launchCamera.update { false }
+    }
+
+    fun savePhotoToGallery(
+        contentResolver: ContentResolver,
+        photo: Photo
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        val bitmap = ImageDecoder.decodeBitmap(
+            ImageDecoder.createSource(contentResolver, photo.filePath.toUri())
+        )
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "travel_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/TravelApp")
+        }
+
+        val uri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+
+        uri?.let { uri ->
+            contentResolver.openOutputStream(uri)?.use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            }
+
+            withContext(Dispatchers.Main) {
+                _savedPhotoIds.update { it + photo.id }
+            }
+        }
     }
 }

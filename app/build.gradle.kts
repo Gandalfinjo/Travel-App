@@ -113,4 +113,7 @@ dependencies {
 
     // Session
     implementation(libs.datastore.preferences)
+
+    // Exif Interface
+    implementation(libs.androidx.exifinterface)
 }
