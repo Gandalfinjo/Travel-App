@@ -25,7 +25,7 @@ import androidx.room.PrimaryKey
 data class Photo(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "file_path") val filePath: String,
-    @ColumnInfo(name = "date_taken") val dateTaken: Long? = null,
+    @ColumnInfo(name = "date_taken") val dateTaken: Long,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val description: String? = null,

@@ -72,6 +72,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -86,6 +87,9 @@ import com.example.travelapp.ui.elements.ZoomableImage
 import com.example.travelapp.ui.viewmodels.PhotoViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Photo album screen for viewing and adding trip photos.
@@ -116,10 +120,23 @@ fun AlbumScreen(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
+
+            // Try to read the actual date taken from the photo metadata
+            val dateTaken = context.contentResolver.query(
+                uri,
+                arrayOf(MediaStore.Images.Media.DATE_TAKEN),
+                null, null, null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+                    if (index != -1) cursor.getLong(index) else null
+                } else null
+            } ?: System.currentTimeMillis()
+
             photoViewModel.addPhoto(Photo(
                 filePath = it.toString(),
                 tripId = tripId,
-                dateTaken = System.currentTimeMillis()
+                dateTaken = dateTaken
             ))
         }
     }
@@ -442,36 +459,55 @@ fun AlbumScreen(
                     }
                 }
 
-                Row(
+                Column(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .fillMaxWidth()
                         .background(Color.Black.copy(alpha = 0.4f))
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
                 ) {
-                    IconButton(
-                        onClick = { selectedPhotoIndex = null },
-                        modifier = Modifier.background(
-                            color = Color.Black.copy(alpha = 0.5f),
-                            shape = CircleShape
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.close),
-                            tint = Color.White
+                        IconButton(
+                            onClick = { selectedPhotoIndex = null },
+                            modifier = Modifier.background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = CircleShape
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.close),
+                                tint = Color.White
+                            )
+                        }
+
+                        Text(
+                            text = "${dialogPagerState.currentPage + 1} / ${photos.size}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White
                         )
+
+                        Spacer(Modifier.size(48.dp))
+                    }
+
+                    val formattedDate = remember(currentPhoto.dateTaken) {
+                        SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+                            .format(Date(currentPhoto.dateTaken))
                     }
 
                     Text(
-                        text = "${dialogPagerState.currentPage + 1} / ${photos.size}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White
+                        text = formattedDate,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
                     )
-
-                    Spacer(Modifier.size(48.dp))
                 }
 
                 Row(

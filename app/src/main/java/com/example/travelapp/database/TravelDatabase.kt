@@ -52,7 +52,7 @@ import com.example.travelapp.database.models.User
         Expense::class,
         CachedRate::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class TravelDatabase : RoomDatabase() {
@@ -82,7 +82,7 @@ abstract class TravelDatabase : RoomDatabase() {
                     context.applicationContext,
                     TravelDatabase::class.java,
                     "travel_database"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9).build()
 
                 INSTANCE = instance
 
@@ -229,6 +229,42 @@ abstract class TravelDatabase : RoomDatabase() {
         val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE photos ADD COLUMN description TEXT")
+            }
+        }
+
+        /**
+         * Migration from database version 8 to 9.
+         * Makes the dateTaken column of the photos table not nullable.
+         */
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("UPDATE photos SET date_taken = 0 WHERE date_taken IS NULL")
+                db.execSQL(
+                    """
+                    CREATE TABLE photos_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        file_path TEXT NOT NULL,
+                        date_taken INTEGER NOT NULL,
+                        latitude REAL,
+                        longitude REAL,
+                        description TEXT,
+                        trip_id INTEGER NOT NULL,
+                        place_id INTEGER,
+                        FOREIGN KEY(trip_id) REFERENCES trips(id) ON DELETE CASCADE,
+                        FOREIGN KEY(place_id) REFERENCES places(id) ON DELETE SET NULL
+                    )
+                    """.trimIndent()
+                )
+
+                db.execSQL(
+                    """
+                    INSERT INTO photos_new (id, file_path, date_taken, latitude, longitude, description, trip_id, place_id)
+                    SELECT id, file_path, date_taken, latitude, longitude, description, trip_id, place_id
+                    FROM photos
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE photos")
+                db.execSQL("ALTER TABLE photos_new RENAME TO photos")
             }
         }
     }
