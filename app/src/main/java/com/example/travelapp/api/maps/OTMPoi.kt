@@ -85,4 +85,3 @@ fun formatKinds(kinds: String, limit: Int = 2): String {
         .take(limit)
         .joinToString(", ")
 }
-
