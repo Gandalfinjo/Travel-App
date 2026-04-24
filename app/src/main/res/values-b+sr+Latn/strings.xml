@@ -236,4 +236,13 @@
     <string name="allow">Dozvoli</string>
     <string name="location_access">Pristup lokaciji</string>
     <string name="location_rationale_message">Dodavanje lokacije slikama ti pomaže da se setiš gde se dogodio svaki momenat tokom putovanja.</string>
+    <string name="location_available">Lokacija dostupna</string>
+    <string name="add_location">Dodaj lokaciju</string>
+    <string name="tap_map_to_set_location">Dodirni mapu da postaviš lokaciju</string>
+    <string name="confirm_location">Potvrdi lokaciju</string>
+    <string name="edit_location">Izmeni lokaciju</string>
+    <string name="type_location">Napiši lokaciju</string>
+    <string name="pick_on_map">Izaberi na mapi</string>
+    <string name="enter_location">Upiši lokaciju</string>
+    <string name="location_placeholder">Lokacija primer</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.osmdroid.util.GeoPoint
 import javax.inject.Inject
 
 /**
@@ -52,6 +54,14 @@ class PhotoViewModel @Inject constructor(
 
     private val _launchCamera = MutableStateFlow(false)
     val launchCamera: StateFlow<Boolean> = _launchCamera.asStateFlow()
+
+
+    private val locationCache = mutableMapOf<String, GeoPoint>()
+    private val _tripGeoPoint = MutableStateFlow<GeoPoint?>(null)
+    val tripGeoPoint: StateFlow<GeoPoint?> = _tripGeoPoint.asStateFlow()
+
+    private val _isGeocoding = MutableStateFlow(false)
+    val isGeocoding: StateFlow<Boolean> = _isGeocoding.asStateFlow()
 
     /**
      * Adds a new photo for a trip.
@@ -149,6 +159,47 @@ class PhotoViewModel @Inject constructor(
 
             withContext(Dispatchers.Main) {
                 _savedPhotoIds.update { it + photo.id }
+            }
+        }
+    }
+
+    fun resolveTripLocation(locationName: String?) {
+        if (locationName.isNullOrBlank()) {
+            _tripGeoPoint.value = null
+            return
+        }
+
+        locationCache[locationName]?.let {
+            _tripGeoPoint.value = it
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _isGeocoding.value = true
+
+            try {
+                val geocoder = Geocoder(context)
+                val results = geocoder.getFromLocationName(locationName, 1)
+
+                val geoPoint = if (!results.isNullOrEmpty()) {
+                    GeoPoint(results[0].latitude, results[0].longitude)
+                } else null
+
+                geoPoint?.let {
+                    locationCache[locationName] = it
+                }
+
+                withContext(Dispatchers.Main) {
+                    _tripGeoPoint.value = geoPoint
+                    _isGeocoding.value = false
+                }
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    _tripGeoPoint.value = null
+                    _isGeocoding.value = false
+                }
             }
         }
     }

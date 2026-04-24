@@ -236,4 +236,13 @@
     <string name="allow">Allow</string>
     <string name="location_access">Location access</string>
     <string name="location_rationale_message">Adding your location to photos helps you remember where each moment happened during your trip.</string>
+    <string name="location_available">Location available</string>
+    <string name="add_location">Add location</string>
+    <string name="tap_map_to_set_location">Tap map to set location</string>
+    <string name="confirm_location">Confirm Location</string>
+    <string name="edit_location">Edit location</string>
+    <string name="type_location">Type location</string>
+    <string name="pick_on_map">Pick on map</string>
+    <string name="enter_location">Enter location</string>
+    <string name="location_placeholder">Location placeholder</string>
 </resources>
