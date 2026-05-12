@@ -61,7 +61,8 @@ fun TripDetailsScreen(
     tripId: Int,
     onBackClick: () -> Unit,
     onWeatherClick: (String) -> Unit,
-    onMapClick: () -> Unit,
+    onMapClick: (location: String, status: TripStatus) -> Unit,
+    onPhotoMapClick: (Int) -> Unit,
     onAlbumClick: (Int) -> Unit,
     onItineraryClick: (Int) -> Unit,
     onPackingClick: (Int) -> Unit,
@@ -155,15 +156,27 @@ fun TripDetailsScreen(
                         onClick = { onWeatherClick(trip!!.location) },
                         modifier = Modifier.weight(1f)
                     )
-                    TripActionCard(
-                        title = stringResource(R.string.map),
-                        subtitle = stringResource(R.string.nearby_places),
-                        icon = Icons.Default.NearMe,
-                        iconBgColor = Color(0xFFE1F5EE),
-                        iconTintColor = Color(0xFF0F6E56),
-                        onClick = onMapClick,
-                        modifier = Modifier.weight(1f)
-                    )
+
+                    when (trip!!.status) {
+                        TripStatus.FINISHED -> TripActionCard(
+                            title = stringResource(R.string.photo_map),
+                            subtitle = stringResource(R.string.trip_memories),
+                            icon = Icons.Default.PhotoLibrary,
+                            iconBgColor = Color(0xFFE1F5EE),
+                            iconTintColor = Color(0xFF0F6E56),
+                            onClick = { onPhotoMapClick(tripId) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        else -> TripActionCard(
+                            title = stringResource(R.string.map),
+                            subtitle = stringResource(R.string.nearby_places),
+                            icon = Icons.Default.NearMe,
+                            iconBgColor = Color(0xFFE1F5EE),
+                            iconTintColor = Color(0xFF0F6E56),
+                            onClick = { onMapClick(trip!!.location, trip!!.status) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
 
@@ -190,6 +203,19 @@ fun TripDetailsScreen(
                         iconTintColor = Color(0xFF854F0B),
                         onClick = { onItineraryClick(tripId) },
                         modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            if (trip!!.status == TripStatus.ONGOING) {
+                item {
+                    TripActionRowCard(
+                        title = stringResource(R.string.photo_map),
+                        subtitle = stringResource(R.string.see_where_your_photos_were_taken),
+                        icon = Icons.Default.PhotoLibrary,
+                        iconBgColor = Color(0xFFE1F5EE),
+                        iconTintColor = Color(0xFF0F6E56),
+                        onClick = { onPhotoMapClick(tripId) }
                     )
                 }
             }

@@ -245,4 +245,10 @@
     <string name="pick_on_map">Pick on map</string>
     <string name="enter_location">Enter location</string>
     <string name="location_placeholder">Location placeholder</string>
+    <string name="explore_destination">Explore destination</string>
+    <string name="photo_map">Photo map</string>
+    <string name="trip_memories">Trip memories</string>
+    <string name="see_where_your_photos_were_taken">See where your photos were taken</string>
+    <string name="no_photos_on_map">No photos on map</string>
+    <string name="add_locations_to_photos_to_see_them_here">Add locations to photos to see them here</string>
 </resources>

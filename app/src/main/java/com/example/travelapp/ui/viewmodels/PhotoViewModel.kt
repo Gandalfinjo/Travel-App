@@ -63,6 +63,9 @@ class PhotoViewModel @Inject constructor(
     private val _isGeocoding = MutableStateFlow(false)
     val isGeocoding: StateFlow<Boolean> = _isGeocoding.asStateFlow()
 
+    private val _resolvedPhotos = MutableStateFlow<List<Photo>>(emptyList())
+    val resolvedPhotos: StateFlow<List<Photo>> = _resolvedPhotos
+
     /**
      * Adds a new photo for a trip.
      *
@@ -201,6 +204,39 @@ class PhotoViewModel @Inject constructor(
                     _isGeocoding.value = false
                 }
             }
+        }
+    }
+
+    fun resolvePhotoLocations(photos: List<Photo>) = viewModelScope.launch(Dispatchers.IO) {
+        val resolved = photos.map { photo ->
+            if (photo.latitude != null && photo.longitude != null) {
+                photo
+            }
+            else if (!photo.locationName.isNullOrBlank()) {
+                try {
+                    val geocoder = Geocoder(context)
+                    val results = geocoder.getFromLocationName(photo.locationName, 1)
+
+                    if (!results.isNullOrEmpty()) {
+                        photo.copy(
+                            latitude = results[0].latitude,
+                            longitude = results[0].longitude
+                        )
+                    }
+                    else photo
+                }
+                catch (e: Exception) {
+                    e.printStackTrace()
+                    photo
+                }
+            }
+            else {
+                photo
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            _resolvedPhotos.value = resolved
         }
     }
 }

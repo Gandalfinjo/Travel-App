@@ -65,6 +65,7 @@ import org.osmdroid.views.overlay.Marker
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
+    destinationLocation: String? = null,
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -94,7 +95,10 @@ fun MapScreen(
             context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
         )
 
-        if (locationPermission.status.isGranted) {
+        if (destinationLocation != null) {
+            mapViewModel.fetchLocationForDestination(destinationLocation)
+        }
+        else if (locationPermission.status.isGranted) {
             mapViewModel.onPermissionGranted()
             mapViewModel.fetchLocation()
         }
@@ -105,7 +109,10 @@ fun MapScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.map),
+                        text = if (destinationLocation != null)
+                            stringResource(R.string.explore_destination)
+                        else
+                            stringResource(R.string.map),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Medium,
                             brush = Brush.linearGradient(
@@ -133,7 +140,7 @@ fun MapScreen(
                 .clip(RoundedCornerShape(16.dp))
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         ) {
-            if (locationPermission.status.isGranted) {
+            if (locationPermission.status.isGranted || destinationLocation != null) {
                 AndroidView(
                     factory = { ctx ->
                         MapView(ctx).apply {
@@ -148,17 +155,19 @@ fun MapScreen(
                         val centerPoint = uiState.currentLocation ?: GeoPoint(44.8176, 20.4569)
                         mapView.controller.setCenter(centerPoint)
 
-                        uiState.currentLocation?.let { loc ->
-                            val userMarker = Marker(mapView)
-                            val locationBitmap = BitmapFactory.decodeResource(
-                                context.resources, R.drawable.ic_location
-                            )
-                            val scaledLocationBitmap = locationBitmap.scale(96, 96, false)
-                            userMarker.position = loc
-                            userMarker.title = context.getString(R.string.you_are_here)
-                            userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            userMarker.icon = scaledLocationBitmap.toDrawable(context.resources)
-                            mapView.overlays.add(userMarker)
+                        if (destinationLocation == null) {
+                            uiState.currentLocation?.let { loc ->
+                                val userMarker = Marker(mapView)
+                                val locationBitmap = BitmapFactory.decodeResource(
+                                    context.resources, R.drawable.ic_location
+                                )
+                                val scaledLocationBitmap = locationBitmap.scale(96, 96, false)
+                                userMarker.position = loc
+                                userMarker.title = context.getString(R.string.you_are_here)
+                                userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                userMarker.icon = scaledLocationBitmap.toDrawable(context.resources)
+                                mapView.overlays.add(userMarker)
+                            }
                         }
 
                         val markerBitmap = BitmapFactory.decodeResource(

@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.travelapp.R
+import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.navigation.AddExpenseDestination
 import com.example.travelapp.navigation.AddItineraryDestination
 import com.example.travelapp.navigation.AddPackingItemDestination
@@ -45,6 +46,7 @@ import com.example.travelapp.navigation.RegisterDestination
 import com.example.travelapp.navigation.StatisticsDestination
 import com.example.travelapp.navigation.TripDetailsDestination
 import com.example.travelapp.navigation.TripListDestination
+import com.example.travelapp.navigation.TripPhotoMapDestination
 import com.example.travelapp.navigation.WeatherDestination
 import com.example.travelapp.ui.screens.AddExpenseScreen
 import com.example.travelapp.ui.screens.AddItineraryScreen
@@ -64,6 +66,7 @@ import com.example.travelapp.ui.screens.RegisterScreen
 import com.example.travelapp.ui.screens.StatisticsScreen
 import com.example.travelapp.ui.screens.TripDetailsScreen
 import com.example.travelapp.ui.screens.TripListScreen
+import com.example.travelapp.ui.screens.TripPhotoMapScreen
 import com.example.travelapp.ui.screens.WeatherScreen
 import com.example.travelapp.ui.viewmodels.AuthViewModel
 import com.example.travelapp.ui.viewmodels.TripViewModel
@@ -143,7 +146,7 @@ fun TravelApp(
                         label = { Text(text = stringResource(R.string.trips)) }
                     )
                     NavigationBarItem(
-                        selected = currentRoute == MapDestination.route,
+                        selected = currentRoute == MapDestination.route || currentRoute.startsWith(MapDestination.route),
                         onClick = { navController.navigateToMapScreenFromDashboard() },
                         icon = {
                             Icon(
@@ -250,11 +253,14 @@ fun TravelApp(
                     tripId = tripId,
                     onBackClick = { navController.popBackStack() },
                     onWeatherClick = { location -> navController.navigateToWeatherScreen(location) },
-                    onMapClick = { navController.navigateToMapScreenFromTrip() },
+                    onMapClick = { location, status ->
+                        navController.navigateToMapScreenFromTrip(location, status)
+                    },
+                    onPhotoMapClick = { tripId -> navController.navigateToTripPhotoMap(tripId) },
                     onAlbumClick = { tripId -> navController.navigateToAlbumScreen(tripId) },
                     onItineraryClick = { tripId -> navController.navigateToItineraryScreen(tripId) },
                     onPackingClick = { tripId -> navController.navigateToPackingScreenFromTripDetails(tripId) },
-                    onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromTripDetailsScreen(tripId)},
+                    onExpensesClick = { tripId -> navController.navigateToExpenseScreenFromTripDetailsScreen(tripId) },
                     modifier = modifier
                 )
             }
@@ -272,9 +278,26 @@ fun TravelApp(
                 )
             }
 
-            composable(route = MapDestination.route) {
+            composable(
+                route = MapDestination.routeWithArgs,
+                arguments = MapDestination.arguments
+            ) { backStackEntry ->
+                val location = backStackEntry.arguments?.getString("location")
                 MapScreen(
                     modifier = modifier,
+                    destinationLocation = location?.ifBlank { null }
+                )
+            }
+
+            composable(
+                route = TripPhotoMapDestination.routeWithArgs,
+                arguments = TripPhotoMapDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+                TripPhotoMapScreen(
+                    tripId = tripId,
+                    modifier = modifier,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -532,7 +555,7 @@ private fun NavHostController.navigateToWeatherScreen(location: String) {
 }
 
 private fun NavHostController.navigateToMapScreenFromDashboard() {
-    this.navigate(MapDestination.route) {
+    this.navigate("${MapDestination.route}?location=") {
         launchSingleTop = true
         popUpTo(DashboardDestination.route) {
             inclusive = false
@@ -542,12 +565,23 @@ private fun NavHostController.navigateToMapScreenFromDashboard() {
     }
 }
 
-private fun NavHostController.navigateToMapScreenFromTrip() {
-    this.navigate(MapDestination.route) {
+private fun NavHostController.navigateToMapScreenFromTrip(location: String, status: TripStatus) {
+    val destination = when (status) {
+        TripStatus.PLANNED, TripStatus.CANCELLED ->
+            "${MapDestination.route}?location=${Uri.encode(location)}"
+        else ->
+            "${MapDestination.route}?location="
+    }
+    this.navigate(destination) {
         launchSingleTop = true
-        popUpTo(TripDetailsDestination.routeWithArgs) {
-            inclusive = false
-        }
+        popUpTo(TripDetailsDestination.routeWithArgs) { inclusive = false }
+    }
+}
+
+private fun NavHostController.navigateToTripPhotoMap(tripId: Int) {
+    this.navigate("${TripPhotoMapDestination.route}/$tripId") {
+        launchSingleTop = true
+        popUpTo(TripDetailsDestination.routeWithArgs) { inclusive = false }
     }
 }
 

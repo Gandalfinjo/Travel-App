@@ -2,6 +2,7 @@ package com.example.travelapp.ui.viewmodels
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.api.maps.OTMPoi
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.osmdroid.util.GeoPoint
 import javax.inject.Inject
 
@@ -90,5 +92,44 @@ class MapViewModel @Inject constructor(
                     _uiState.update { it.copy(resolvableException = exception) }
                 }
             }
+    }
+
+    fun fetchLocationForDestination(location: String) {
+        _uiState.update { it.copy(isFetchingLocation = true) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val geocoder = Geocoder(context)
+                val results = geocoder.getFromLocationName(location, 1)
+                if (!results.isNullOrEmpty()) {
+                    val lat = results[0].latitude
+                    val lon = results[0].longitude
+                    val geoPoint = GeoPoint(lat, lon)
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.update { it.copy(
+                            currentLocation = geoPoint,
+                            isFetchingLocation = false
+                        )}
+                    }
+
+                    fetchNearbyPOI(lat, lon) { pois ->
+                        _uiState.update { it.copy(pois = pois) }
+                    }
+                }
+                else {
+                    withContext(Dispatchers.Main) {
+                        _uiState.update { it.copy(isFetchingLocation = false) }
+                    }
+                }
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(isFetchingLocation = false) }
+                }
+            }
+        }
     }
 }
