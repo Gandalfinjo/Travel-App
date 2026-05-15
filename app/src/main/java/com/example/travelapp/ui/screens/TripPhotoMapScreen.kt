@@ -213,7 +213,6 @@ fun TripPhotoMapScreen(
                             setTileSource(TileSourceFactory.MAPNIK)
                             setMultiTouchControls(true)
                             controller.setZoom(12.0)
-                            // Center on the first mappable photo
                             mappablePhotos.first().let {
                                 controller.setCenter(GeoPoint(it.latitude!!, it.longitude!!))
                             }
