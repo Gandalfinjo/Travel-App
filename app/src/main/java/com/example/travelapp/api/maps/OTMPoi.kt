@@ -59,7 +59,8 @@ fun fetchNearbyPOI(lat: Double, lon: Double, onResult: (List<OTMPoi>) -> Unit) {
             Handler(Looper.getMainLooper()).post {
                 onResult(pois)
             }
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             e.printStackTrace()
         }
     }.start()
@@ -84,4 +85,21 @@ fun formatKinds(kinds: String, limit: Int = 2): String {
         }
         .take(limit)
         .joinToString(", ")
+}
+
+/**
+ * Checks if this Point of Interest matches a specific [PoiCategory].
+ *
+ * This method evaluates whether any of the category's defined tags match or are
+ * contained within the comma-separated kinds string of this POI.
+ *
+ * @param category The [PoiCategory] to check against.
+ * @return True if there is a category match, false otherwise.
+ */
+fun OTMPoi.matchesCategory(category: PoiCategory): Boolean {
+    val poiKinds = this.kinds.split(",").map { it.trim() }
+
+    return category.kinds.any { categoryKind ->
+        poiKinds.any { poiKind -> poiKind.contains(categoryKind) }
+    }
 }

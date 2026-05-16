@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOff
@@ -24,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +54,9 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
+import com.example.travelapp.api.maps.PoiCategory
 import com.example.travelapp.api.maps.formatKinds
+import com.example.travelapp.api.maps.matchesCategory
 import com.example.travelapp.ui.viewmodels.MapViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -141,6 +148,13 @@ fun MapScreen(
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         ) {
             if (locationPermission.status.isGranted || destinationLocation != null) {
+                val filteredPois = remember(uiState.pois, uiState.selectedCategories) {
+                    if (uiState.selectedCategories.isEmpty()) uiState.pois
+                    else uiState.pois.filter { poi ->
+                        uiState.selectedCategories.any { category -> poi.matchesCategory(category) }
+                    }
+                }
+
                 AndroidView(
                     factory = { ctx ->
                         MapView(ctx).apply {
@@ -175,7 +189,7 @@ fun MapScreen(
                         )
                         val scaledMarkerBitmap = markerBitmap.scale(96, 96, false)
 
-                        uiState.pois.forEach { poi ->
+                        filteredPois.forEach { poi ->
                             val poiMarker = Marker(mapView)
                             poiMarker.position = GeoPoint(poi.lat, poi.lon)
                             poiMarker.title = poi.name
@@ -189,6 +203,41 @@ fun MapScreen(
                     },
                     modifier = Modifier.fillMaxSize()
                 )
+
+                LazyRow(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedCategories.isEmpty(),
+                            onClick = {
+                                PoiCategory.entries.forEach {
+                                    if (it in uiState.selectedCategories) mapViewModel.toggleCategory(it)
+                                }
+                            },
+                            label = { Text("All") }
+                        )
+                    }
+                    items(PoiCategory.entries) { category ->
+                        FilterChip(
+                            selected = category in uiState.selectedCategories,
+                            onClick = { mapViewModel.toggleCategory(category) },
+                            label = { Text(category.label) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = category.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        )
+                    }
+                }
 
                 if (uiState.currentLocation == null) {
                     Box(

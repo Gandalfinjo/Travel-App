@@ -6,6 +6,7 @@ import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.api.maps.OTMPoi
+import com.example.travelapp.api.maps.PoiCategory
 import com.example.travelapp.api.maps.fetchNearbyPOI
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -29,9 +30,18 @@ data class MapUiState(
     val pois: List<OTMPoi> = emptyList(),
     val isFetchingLocation: Boolean = false,
     val isPermissionGranted: Boolean = false,
-    val resolvableException: ResolvableApiException? = null
+    val resolvableException: ResolvableApiException? = null,
+    val selectedCategories: Set<PoiCategory> = emptySet()
 )
 
+/**
+ * ViewModel responsible for managing map-related data and user interactions.
+ *
+ * Handles device location retrieval via Google Play Services, text-based forward geocoding,
+ * and delegates the fetching of nearby Points of Interest (POIs).
+ *
+ * @property context The application context used to initialize location services and the [Geocoder].
+ */
 @HiltViewModel
 class MapViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
@@ -42,14 +52,30 @@ class MapViewModel @Inject constructor(
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
+    /**
+     * Updates the UI state to reflect that location permissions have been successfully granted.
+     */
     fun onPermissionGranted() {
         _uiState.update { it.copy(isPermissionGranted = true) }
     }
 
+    /**
+     * Clears any active [ResolvableApiException] from the UI state once it has been handled or dismissed.
+     */
     fun clearResolvableException() {
         _uiState.update { it.copy(resolvableException = null) }
     }
 
+    /**
+     * Requests the physical device's current location.
+     *
+     * This method first verifies that the system location services meet the [Priority.PRIORITY_HIGH_ACCURACY]
+     * requirements. If successful, it fetches the coordinate boundary, updates [uiState], and triggers
+     * an asynchronous call to retrieve nearby POIs.
+     *
+     * If system settings need adjustments (e.g., GPS is turned off), a [ResolvableApiException] is captured
+     * in the UI state to allow the view layer to resolve it.
+     */
     @SuppressLint("MissingPermission")
     fun fetchLocation() {
         if (_uiState.value.currentLocation != null) return
@@ -94,6 +120,14 @@ class MapViewModel @Inject constructor(
             }
     }
 
+    /**
+     * Uses forward geocoding to resolve a textual description of a place (e.g., "Paris", "Central Park")
+     * into spatial coordinates, updates the map center, and fetches nearby POIs for that destination.
+     *
+     * Performs blocking network operations safely on [Dispatchers.IO].
+     *
+     * @param location The name or address string of the target destination.
+     */
     fun fetchLocationForDestination(location: String) {
         _uiState.update { it.copy(isFetchingLocation = true) }
 
@@ -130,6 +164,23 @@ class MapViewModel @Inject constructor(
                     _uiState.update { it.copy(isFetchingLocation = false) }
                 }
             }
+        }
+    }
+
+    /**
+     * Toggles the selection state of a [PoiCategory] filter.
+     *
+     * Adds the category to the filter list if it isn't already present, or removes it if it is.
+     *
+     * @param category The [PoiCategory] targeted for toggling.
+     */
+    fun toggleCategory(category: PoiCategory) {
+        _uiState.update { state ->
+            val updated = if (category in state.selectedCategories)
+                state.selectedCategories - category
+            else
+                state.selectedCategories + category
+            state.copy(selectedCategories = updated)
         }
     }
 }
