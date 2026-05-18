@@ -60,7 +60,7 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] to be added
      */
     fun addItem(item: ItineraryItem) = viewModelScope.launch {
-            itineraryRepository.addItem(item)
+        itineraryRepository.addItem(item)
     }
 
     /**
@@ -71,7 +71,7 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] with updated data
      */
     fun updateItem(item: ItineraryItem) = viewModelScope.launch {
-            itineraryRepository.updateItem(item)
+        itineraryRepository.updateItem(item)
     }
 
     /**
@@ -82,6 +82,6 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] to be deleted
      */
     fun deleteItem(item: ItineraryItem) = viewModelScope.launch {
-            itineraryRepository.deleteItem(item)
+        itineraryRepository.deleteItem(item)
     }
 }
