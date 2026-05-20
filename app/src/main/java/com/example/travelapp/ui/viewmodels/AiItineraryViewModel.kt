@@ -4,23 +4,32 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.R
+import com.example.travelapp.api.repositories.WikimediaRepository
 import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.repositories.ItineraryRepository
 import com.google.ai.client.generativeai.GenerativeModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeout
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 data class AiItineraryItem(
     val title: String,
     val description: String,
-    val isSelected: Boolean = false
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val isSelected: Boolean = false,
+    val imagePath: String? = null
 )
 
 data class AiItineraryUiState(
@@ -44,6 +53,7 @@ data class AiItineraryUiState(
 class AiItineraryViewModel @Inject constructor(
     private val generativeModel: GenerativeModel,
     private val itineraryRepository: ItineraryRepository,
+    private val wikimediaRepository: WikimediaRepository,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiItineraryUiState())
@@ -108,18 +118,22 @@ class AiItineraryViewModel @Inject constructor(
                 For each activity provide:
                 1. Short title (max 5 words)
                 2. Brief description (1-2 sentences)
+                3. Coordinates (latitude and longitude) of the exact location
                 
                 Format your response EXACTLY like this:
                 TITLE: [title]
                 DESCRIPTION: [description]
+                LAT: [latitude as decimal number]
+                LNG: [longitude as decimal number]
                 ---
                 (repeat for each activity)
             """.trimIndent()
 
             val response = generativeModel.generateContent(prompt)
             val suggestions = parseResponse(response.text ?: "")
+            val enriched = enrichSuggestionsWithMedia(suggestions, tripLocation)
 
-            _uiState.update { it.copy(isLoading = false, suggestions = suggestions) }
+            _uiState.update { it.copy(isLoading = false, suggestions = enriched) }
         }
         catch (e: Exception) {
             _uiState.update {
@@ -149,7 +163,9 @@ class AiItineraryViewModel @Inject constructor(
                     tripId = tripId,
                     date = date,
                     title = item.title,
-                    description = item.description.ifBlank { null }
+                    description = item.description.ifBlank { null },
+                    latitude = item.latitude,
+                    longitude = item.longitude
                 )
             )
         }
@@ -177,6 +193,8 @@ class AiItineraryViewModel @Inject constructor(
             val lines = block.lines().map { it.trim() }.filter { it.isNotEmpty() }
             var title = ""
             var description = ""
+            var latitude: Double? = null
+            var longitude: Double? = null
 
             for (line in lines) {
                 when {
@@ -184,14 +202,43 @@ class AiItineraryViewModel @Inject constructor(
                         title = line.substringAfter(":").trim()
                     line.startsWith("DESCRIPTION:", ignoreCase = true) ->
                         description = line.substringAfter(":").trim()
+                    line.startsWith("LAT:", ignoreCase = true) ->
+                        latitude = line.substringAfter(":").trim().toDoubleOrNull()
+                    line.startsWith("LNG:", ignoreCase = true) ->
+                        longitude = line.substringAfter(":").trim().toDoubleOrNull()
                 }
             }
 
             if (title.isNotEmpty()) {
-                items.add(AiItineraryItem(title, description))
+                items.add(AiItineraryItem(title, description, latitude, longitude))
             }
         }
 
         return items
+    }
+
+    private suspend fun enrichSuggestionsWithMedia(
+        suggestions: List<AiItineraryItem>,
+        tripLocation: String
+    ): List<AiItineraryItem> = supervisorScope {
+        suggestions.map { item ->
+            async {
+                try {
+                    withTimeout(15_000L) {
+                        val (imagePath, _) = wikimediaRepository.fetchImageAndCoordinates(
+                            query = "${item.title} $tripLocation"
+                        )
+
+                        item.copy(imagePath = imagePath)
+                    }
+                }
+                catch (e: CancellationException) {
+                    throw e
+                }
+                catch (_: Exception) {
+                    item
+                }
+            }
+        }.awaitAll()
     }
 }
