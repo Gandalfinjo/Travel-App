@@ -22,4 +22,7 @@ interface ItineraryDao {
 
     @Delete
     suspend fun delete(item: ItineraryItem)
+
+    @Query("SELECT * FROM itinerary_items WHERE id = :itemId")
+    fun getItemById(itemId: Int): Flow<ItineraryItem?>
 }

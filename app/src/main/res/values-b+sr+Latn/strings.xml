@@ -245,4 +245,15 @@
     <string name="pick_on_map">Izaberi na mapi</string>
     <string name="enter_location">Upiši lokaciju</string>
     <string name="location_placeholder">Lokacija primer</string>
+    <string name="explore_destination">Istraži destinaciju</string>
+    <string name="photo_map">Mapa fotografija</string>
+    <string name="trip_memories">Uspomene sa putovanja</string>
+    <string name="see_where_your_photos_were_taken">Pogledaj gde su tvoje fotografije nastale</string>
+    <string name="no_photos_on_map">Nema forografija na mapi</string>
+    <string name="add_locations_to_photos_to_see_them_here">Dodaj lokacije na fotografije da ih vidiš ovde</string>
+    <string name="completed">Završeno</string>
+    <string name="pending">Neodrađeno</string>
+    <string name="mark_as_undone">Označi kao završeno</string>
+    <string name="mark_as_done">Označi kao nezavršeno</string>
+    <string name="are_you_sure_you_want_to_delete_this_cannot_be_undone">Da li ste sigurni da želite da obrišete \"%1$s\"? Ova radnja se ne može opozvati.</string>
 </resources>

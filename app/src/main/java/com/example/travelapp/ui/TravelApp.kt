@@ -38,6 +38,7 @@ import com.example.travelapp.navigation.AlbumDestination
 import com.example.travelapp.navigation.DashboardDestination
 import com.example.travelapp.navigation.ExpenseDestination
 import com.example.travelapp.navigation.ItineraryDestination
+import com.example.travelapp.navigation.ItineraryItemDestination
 import com.example.travelapp.navigation.LoginDestination
 import com.example.travelapp.navigation.MapDestination
 import com.example.travelapp.navigation.PackingDestination
@@ -57,6 +58,7 @@ import com.example.travelapp.ui.screens.AiSuggestionsScreen
 import com.example.travelapp.ui.screens.AlbumScreen
 import com.example.travelapp.ui.screens.DashboardScreen
 import com.example.travelapp.ui.screens.ExpenseScreen
+import com.example.travelapp.ui.screens.ItineraryItemScreen
 import com.example.travelapp.ui.screens.ItineraryScreen
 import com.example.travelapp.ui.screens.LoginScreen
 import com.example.travelapp.ui.screens.MapScreen
@@ -326,6 +328,21 @@ fun TravelApp(
                     onBackClick = { navController.popBackStack() },
                     onAddItemClick = { tripId -> navController.navigateToAddItineraryScreen(tripId) },
                     onAiItineraryClick = { navController.navigateToAiItineraryScreen(tripId) },
+                    onItemClick = { tripId, itemId -> navController.navigateToItineraryItemScreen(tripId, itemId) }
+                )
+            }
+
+            composable(
+                route = ItineraryItemDestination.routeWithArgs,
+                arguments = ItineraryItemDestination.arguments
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getInt("tripId") ?: return@composable
+                val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+
+                ItineraryItemScreen(
+                    itemId = itemId,
+                    tripId = tripId,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -598,6 +615,15 @@ private fun NavHostController.navigateToItineraryScreen(tripId: Int) {
     this.navigate("${ItineraryDestination.route}/$tripId") {
         launchSingleTop = true
         popUpTo(TripDetailsDestination.routeWithArgs) {
+            inclusive = false
+        }
+    }
+}
+
+private fun NavHostController.navigateToItineraryItemScreen(tripId: Int, itemId: Int) {
+    this.navigate("${ItineraryItemDestination.route}/$tripId/$itemId") {
+        launchSingleTop = true
+        popUpTo(ItineraryItemDestination.routeWithArgs) {
             inclusive = false
         }
     }

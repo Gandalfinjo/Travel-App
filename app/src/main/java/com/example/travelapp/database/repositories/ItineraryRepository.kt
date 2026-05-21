@@ -22,7 +22,7 @@ class ItineraryRepository @Inject constructor(
      * @return Flow emitting the list of itinerary items
      */
     fun getItemsForTrip(tripId: Int): Flow<List<ItineraryItem>> =
-    itineraryDao.getItineraryItemsByTripId(tripId)
+        itineraryDao.getItineraryItemsByTripId(tripId)
 
     /**
      * Adds a new itinerary item to the database.
@@ -47,4 +47,12 @@ class ItineraryRepository @Inject constructor(
      */
     suspend fun deleteItem(item: ItineraryItem) =
         itineraryDao.delete(item)
+
+    /**
+     * Retrieves an itinerary item for the provided id
+     *
+     * @param itemId ID of the itinerary item
+     * @return Flow emitting the itinerary item
+     */
+    fun getItemById(itemId: Int): Flow<ItineraryItem?> = itineraryDao.getItemById(itemId)
 }

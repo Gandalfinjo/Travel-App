@@ -251,4 +251,9 @@
     <string name="see_where_your_photos_were_taken">See where your photos were taken</string>
     <string name="no_photos_on_map">No photos on map</string>
     <string name="add_locations_to_photos_to_see_them_here">Add locations to photos to see them here</string>
+    <string name="completed">Completed</string>
+    <string name="pending">Pending</string>
+    <string name="mark_as_undone">Mark as Undone</string>
+    <string name="mark_as_done">Mark as Done</string>
+    <string name="are_you_sure_you_want_to_delete_this_cannot_be_undone">Are you sure you want to delete \"%1$s\"? This cannot be undone.</string>
 </resources>

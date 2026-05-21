@@ -77,6 +77,7 @@ fun ItineraryScreen(
     onBackClick: () -> Unit,
     onAddItemClick: (Int) -> Unit,
     onAiItineraryClick: (Int) -> Unit,
+    onItemClick: (tripId: Int, itemId: Int) -> Unit,
     tripViewModel: TripViewModel = hiltViewModel(),
     itineraryViewModel: ItineraryViewModel = hiltViewModel()
 ) {
@@ -299,7 +300,9 @@ fun ItineraryScreen(
                                     width = 0.5.dp,
                                     color = MaterialTheme.colorScheme.outlineVariant
                                 ),
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onItemClick(tripId, itineraryItem.id) }
                             ) {
                                 Row(
                                     modifier = Modifier.padding(16.dp),

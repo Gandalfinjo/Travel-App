@@ -1,15 +1,20 @@
 package com.example.travelapp.ui.viewmodels
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.travelapp.api.repositories.LocationRepository
+import com.example.travelapp.api.repositories.LocationResult
 import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.repositories.ItineraryRepository
+import com.example.travelapp.database.repositories.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.osmdroid.util.GeoPoint
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -27,10 +32,29 @@ data class ItineraryUiState(
  */
 @HiltViewModel
 class ItineraryViewModel @Inject constructor(
-    private val itineraryRepository: ItineraryRepository
+    private val itineraryRepository: ItineraryRepository,
+    private val tripRepository: TripRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ItineraryUiState())
     val uiState: StateFlow<ItineraryUiState> = _uiState.asStateFlow()
+
+    private val _currentLocation = MutableStateFlow<GeoPoint?>(null)
+    val currentLocation: StateFlow<GeoPoint?> = _currentLocation.asStateFlow()
+
+    fun getTrip(tripId: Int) =
+        tripRepository.getTrip(tripId)
+
+    @SuppressLint("MissingPermission")
+    fun fetchLocation() {
+        if (_currentLocation.value != null) return
+        viewModelScope.launch {
+            val result = locationRepository.checkSettingsAndGetLocation()
+            if (result is LocationResult.Success) {
+                _currentLocation.update { result.geoPoint }
+            }
+        }
+    }
 
     /**
      * Loads all itinerary items for the specified trip and groups them by date.
@@ -84,4 +108,13 @@ class ItineraryViewModel @Inject constructor(
     fun deleteItem(item: ItineraryItem) = viewModelScope.launch {
         itineraryRepository.deleteItem(item)
     }
+
+    /**
+     * Retrieves an itinerary item.
+     *
+     * Gets the item based on the provided id using [ItineraryRepository].
+     *
+     * @param itemId ID of the item to retrieve
+     */
+    fun getItem(itemId: Int) = itineraryRepository.getItemById(itemId)
 }

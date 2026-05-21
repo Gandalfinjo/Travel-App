@@ -153,6 +153,19 @@ object ItineraryDestination : NavigationDestination {
 }
 
 /**
+ * Itinerary item screen destination.
+ * Requires itemId parameter.
+ */
+object ItineraryItemDestination : NavigationDestination {
+    override val route = "itinerary_item"
+    val arguments = listOf(
+        navArgument("tripId") { type = NavType.IntType },
+        navArgument("itemId") { type = NavType.IntType }
+    )
+    val routeWithArgs = "$route/{tripId}/{itemId}"
+}
+
+/**
  * Add itinerary item screen destination.
  * Requires tripId parameter.
  */
