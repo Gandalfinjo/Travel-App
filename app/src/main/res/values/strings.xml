@@ -257,4 +257,5 @@
     <string name="mark_as_done">Mark as Done</string>
     <string name="are_you_sure_you_want_to_delete_this_cannot_be_undone">Are you sure you want to delete \"%1$s\"? This cannot be undone.</string>
     <string name="photo">Photo</string>
+    <string name="replace_photo">Replace photo</string>
 </resources>

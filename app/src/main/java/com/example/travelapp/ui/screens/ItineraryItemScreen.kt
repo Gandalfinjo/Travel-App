@@ -2,7 +2,11 @@ package com.example.travelapp.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,9 +30,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -65,8 +71,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -176,6 +184,30 @@ fun ItineraryItemScreen(
             val itineraryItem = item!!
 
             val scrollState = rememberScrollState()
+
+            var cameraPhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+            val galleryLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let {
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                    viewModel.updateItem(itineraryItem.copy(imagePath = it.toString()))
+                }
+            }
+
+            val cameraLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.TakePicture()
+            ) { success: Boolean ->
+                if (success) {
+                    cameraPhotoUri?.let { uri ->
+                        viewModel.updateItem(itineraryItem.copy(imagePath = uri.toString()))
+                    }
+                }
+            }
 
             Column(
                 modifier = modifier
@@ -292,16 +324,18 @@ fun ItineraryItemScreen(
                     }
                 }
 
-                itineraryItem.imagePath?.let { path ->
-                    Text(
-                        text = stringResource(R.string.photo),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                val canAddPhoto = itineraryItem.isDone
 
+                Text(
+                    text = stringResource(R.string.photo),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                itineraryItem.imagePath?.let { path ->
                     AsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(File(path))
+                            .data(if (path.startsWith("content://")) path.toUri() else File(path))
                             .crossfade(true)
                             .build(),
                         contentDescription = itineraryItem.title,
@@ -316,6 +350,59 @@ fun ItineraryItemScreen(
                                 shape = RoundedCornerShape(16.dp)
                             )
                     )
+                }
+
+                if (canAddPhoto) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = { galleryLauncher.launch("image/*") },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PhotoLibrary,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+
+                            Spacer(Modifier.width(6.dp))
+
+                            Text(
+                                text = if (itineraryItem.imagePath != null)
+                                    stringResource(R.string.replace_photo)
+                                else
+                                    stringResource(R.string.add_from_gallery)
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                val file = File(context.filesDir, "itinerary_photo_${System.currentTimeMillis()}.jpg")
+                                val uri = FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.provider",
+                                    file
+                                )
+                                cameraPhotoUri = uri
+                                cameraLauncher.launch(uri)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CameraAlt,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+
+                            Spacer(Modifier.width(6.dp))
+
+                            Text(text = stringResource(R.string.camera))
+                        }
+                    }
                 }
 
                 if (itineraryItem.latitude != null && itineraryItem.longitude != null) {
