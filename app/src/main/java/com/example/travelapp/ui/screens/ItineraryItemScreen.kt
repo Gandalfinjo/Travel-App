@@ -3,10 +3,11 @@ package com.example.travelapp.ui.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.view.MotionEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +68,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.travelapp.R
 import com.example.travelapp.database.models.enums.TripStatus
 import com.example.travelapp.ui.viewmodels.ItineraryViewModel
@@ -77,6 +81,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import java.io.File
 
 @SuppressLint("LocalContextResourcesRead")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
@@ -170,12 +175,14 @@ fun ItineraryItemScreen(
         else {
             val itineraryItem = item!!
 
+            val scrollState = rememberScrollState()
+
             Column(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState(), enabled = scrollEnabled),
+                    .verticalScroll(state = scrollState, enabled = scrollEnabled),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Card(
@@ -285,6 +292,32 @@ fun ItineraryItemScreen(
                     }
                 }
 
+                itineraryItem.imagePath?.let { path ->
+                    Text(
+                        text = stringResource(R.string.photo),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(File(path))
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = itineraryItem.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                    )
+                }
+
                 if (itineraryItem.latitude != null && itineraryItem.longitude != null) {
                     Text(
                         text = stringResource(R.string.location),
@@ -302,10 +335,19 @@ fun ItineraryItemScreen(
                                 color = MaterialTheme.colorScheme.outline,
                                 shape = RoundedCornerShape(16.dp)
                             )
-                            .pointerInteropFilter {
-                                scrollEnabled = it.action == MotionEvent.ACTION_UP ||
-                                        it.action == MotionEvent.ACTION_CANCEL
-                                false
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    awaitFirstDown(requireUnconsumed = false)
+
+                                    scrollEnabled = false
+
+                                    do {
+                                        val event = awaitPointerEvent()
+                                        val anyPressed = event.changes.any { it.pressed }
+                                    } while (anyPressed)
+
+                                    scrollEnabled = true
+                                }
                             }
                     ) {
                         val geoPoint = remember(itineraryItem.latitude, itineraryItem.longitude) {

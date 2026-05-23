@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.travelapp.R
-import com.example.travelapp.api.repositories.WikimediaRepository
+import com.example.travelapp.api.repositories.UnsplashRepository
 import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.repositories.ItineraryRepository
 import com.google.ai.client.generativeai.GenerativeModel
@@ -17,11 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withTimeout
 import java.time.LocalDate
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 data class AiItineraryItem(
     val title: String,
@@ -53,7 +50,7 @@ data class AiItineraryUiState(
 class AiItineraryViewModel @Inject constructor(
     private val generativeModel: GenerativeModel,
     private val itineraryRepository: ItineraryRepository,
-    private val wikimediaRepository: WikimediaRepository,
+    private val unsplashRepository: UnsplashRepository,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AiItineraryUiState())
@@ -131,7 +128,13 @@ class AiItineraryViewModel @Inject constructor(
 
             val response = generativeModel.generateContent(prompt)
             val suggestions = parseResponse(response.text ?: "")
-            val enriched = enrichSuggestionsWithMedia(suggestions, tripLocation)
+            val enriched = suggestions.map{ item ->
+                async {
+                    val query = "${item.title} $tripLocation"
+                    val imagePath = unsplashRepository.fetchAndSavePhoto(query)
+                    item.copy(imagePath = imagePath)
+                }
+            }.awaitAll()
 
             _uiState.update { it.copy(isLoading = false, suggestions = enriched) }
         }
@@ -165,7 +168,8 @@ class AiItineraryViewModel @Inject constructor(
                     title = item.title,
                     description = item.description.ifBlank { null },
                     latitude = item.latitude,
-                    longitude = item.longitude
+                    longitude = item.longitude,
+                    imagePath = item.imagePath
                 )
             )
         }
@@ -215,30 +219,5 @@ class AiItineraryViewModel @Inject constructor(
         }
 
         return items
-    }
-
-    private suspend fun enrichSuggestionsWithMedia(
-        suggestions: List<AiItineraryItem>,
-        tripLocation: String
-    ): List<AiItineraryItem> = supervisorScope {
-        suggestions.map { item ->
-            async {
-                try {
-                    withTimeout(15_000L) {
-                        val (imagePath, _) = wikimediaRepository.fetchImageAndCoordinates(
-                            query = "${item.title} $tripLocation"
-                        )
-
-                        item.copy(imagePath = imagePath)
-                    }
-                }
-                catch (e: CancellationException) {
-                    throw e
-                }
-                catch (_: Exception) {
-                    item
-                }
-            }
-        }.awaitAll()
     }
 }

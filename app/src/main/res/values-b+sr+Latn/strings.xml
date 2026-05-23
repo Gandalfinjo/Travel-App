@@ -256,4 +256,5 @@
     <string name="mark_as_undone">Označi kao završeno</string>
     <string name="mark_as_done">Označi kao nezavršeno</string>
     <string name="are_you_sure_you_want_to_delete_this_cannot_be_undone">Da li ste sigurni da želite da obrišete \"%1$s\"? Ova radnja se ne može opozvati.</string>
+    <string name="photo">Fotografija</string>
 </resources>
