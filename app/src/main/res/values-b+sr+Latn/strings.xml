@@ -258,4 +258,5 @@
     <string name="are_you_sure_you_want_to_delete_this_cannot_be_undone">Da li ste sigurni da želite da obrišete \"%1$s\"? Ova radnja se ne može opozvati.</string>
     <string name="photo">Fotografija</string>
     <string name="replace_photo">Zameni fotografiju</string>
+    <string name="replace">Zameni</string>
 </resources>

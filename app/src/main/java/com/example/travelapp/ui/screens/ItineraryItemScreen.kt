@@ -372,9 +372,9 @@ fun ItineraryItemScreen(
 
                             Text(
                                 text = if (itineraryItem.imagePath != null)
-                                    stringResource(R.string.replace_photo)
+                                    stringResource(R.string.replace)
                                 else
-                                    stringResource(R.string.add_from_gallery)
+                                    stringResource(R.string.add)
                             )
                         }
 
