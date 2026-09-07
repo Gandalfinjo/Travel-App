@@ -24,6 +24,9 @@ class ItineraryRepository @Inject constructor(
     fun getItemsForTrip(tripId: Int): Flow<List<ItineraryItem>> =
         itineraryDao.getItineraryItemsByTripId(tripId)
 
+    fun getTripItemsForPhotoMap(tripId: Int): Flow<List<ItineraryItem>> =
+        itineraryDao.getTripItineraryItemsForPhotoMap(tripId)
+
     /**
      * Adds a new itinerary item to the database.
      *

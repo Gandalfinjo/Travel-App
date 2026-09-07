@@ -13,12 +13,6 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["trip_id"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Place::class,
-            parentColumns = ["id"],
-            childColumns = ["place_id"],
-            onDelete = ForeignKey.SET_NULL
         )
     ]
 )
@@ -30,6 +24,5 @@ data class Photo(
     val longitude: Double? = null,
     val description: String? = null,
     @ColumnInfo(name = "location_name") val locationName: String? = null,
-    @ColumnInfo(name = "trip_id") val tripId: Int,
-    @ColumnInfo(name = "place_id") val placeId: Int? = null
+    @ColumnInfo(name = "trip_id") val tripId: Int
 )

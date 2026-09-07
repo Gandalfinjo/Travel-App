@@ -11,19 +11,15 @@ import com.example.travelapp.database.converters.TravelTypeConverters
 import com.example.travelapp.database.dao.CachedRateDao
 import com.example.travelapp.database.dao.ExpenseDao
 import com.example.travelapp.database.dao.ItineraryDao
-import com.example.travelapp.database.dao.NotificationDao
 import com.example.travelapp.database.dao.PackingDao
 import com.example.travelapp.database.dao.PhotoDao
-import com.example.travelapp.database.dao.PlaceDao
 import com.example.travelapp.database.dao.TripDao
 import com.example.travelapp.database.dao.UserDao
-import com.example.travelapp.database.models.AppNotification
 import com.example.travelapp.database.models.CachedRate
 import com.example.travelapp.database.models.Expense
 import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.models.PackingItem
 import com.example.travelapp.database.models.Photo
-import com.example.travelapp.database.models.Place
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.User
 
@@ -44,23 +40,19 @@ import com.example.travelapp.database.models.User
     entities = [
         User::class,
         Trip::class,
-        Place::class,
         Photo::class,
-        AppNotification::class,
         ItineraryItem::class,
         PackingItem::class,
         Expense::class,
         CachedRate::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class TravelDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun tripDao(): TripDao
-    abstract fun placeDao(): PlaceDao
     abstract fun photoDao(): PhotoDao
-    abstract fun notificationDao(): NotificationDao
     abstract fun itineraryDao(): ItineraryDao
     abstract fun packingDao(): PackingDao
     abstract fun expenseDao(): ExpenseDao
@@ -84,7 +76,8 @@ abstract class TravelDatabase : RoomDatabase() {
                     "travel_database"
                 ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
                     MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-                    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11).build()
+                    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11,
+                    MIGRATION_11_12).build()
 
                 INSTANCE = instance
 
@@ -289,6 +282,41 @@ abstract class TravelDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE itinerary_items ADD COLUMN image_path TEXT")
                 db.execSQL("ALTER TABLE itinerary_items ADD COLUMN latitude REAL")
                 db.execSQL("ALTER TABLE itinerary_items ADD COLUMN longitude REAL")
+            }
+        }
+
+        /**
+         * Migration from database version 11 to 12.
+         * Removed notifications and places tables.
+         */
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL("""
+                   CREATE TABLE photos_temp (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        file_path TEXT NOT NULL,
+                        date_taken INTEGER NOT NULL,
+                        latitude REAL,
+                        longitude REAL,
+                        description TEXT,
+                        location_name TEXT,
+                        trip_id INTEGER NOT NULL,
+                        FOREIGN KEY(trip_id) REFERENCES trips(id) ON DELETE CASCADE
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO photos_temp (id, file_path, date_taken, latitude, longitude, description, location_name, trip_id)
+                    SELECT id, file_path, date_taken, latitude, longitude, description, location_name, trip_id
+                    FROM photos
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE photos")
+                db.execSQL("ALTER TABLE photos_temp RENAME TO photos")
+
+                db.execSQL("DROP TABLE IF EXISTS notifications")
+                db.execSQL("DROP TABLE IF EXISTS places")
             }
         }
     }

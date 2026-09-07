@@ -35,18 +35,8 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun providePlaceDao(database: TravelDatabase) =
-        database.placeDao()
-
-    @Provides
-    @Singleton
     fun providePhotoDao(database: TravelDatabase) =
         database.photoDao()
-
-    @Provides
-    @Singleton
-    fun provideNotificationDao(database: TravelDatabase) =
-        database.notificationDao()
 
     @Provides
     @Singleton
