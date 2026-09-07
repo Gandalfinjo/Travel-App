@@ -42,8 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
-import com.example.travelapp.database.models.enums.displayName
-import com.example.travelapp.database.models.enums.icon
 import com.example.travelapp.ui.elements.BarChart
 import com.example.travelapp.ui.elements.PieChart
 import com.example.travelapp.ui.elements.StatMetricCard
@@ -305,14 +303,14 @@ fun StatisticsScreen(
                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
                                             Icon(
-                                                imageVector = categoryTotal.category.icon(),
+                                                imageVector = categoryTotal.category.icon,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(14.dp),
 
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                             Text(
-                                                text = stringResource(categoryTotal.category.displayName()),
+                                                text = stringResource(categoryTotal.category.displayName),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )

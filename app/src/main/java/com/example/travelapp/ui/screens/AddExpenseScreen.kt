@@ -56,8 +56,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.ExpenseCategory
-import com.example.travelapp.database.models.enums.displayName
-import com.example.travelapp.database.models.enums.icon
 import com.example.travelapp.ui.viewmodels.ExpenseViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -224,10 +222,10 @@ fun AddExpenseScreen(
                             FilterChip(
                                 selected = isSelected,
                                 onClick = { selectedCategory = category },
-                                label = { Text(text = stringResource(category.displayName())) },
+                                label = { Text(text = stringResource(category.displayName)) },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = category.icon(),
+                                        imageVector = category.icon,
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp)
                                     )

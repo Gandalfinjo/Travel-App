@@ -35,8 +35,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.travelapp.R
 import com.example.travelapp.database.models.Expense
-import com.example.travelapp.database.models.enums.displayName
-import com.example.travelapp.database.models.enums.icon
 
 /**
  * Composable that displays expense details as a card.
@@ -74,7 +72,7 @@ fun ExpenseItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = expense.category.icon(),
+                    imageVector = expense.category.icon,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -83,7 +81,7 @@ fun ExpenseItem(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(expense.category.displayName()),
+                    text = stringResource(expense.category.displayName),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )

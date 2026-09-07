@@ -48,8 +48,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.travelapp.R
 import com.example.travelapp.database.models.Trip
 import com.example.travelapp.database.models.enums.ExpenseCategory
-import com.example.travelapp.database.models.enums.displayName
-import com.example.travelapp.database.models.enums.icon
 import com.example.travelapp.ui.elements.ExpenseItem
 import com.example.travelapp.ui.viewmodels.ExpenseViewModel
 
@@ -170,14 +168,14 @@ fun ExpenseScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Icon(
-                                            imageVector = categoryTotal.category.icon(),
+                                            imageVector = categoryTotal.category.icon,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
 
                                         Text(
-                                            text = stringResource(categoryTotal.category.displayName()),
+                                            text = stringResource(categoryTotal.category.displayName),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -211,10 +209,10 @@ fun ExpenseScreen(
                         FilterChip(
                             selected = uiState.selectedCategory == category,
                             onClick = { expenseViewModel.selectCategory(tripId, category) },
-                            label = { Text(text = stringResource(category.displayName())) },
+                            label = { Text(text = stringResource(category.displayName)) },
                             leadingIcon = {
                                 Icon(
-                                    imageVector = category.icon(),
+                                    imageVector = category.icon,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp)
                                 )

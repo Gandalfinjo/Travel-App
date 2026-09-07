@@ -14,7 +14,7 @@ import javax.inject.Inject
  * (trip reminders, status updates).
  */
 @HiltAndroidApp
-class TravelApplication() : Application(), Configuration.Provider {
+class TravelApplication : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
     override val workManagerConfiguration: Configuration
