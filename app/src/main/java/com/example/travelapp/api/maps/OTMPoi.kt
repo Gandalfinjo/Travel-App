@@ -1,5 +1,7 @@
 package com.example.travelapp.api.maps
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Represents a Point of Interest (POI) from OpenTripMap API.
  * @property name Name of the point of interest
@@ -8,10 +10,10 @@ package com.example.travelapp.api.maps
  * @property kinds Comma-separated categories/types of the POI
  */
 data class OTMPoi(
-    val name: String,
-    val lat: Double,
-    val lon: Double,
-    val kinds: String
+    @SerializedName("name") val name: String,
+    @SerializedName("lat") val lat: Double,
+    @SerializedName("lon") val lon: Double,
+    @SerializedName("kinds") val kinds: String
 )
 
 /**
@@ -45,9 +47,9 @@ fun formatKinds(kinds: String, limit: Int = 2): String {
  * @return True if there is a category match, false otherwise.
  */
 fun OTMPoi.matchesCategory(category: PoiCategory): Boolean {
-    val poiKinds = this.kinds.split(",").map { it.trim() }
+    if (this.kinds.isEmpty()) return false
 
     return category.kinds.any { categoryKind ->
-        poiKinds.any { poiKind -> poiKind.contains(categoryKind) }
+        this.kinds.contains(categoryKind, ignoreCase = true)
     }
 }
