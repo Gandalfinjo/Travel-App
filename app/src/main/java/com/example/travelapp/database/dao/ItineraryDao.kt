@@ -14,6 +14,15 @@ interface ItineraryDao {
     @Query("SELECT * FROM itinerary_items WHERE tripId = :tripId ORDER BY date")
     fun getItineraryItemsByTripId(tripId: Int): Flow<List<ItineraryItem>>
 
+    @Query("""
+        SELECT * 
+        FROM itinerary_items 
+        WHERE tripId = :tripId
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+    """)
+    fun getTripItineraryItemsForPhotoMap(tripId: Int): Flow<List<ItineraryItem>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: ItineraryItem)
 

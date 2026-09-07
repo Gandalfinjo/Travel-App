@@ -31,12 +31,12 @@ interface ExpenseDao {
     fun getTotalByCategory(tripId: Int): Flow<List<CategoryTotal>>
 
     @Query("""
-    SELECT e.category, SUM(e.amount_in_default_currency) as total
-    FROM expenses e 
-    INNER JOIN trips t ON e.trip_id = t.id 
-    WHERE t.user_id = :userId 
-    GROUP BY e.category
-    ORDER BY total DESC
+        SELECT e.category, SUM(e.amount_in_default_currency) as total
+        FROM expenses e 
+        INNER JOIN trips t ON e.trip_id = t.id 
+        WHERE t.user_id = :userId 
+        GROUP BY e.category
+        ORDER BY total DESC
     """)
     fun getTotalByCategoryForUser(userId: Int): Flow<List<CategoryTotal>>
 
