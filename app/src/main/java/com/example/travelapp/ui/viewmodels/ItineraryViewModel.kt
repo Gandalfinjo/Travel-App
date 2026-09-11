@@ -9,9 +9,11 @@ import com.example.travelapp.database.models.ItineraryItem
 import com.example.travelapp.database.repositories.ItineraryRepository
 import com.example.travelapp.database.repositories.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
@@ -19,7 +21,9 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 data class ItineraryUiState(
-    val groupedItems: Map<LocalDate, List<ItineraryItem>> = emptyMap()
+    val groupedItems: Map<LocalDate, List<ItineraryItem>> = emptyMap(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 /**
@@ -42,6 +46,8 @@ class ItineraryViewModel @Inject constructor(
     private val _currentLocation = MutableStateFlow<GeoPoint?>(null)
     val currentLocation: StateFlow<GeoPoint?> = _currentLocation.asStateFlow()
 
+    private var loadItineraryJob: Job? = null
+
     fun getTrip(tripId: Int) =
         tripRepository.getTrip(tripId)
 
@@ -49,9 +55,14 @@ class ItineraryViewModel @Inject constructor(
     fun fetchLocation() {
         if (_currentLocation.value != null) return
         viewModelScope.launch {
-            val result = locationRepository.checkSettingsAndGetLocation()
-            if (result is LocationResult.Success) {
-                _currentLocation.update { result.geoPoint }
+            try {
+                val result = locationRepository.checkSettingsAndGetLocation()
+                if (result is LocationResult.Success) {
+                    _currentLocation.update { result.geoPoint }
+                }
+            }
+            catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to fetch location") }
             }
         }
     }
@@ -67,12 +78,33 @@ class ItineraryViewModel @Inject constructor(
      *
      * @param tripId ID of the trip whose itinerary should be loaded
      */
-    fun loadItinerary(tripId: Int) = viewModelScope.launch {
-        itineraryRepository.getItemsForTrip(tripId).collect { items ->
-            val groupedItems = items.groupBy { it.date }
-            _uiState.update {
-                it.copy(groupedItems = groupedItems)
-            }
+    fun loadItinerary(tripId: Int) {
+        loadItineraryJob?.cancel()
+        _uiState.update { it.copy(isLoading = true) }
+
+        loadItineraryJob = viewModelScope.launch {
+            itineraryRepository.getItemsForTrip(tripId)
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = exception.localizedMessage ?: "Failed to load itinerary")
+                    }
+                }
+                .collect { items ->
+                    val sortedGroupedItems = items
+                        .groupBy { it.date }
+                        .toSortedMap(compareBy { it })
+                        .mapValues { entry ->
+                            entry.value.sortedBy { item -> item.date }
+                        }
+
+                    _uiState.update {
+                        it.copy(
+                            groupedItems = sortedGroupedItems,
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
+                }
         }
     }
 
@@ -84,7 +116,12 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] to be added
      */
     fun addItem(item: ItineraryItem) = viewModelScope.launch {
-        itineraryRepository.addItem(item)
+        try {
+            itineraryRepository.addItem(item)
+        }
+        catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to add item") }
+        }
     }
 
     /**
@@ -95,7 +132,12 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] with updated data
      */
     fun updateItem(item: ItineraryItem) = viewModelScope.launch {
-        itineraryRepository.updateItem(item)
+        try {
+            itineraryRepository.updateItem(item)
+        }
+        catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to update item") }
+        }
     }
 
     /**
@@ -106,7 +148,12 @@ class ItineraryViewModel @Inject constructor(
      * @param item [ItineraryItem] to be deleted
      */
     fun deleteItem(item: ItineraryItem) = viewModelScope.launch {
-        itineraryRepository.deleteItem(item)
+        try {
+            itineraryRepository.deleteItem(item)
+        }
+        catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to delete item") }
+        }
     }
 
     /**
