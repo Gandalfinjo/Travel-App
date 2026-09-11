@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,16 +52,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.travelapp.BuildConfig
 import com.example.travelapp.R
 import com.example.travelapp.api.maps.PoiCategory
 import com.example.travelapp.api.maps.formatKinds
-import com.example.travelapp.api.maps.matchesCategory
 import com.example.travelapp.ui.viewmodels.MapViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -148,19 +146,24 @@ fun MapScreen(
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         ) {
             if (locationPermission.status.isGranted || destinationLocation != null) {
-                val filteredPois = remember(uiState.pois, uiState.selectedCategories) {
-                    if (uiState.selectedCategories.isEmpty()) uiState.pois
-                    else uiState.pois.filter { poi ->
-                        uiState.selectedCategories.any { category -> poi.matchesCategory(category) }
-                    }
-                }
+                val displayPois = uiState.filteredPois
 
                 AndroidView(
                     factory = { ctx ->
+                        val mapTilerApiKey = BuildConfig.MAP_TILER_API_KEY
+
+                        val mapTilerSource = org.osmdroid.tileprovider.tilesource.XYTileSource(
+                            "MapTiler-Streets",
+                            0, 19, 256,
+                            ".png?key=$mapTilerApiKey",
+                            arrayOf("https://api.maptiler.com/maps/streets-v2/256/")
+                        )
+
                         MapView(ctx).apply {
-                            setTileSource(TileSourceFactory.MAPNIK)
+                            setTileSource(mapTilerSource)
                             setMultiTouchControls(true)
                             controller.setZoom(15.0)
+                            setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
                         }
                     },
                     update = { mapView ->
@@ -189,7 +192,7 @@ fun MapScreen(
                         )
                         val scaledMarkerBitmap = markerBitmap.scale(96, 96, false)
 
-                        filteredPois.forEach { poi ->
+                        displayPois.forEach { poi ->
                             val poiMarker = Marker(mapView)
                             poiMarker.position = GeoPoint(poi.lat, poi.lon)
                             poiMarker.title = poi.name

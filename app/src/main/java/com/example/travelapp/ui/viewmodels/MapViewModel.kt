@@ -10,6 +10,7 @@ import com.example.travelapp.api.repositories.LocationResult
 import com.example.travelapp.api.repositories.PoiRepository
 import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +21,13 @@ import javax.inject.Inject
 
 data class MapUiState(
     val currentLocation: GeoPoint? = null,
-    val pois: List<OTMPoi> = emptyList(),
+    val rawPois: List<OTMPoi> = emptyList(),
+    val filteredPois: List<OTMPoi> = emptyList(),
     val isFetchingLocation: Boolean = false,
     val isPermissionGranted: Boolean = false,
     val resolvableException: ResolvableApiException? = null,
-    val selectedCategories: Set<PoiCategory> = emptySet()
+    val selectedCategories: Set<PoiCategory> = emptySet(),
+    val errorMessage: String? = null
 )
 
 /**
@@ -41,6 +44,8 @@ class MapViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
+
+    private var fetchJob: Job? = null
 
     /**
      * Updates the UI state to reflect that location permissions have been successfully granted.
@@ -60,29 +65,56 @@ class MapViewModel @Inject constructor(
      * Requests the physical device's current location.
      */
     @SuppressLint("MissingPermission")
-    fun fetchLocation() {
-        if (_uiState.value.currentLocation != null) return
+    fun fetchLocation(forceRefresh: Boolean = false) {
+        if (!forceRefresh && _uiState.value.currentLocation != null) return
 
-        _uiState.update { it.copy(isFetchingLocation = true) }
+        fetchJob?.cancel()
+        _uiState.update { it.copy(isFetchingLocation = true, errorMessage = null) }
 
-        viewModelScope.launch {
-            when (val result = locationRepository.checkSettingsAndGetLocation()) {
-                is LocationResult.Success -> {
-                    _uiState.update { state ->
-                        state.copy(currentLocation = result.geoPoint, isFetchingLocation = false)
+        fetchJob = viewModelScope.launch {
+            try {
+                when (val result = locationRepository.checkSettingsAndGetLocation()) {
+                    is LocationResult.Success -> {
+                        val fetchedPois = poiRepository.getNearbyPois(
+                            result.geoPoint.latitude,
+                            result.geoPoint.longitude
+                        )
+
+                        _uiState.update { state ->
+                            state.copy(
+                                currentLocation = result.geoPoint,
+                                rawPois = fetchedPois,
+                                filteredPois = filterPois(fetchedPois, state.selectedCategories),
+                                isFetchingLocation = false
+                            )
+                        }
                     }
 
-                    val fetchedPois = poiRepository.getNearbyPois(result.geoPoint.latitude, result.geoPoint.longitude)
+                    is LocationResult.ResolutionRequired -> {
+                        _uiState.update {
+                            it.copy(
+                                resolvableException = result.exception,
+                                isFetchingLocation = false
+                            )
+                        }
+                    }
 
-                    _uiState.update { it.copy(pois = fetchedPois) }
+                    is LocationResult.Failure -> {
+                        _uiState.update {
+                            it.copy(
+                                isFetchingLocation = false,
+                                errorMessage = "Unable to retrieve device location"
+                            )
+                        }
+                    }
                 }
-
-                is LocationResult.ResolutionRequired -> {
-                    _uiState.update { it.copy(resolvableException = result.exception, isFetchingLocation = false) }
-                }
-
-                is LocationResult.Failure -> {
-                    _uiState.update { it.copy(isFetchingLocation = false) }
+            }
+            catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isFetchingLocation = false,
+                        errorMessage = e.localizedMessage ?: "Failed to fetch location"
+                    )
                 }
             }
         }
@@ -92,20 +124,41 @@ class MapViewModel @Inject constructor(
      * Resolves text search input into matching POI coordinates.
      */
     fun fetchLocationForDestination(location: String) {
-        _uiState.update { it.copy(isFetchingLocation = true) }
+        if (location.isBlank()) return
 
-        viewModelScope.launch {
-            val geoPoint = locationRepository.getCoordinatesFromAddress(location)
+        fetchJob?.cancel()
+        _uiState.update { it.copy(isFetchingLocation = true, errorMessage = null) }
 
-            if (geoPoint != null) {
-                val fetchedPois = poiRepository.getNearbyPois(geoPoint.latitude, geoPoint.longitude)
+        fetchJob = viewModelScope.launch {
+            try {
+                val geoPoint = locationRepository.getCoordinatesFromAddress(location)
 
-                _uiState.update { state ->
-                    state.copy(currentLocation = geoPoint, pois = fetchedPois, isFetchingLocation = false)
+                if (geoPoint != null) {
+                    val fetchedPois = poiRepository.getNearbyPois(geoPoint.latitude, geoPoint.longitude)
+
+                    _uiState.update { state ->
+                        state.copy(
+                            currentLocation = geoPoint,
+                            rawPois = fetchedPois,
+                            filteredPois = filterPois(fetchedPois, state.selectedCategories),
+                            isFetchingLocation = false
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isFetchingLocation = false,
+                            errorMessage = "Location not found"
+                        )
+                    }
                 }
-            }
-            else {
-                _uiState.update { it.copy(isFetchingLocation = false) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isFetchingLocation = false,
+                        errorMessage = e.localizedMessage ?: "Failed to resolve address"
+                    )
+                }
             }
         }
     }
@@ -119,11 +172,24 @@ class MapViewModel @Inject constructor(
      */
     fun toggleCategory(category: PoiCategory) {
         _uiState.update { state ->
-            val updated = if (category in state.selectedCategories)
+            val updatedCategories = if (category in state.selectedCategories) {
                 state.selectedCategories - category
-            else
+            }
+            else {
                 state.selectedCategories + category
-            state.copy(selectedCategories = updated)
+            }
+
+            state.copy(
+                selectedCategories = updatedCategories,
+                filteredPois = filterPois(state.rawPois, updatedCategories)
+            )
+        }
+    }
+
+    private fun filterPois(pois: List<OTMPoi>, selectedCategories: Set<PoiCategory>): List<OTMPoi> {
+        if (selectedCategories.isEmpty()) return pois
+        return pois.filter { poi ->
+            selectedCategories.any { category -> poi.kinds.contains(category.name, ignoreCase = true) }
         }
     }
 }
