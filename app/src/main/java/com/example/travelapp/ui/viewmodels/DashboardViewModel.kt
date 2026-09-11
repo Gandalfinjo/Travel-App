@@ -11,13 +11,13 @@ import com.example.travelapp.database.repositories.PackingRepository
 import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -57,96 +57,75 @@ class DashboardViewModel @Inject constructor(
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            sessionManager.loggedInUserId.first()?.let {
-                loadDashboard(it)
-            }
-        }
+        observeDashboardData()
     }
 
     /**
      * Loads data for the logged-in user about ongoing trip, upcoming trip, short overview of all trips, today's itinerary
-     *
-     * @param userId ID of the user for which to show data
      */
-    fun loadDashboard(userId: Int) = viewModelScope.launch {
-        _uiState.update { it.copy(isLoading = true) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeDashboardData() = viewModelScope.launch {
+        sessionManager.loggedInUserId.flatMapLatest { userId ->
+            if (userId == null) {
+                flowOf(DashboardUiState(isLoading = false))
+            }
+            else {
+                tripRepository.getUserTrips(userId).flatMapLatest { trips ->
+                    val today = LocalDate.now()
+                    val activeTrip = trips.firstOrNull { it.status == TripStatus.ONGOING }
+                    val upcomingTrip = trips
+                        .filter { it.status == TripStatus.PLANNED }
+                        .sortedBy { it.startDate }
+                        .firstOrNull {
+                            val daysUntil = ChronoUnit.DAYS.between(today, it.startDate)
+                            daysUntil in 0..7
+                        }
 
-        launch {
-            tripRepository.getUserTrips(userId).collect { trips ->
-                val activeTrip = trips.firstOrNull { it.status == TripStatus.ONGOING }
+                    val totalTrips = trips.size
+                    val uniqueDestinations = trips.map { it.location }.toSet().size
 
-                val upcomingTrip = trips
-                    .filter { it.status == TripStatus.PLANNED }
-                    .sortedBy { it.startDate }
-                    .firstOrNull {
-                        val daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), it.startDate)
-                        daysUntil in 0..7
+                    val activeItineraryFlow = activeTrip?.let {
+                        itineraryRepository.getItemsForTrip(it.id)
+                    } ?: flowOf(emptyList())
+
+                    val activeExpensesFlow = activeTrip?.let {
+                        expenseRepository.getTotalByTrip(it.id)
+                    } ?: flowOf(0.0)
+
+                    val activePackingFlow = activeTrip?.let {
+                        packingRepository.getItemsForTrip(it.id)
+                    } ?: flowOf(emptyList())
+
+                    val upcomingPackingFlow = upcomingTrip?.let {
+                        packingRepository.getItemsForTrip(it.id)
+                    } ?: flowOf(emptyList())
+
+                    combine(
+                        activeItineraryFlow,
+                        activeExpensesFlow,
+                        activePackingFlow,
+                        upcomingPackingFlow
+                    ) { itinerary, expenseTotal, activePacking, upcomingPacking ->
+                        val todayItems = itinerary.filter { it.date == today }
+                        val activePackedCount = activePacking.count { it.isPacked }
+                        val upcomingPackedCount = upcomingPacking.count { it.isPacked }
+
+                        DashboardUiState(
+                            activeTrip = activeTrip,
+                            upcomingTrip = upcomingTrip,
+                            todayItinerary = todayItems,
+                            totalSpentOnActiveTrip = expenseTotal ?: 0.0,
+                            activeTripPackingProgress = Pair(activePackedCount, activePacking.size),
+                            upcomingTripPackingProgress = Pair(upcomingPackedCount, upcomingPacking.size),
+                            totalTrips = totalTrips,
+                            uniqueDestinations = uniqueDestinations,
+                            isLoading = false
+                        )
                     }
-
-                _uiState.update {
-                    it.copy(
-                        activeTrip = activeTrip,
-                        upcomingTrip = upcomingTrip,
-                        totalTrips = trips.size,
-                        uniqueDestinations = trips.map { t -> t.location }.toSet().size,
-                    )
-                }
-
-                launch {
-                    activeTrip?.let { trip ->
-                        launch {
-                            itineraryRepository.getItemsForTrip(trip.id).collect { items ->
-                                val todayItems = items.filter { it.date == LocalDate.now() }
-
-                                _uiState.update { it.copy(todayItinerary = todayItems) }
-                            }
-                        }
-
-                        launch {
-                            expenseRepository.getTotalByTrip(trip.id).collect { total ->
-                                _uiState.update { it.copy(totalSpentOnActiveTrip = total ?: 0.0) }
-                            }
-                        }
-
-                        launch {
-                            packingRepository.getItemsForTrip(trip.id).collect { items ->
-                                val packed = items.count { it.isPacked }
-                                val total = items.size
-
-                                _uiState.update { it.copy(activeTripPackingProgress = Pair(packed, total)) }
-                            }
-                        }
-                    }
-
-                    upcomingTrip?.let { trip ->
-                        launch {
-                            packingRepository.getItemsForTrip(trip.id).collect { items ->
-                                val packed = items.count { it.isPacked }
-                                val total = items.size
-
-                                _uiState.update { it.copy(upcomingTripPackingProgress = Pair(packed, total)) }
-                            }
-                        }
-                    }
-
-                    val jobs = buildList {
-                        activeTrip?.let { trip ->
-                            add(async { expenseRepository.getTotalByTrip(trip.id).first() })
-                            add(async { packingRepository.getItemsForTrip(trip.id).first() })
-                            add(async { itineraryRepository.getItemsForTrip(trip.id).first() })
-                        }
-
-                        upcomingTrip?.let { trip ->
-                            add(async { packingRepository.getItemsForTrip(trip.id).first() })
-                        }
-                    }
-
-                    jobs.awaitAll()
-
-                    _uiState.update { it.copy(isLoading = false) }
                 }
             }
+        }.collect { state ->
+            _uiState.value = state
         }
     }
 }
