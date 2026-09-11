@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -62,25 +62,29 @@ class AuthViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            sessionManager.loggedInUsername.collect { username ->
-                val userId = sessionManager.loggedInUserId.first()
-                val firstname = sessionManager.loggedInUserFirstname.first()
-                val lastname = sessionManager.loggedInUserLastname.first()
-                val profilePicture = sessionManager.loggedInUserProfilePicture.first()
-
-                _uiState.update {
-                    it.copy(
-                        loggedInUser = username,
-                        loggedInUserId = userId,
-                        loggedInUserFirstname = firstname,
-                        loggedInUserLastname = lastname,
-                        loggedInUserProfilePicture = profilePicture,
-                        isSessionChecked = true,
-                        isLoggedIn = username != null
+            combine(
+                sessionManager.loggedInUsername,
+                sessionManager.loggedInUserId,
+                sessionManager.loggedInUserFirstname,
+                sessionManager.loggedInUserLastname,
+                sessionManager.loggedInUserProfilePicture
+            ) { username, userId, firstname, lastname, profilePic ->
+                AuthUiState(
+                    loggedInUser = username,
+                    loggedInUserId = userId,
+                    loggedInUserFirstname = firstname,
+                    loggedInUserLastname = lastname,
+                    loggedInUserProfilePicture = profilePic,
+                    isSessionChecked = true,
+                    isLoggedIn = username != null
+                )
+            }.collect { newState ->
+                _uiState.update { current ->
+                    newState.copy(
+                        isLoading = current.isLoading,
+                        errorMessage = current.errorMessage
                     )
                 }
-
-                return@collect
             }
         }
     }
