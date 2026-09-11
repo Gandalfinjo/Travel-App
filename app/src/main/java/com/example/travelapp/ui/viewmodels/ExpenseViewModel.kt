@@ -10,10 +10,14 @@ import com.example.travelapp.database.repositories.ExpenseRepository
 import com.example.travelapp.database.repositories.TripRepository
 import com.example.travelapp.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -45,6 +49,9 @@ class ExpenseViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ExpenseUiState())
     val uiState: StateFlow<ExpenseUiState> = _uiState.asStateFlow()
 
+    private val selectedCategoryState = MutableStateFlow<ExpenseCategory?>(null)
+    private var loadJob: Job? = null
+
     /**
      * Loads all expenses for the specified trip.
      *
@@ -52,30 +59,31 @@ class ExpenseViewModel @Inject constructor(
      *
      * @param tripId ID of the trip for which to load expenses
      */
-    fun loadExpenses(tripId: Int) = viewModelScope.launch {
-        launch {
-            expenseRepository.getExpensesByTripId(tripId).collect { expenses ->
-                _uiState.update {
-                    it.copy(
-                        expenses = expenses,
-                    )
-                }
-            }
-        }
-
-        launch {
-            expenseRepository.getTotalByTrip(tripId).collect { total ->
-                _uiState.update {
-                    it.copy(totalSpent = total ?: 0.0)
-                }
-            }
-        }
-
-        launch {
-            expenseRepository.getTotalByCategory(tripId).collect { totals ->
-                _uiState.update {
-                    it.copy(totalByCategory = totals)
-                }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun loadExpenses(tripId: Int) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            combine(
+                selectedCategoryState.flatMapLatest { category ->
+                    if (category == null) {
+                        expenseRepository.getExpensesByTripId(tripId)
+                    }
+                    else {
+                        expenseRepository.getExpensesByTripIdAndCategory(tripId, category)
+                    }
+                },
+                expenseRepository.getTotalByTrip(tripId),
+                expenseRepository.getTotalByCategory(tripId)
+            ) { expenses, total, totalsByCategory ->
+                ExpenseUiState(
+                    expenses = expenses,
+                    totalSpent = total ?: 0.0,
+                    totalByCategory = totalsByCategory,
+                    selectedCategory = selectedCategoryState.value,
+                    errorMessage = null
+                )
+            }.collect { newState ->
+                _uiState.value = newState
             }
         }
     }
@@ -98,33 +106,38 @@ class ExpenseViewModel @Inject constructor(
         description: String?,
         date: LocalDate?
     ) = viewModelScope.launch {
-        val trip = tripRepository.getTrip(tripId).first() ?: return@launch
-        val appDefaultCurrency = sessionManager.defaultCurrency.first()
+        try {
+            val trip = tripRepository.getTrip(tripId).first() ?: return@launch
+            val appDefaultCurrency = sessionManager.defaultCurrency.first()
 
-        val amountInTripCurrency = currencyRepository.convert(
-            amount = amount,
-            from = currency,
-            to = trip.currency
-        )
+            val amountInTripCurrency = currencyRepository.convert(
+                amount = amount,
+                from = currency,
+                to = trip.currency
+            )
 
-        val amountInDefaultCurrency = currencyRepository.convert(
-            amount = amount,
-            from = currency,
-            to = appDefaultCurrency
-        )
+            val amountInDefaultCurrency = currencyRepository.convert(
+                amount = amount,
+                from = currency,
+                to = appDefaultCurrency
+            )
 
-        val expense = Expense(
-            tripId = tripId,
-            amount = amount,
-            currency = currency,
-            amountInTripCurrency = amountInTripCurrency,
-            amountInDefaultCurrency = amountInDefaultCurrency,
-            category = category,
-            description = description.takeIf { !it.isNullOrBlank() },
-            date = date
-        )
+            val expense = Expense(
+                tripId = tripId,
+                amount = amount,
+                currency = currency,
+                amountInTripCurrency = amountInTripCurrency,
+                amountInDefaultCurrency = amountInDefaultCurrency,
+                category = category,
+                description = description?.takeIf { it.isNotBlank() },
+                date = date
+            )
 
-        expenseRepository.addExpense(expense)
+            expenseRepository.addExpense(expense)
+        }
+        catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to save expense") }
+        }
     }
 
     /**
@@ -132,22 +145,11 @@ class ExpenseViewModel @Inject constructor(
      *
      * Updates the [uiState] with the list of filtered expenses.
      *
-     * @param tripId ID of the trip for which to show expenses
      * @param category Expense category for which to filter the expenses
      */
-    fun selectCategory(tripId: Int, category: ExpenseCategory?) = viewModelScope.launch {
+    fun selectCategory(category: ExpenseCategory?) = viewModelScope.launch {
+        selectedCategoryState.value = category
         _uiState.update { it.copy(selectedCategory = category) }
-
-        if (category == null) {
-            expenseRepository.getExpensesByTripId(tripId).collect { expenses ->
-                _uiState.update { it.copy(expenses = expenses) }
-            }
-        }
-        else {
-            expenseRepository.getExpensesByTripIdAndCategory(tripId, category).collect { expenses ->
-                _uiState.update { it.copy(expenses = expenses) }
-            }
-        }
     }
 
     /**
@@ -158,7 +160,12 @@ class ExpenseViewModel @Inject constructor(
      * @param expense [Expense] to be deleted
      */
     fun deleteExpense(expense: Expense) = viewModelScope.launch {
-        expenseRepository.deleteExpense(expense)
+        try {
+            expenseRepository.deleteExpense(expense)
+        }
+        catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Failed to delete expense") }
+        }
     }
 
     suspend fun convertToTripCurrency(amount: Double, currency: String, tripCurrency: String) =

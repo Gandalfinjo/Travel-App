@@ -200,7 +200,7 @@ fun ExpenseScreen(
                     item {
                         FilterChip(
                             selected = uiState.selectedCategory == null,
-                            onClick = { expenseViewModel.selectCategory(tripId, null) },
+                            onClick = { expenseViewModel.selectCategory(null) },
                             label = { Text(text = stringResource(R.string.all)) }
                         )
                     }
@@ -208,7 +208,7 @@ fun ExpenseScreen(
                     items(ExpenseCategory.entries) { category ->
                         FilterChip(
                             selected = uiState.selectedCategory == category,
-                            onClick = { expenseViewModel.selectCategory(tripId, category) },
+                            onClick = { expenseViewModel.selectCategory(category) },
                             label = { Text(text = stringResource(category.displayName)) },
                             leadingIcon = {
                                 Icon(
