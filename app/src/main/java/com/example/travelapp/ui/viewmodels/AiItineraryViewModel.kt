@@ -84,9 +84,13 @@ class AiItineraryViewModel @Inject constructor(
      * @param index Index of the item to add
      */
     fun toggleItemSelection(index: Int) {
-        val updated = _uiState.value.suggestions.mapIndexed { i, item ->
+        val currentSuggestions = _uiState.value.suggestions
+        if (index !in currentSuggestions.indices) return
+
+        val updated = currentSuggestions.mapIndexed { i, item ->
             if (i == index) item.copy(isSelected = !item.isSelected) else item
         }
+
         _uiState.update { it.copy(suggestions = updated) }
     }
 
@@ -131,7 +135,9 @@ class AiItineraryViewModel @Inject constructor(
             val enriched = suggestions.map{ item ->
                 async {
                     val query = "${item.title} $tripLocation"
-                    val imagePath = unsplashRepository.fetchAndSavePhoto(query)
+                    val imagePath = runCatching {
+                        unsplashRepository.fetchAndSavePhoto(query)
+                    }.getOrNull()
                     item.copy(imagePath = imagePath)
                 }
             }.awaitAll()
